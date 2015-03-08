@@ -1,0 +1,20 @@
+{% if errors %}
+  {% for msg in errors %}
+    <div class="message alert alert-danger" role="alert"><b>Error</b>: {{ msg }}</div>
+  {% endfor %}
+{% endif %}
+{% if warnings %}
+  {% for msg in warnings %}
+    <div class="message alert alert-warning" role="alert"><b>Warning</b>: {{ msg }}</div>
+  {% endfor %}
+{% endif %}
+{% if msgs %}
+  {% for msg in msgs %}
+    <div class="message alert alert-info" role="alert">{{ msg }}</div>
+  {% endfor %}
+{% endif %}
+{% if success %}
+  {% for msg in success %}
+    <div class="message alert alert-success" role="alert"><b>Success!</b> {{ msg }}</div>
+  {% endfor %}
+{% endif %}
