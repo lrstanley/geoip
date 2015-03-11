@@ -132,7 +132,9 @@ def results(match):
         'latitude': latitude,
         'longitude': longitude,
         'timezone': timezone,
-        'accuracy': accuracy
+        'accuracy': accuracy,
+        'ip': match.ip,
+        'hostname': socket.getfqdn(match.ip)
     }
     return data
 

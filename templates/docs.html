@@ -162,6 +162,28 @@ America/New_York
               </td>
               <td><a class="btn btn-xs btn-info" href="/api/{{ query }}/accuracy" target="_blank">Example <i class="fa fa-chevron-right"></i></a></td>
             </tr>
+            <tr>
+              <td id="hostname"><a href="#hostname">hostname</a></td>
+              <td>
+                <p>Hostname of the lookup <i>if</i> available.</p>
+<pre>
+[~]$ curl -s geoip.cf/api/68.32.144.33/hostname
+c-68-32-144-33.hsd1.nj.comcast.net
+</pre>
+              </td>
+              <td><a class="btn btn-xs btn-info" href="/api/{{ query }}/hostname" target="_blank">Example <i class="fa fa-chevron-right"></i></a></td>
+            </tr>
+            <tr>
+              <td id="ip"><a href="#ip">ip</a></td>
+              <td>
+                <p>IP of the lookup. Redundant if you used an IP for the lookup.</p>
+<pre>
+[~]$ curl -s geoip.cf/api/c-68-32-144-33.hsd1.nj.comcast.net/ip
+68.32.144.33
+</pre>
+              </td>
+              <td><a class="btn btn-xs btn-info" href="/api/{{ query }}/ip" target="_blank">Example <i class="fa fa-chevron-right"></i></a></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -180,6 +202,8 @@ America/New_York
   "continent": "NA",
   "country": "United States",
   "country_abbr": "US",
+  "hostname": "c-68-32-144-33.hsd1.nj.comcast.net",
+  "ip": "68.32.144.33",
   "latitude": 39.8018,
   "longitude": -75.008,
   "subdivision": [
