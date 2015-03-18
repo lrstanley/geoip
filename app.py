@@ -53,6 +53,8 @@ def api(ip, methods=None):
         methods = []
     query = verify(ip)
     if not query:
+        if methods:
+            return ''
         return flask.jsonify({'success': False, 'message': 'Invalid ip or domain'})
     match = geo.lookup(query)
     data = results(match)
