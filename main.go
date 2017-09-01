@@ -10,32 +10,19 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
-	"time"
 
-	"github.com/BurntSushi/toml"
 	gflags "github.com/jessevdk/go-flags"
 )
 
 var version, commit, date = "unknown", "unknown", "unknown"
 
-type Bot struct{}
-
 type Flags struct {
-	ConfigFile string `short:"c" long:"config" description:"configuration file location" default:"config.toml"`
-	Debug      bool   `short:"d" long:"debug" description:"enable debug output"`
-	GenConfig  bool   `long:"gen-config" description:"generate and output an example configuration file"`
-}
-
-type Config struct {
-	DatabasePath   string
-	ReconnectDelay int               `toml:"reconnect_delay"`
-	Servers        map[string]Server `toml:"servers"`
+	Debug     bool   `short:"d" long:"debug" description:"enable debug output"`
+	GeoDBPath string `long:"db" description:"path to read/store Maxmind DB"`
 }
 
 var flags Flags
-var conf *Config
 var debug = log.New(ioutil.Discard, "", log.LstdFlags)
 
 func main() {
@@ -46,51 +33,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if flags.GenConfig {
-		genConfig()
-		return
-	}
-
 	if flags.Debug {
 		debug.SetOutput(os.Stdout)
 	}
 
-	conf = &Config{
-		DatabasePath:   "state.db",
-		ReconnectDelay: 45,
-	}
-
-	_, err = toml.DecodeFile(flags.ConfigFile, conf)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "config[%s]: %s\n", flags.ConfigFile, err)
-		os.Exit(1)
-	}
-
-	if conf.ReconnectDelay < 10 {
-		conf.ReconnectDelay = 10
-	}
-
-	if len(conf.Servers) == 0 {
-		fmt.Fprintf(os.Stderr, "config[%s]: no servers specified", flags.ConfigFile)
-		os.Exit(1)
-	}
-
-	done := make(chan struct{})
-	var wg sync.WaitGroup
-
-	for key, _ := range conf.Servers {
-		time.Sleep(1 * time.Second)
-
-		go func(server Server, id string) {
-			wg.Add(1)
-			server.setup(id, done)
-			wg.Done()
-		}(conf.Servers[key], key)
-	}
-
 	catch()
-	close(done)
-	wg.Wait()
+	// Close things here.
 
 	fmt.Println("exiting")
 }
@@ -102,8 +50,4 @@ func catch() {
 	fmt.Println("listening for signal. CTRL+C to quit.")
 	<-signals
 	fmt.Println("\ninvoked termination, cleaning up")
-}
-
-func genConfig() {
-	fmt.Fprint(os.Stdout, `# example\foo = "bar"\n\n`)
 }
