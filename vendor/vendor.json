@@ -3,6 +3,30 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "Q7+4qzIIel3AD3Bu4vAxZBUSLVk=",
+			"path": "github.com/go-chi/chi",
+			"revision": "04ec7fc4179604b2390947258f9143eaae23b596",
+			"revisionTime": "2017-09-01T02:07:29Z"
+		},
+		{
+			"checksumSHA1": "YKrfqJ73/9of8mrxB+DF71305LI=",
+			"path": "github.com/go-chi/chi/middleware",
+			"revision": "04ec7fc4179604b2390947258f9143eaae23b596",
+			"revisionTime": "2017-09-01T02:07:29Z"
+		},
+		{
+			"checksumSHA1": "r/8uaoEFx3XAL2U2MJ3xmgJ78qo=",
+			"path": "github.com/go-chi/cors",
+			"revision": "dba6525398619dead495962a916728e7ee2ca322",
+			"revisionTime": "2017-08-02T15:05:10Z"
+		},
+		{
+			"checksumSHA1": "GYxpsIiASzEFuLmpqDJjKB2mWag=",
+			"path": "github.com/go-web/httprl",
+			"revision": "20dc8024cb5d04a4bffe6585685122cee1111a9f",
+			"revisionTime": "2016-05-05T07:01:43Z"
+		},
+		{
 			"checksumSHA1": "Oqx/4M+xDiB2ME3YkffeZmz/ohk=",
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "5695738f733662da3e9afc2283bba6f3c879002d",

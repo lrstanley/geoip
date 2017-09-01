@@ -17,8 +17,9 @@ import (
 )
 
 // TODO:
-// https://github.com/yl2chen/cidranger (or lrstanley/go-bogon)
-// https://github.com/bluele/gcache
+//  - https://github.com/yl2chen/cidranger (or lrstanley/go-bogon)
+//  - https://github.com/bluele/gcache
+//  - Provide google map direct link in full API?
 
 var version, commit, date = "unknown", "unknown", "unknown"
 
@@ -27,10 +28,22 @@ type Flags struct {
 	DBPath         string        `long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
 	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
+	HTTP           struct {
+		Bind  string   `short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
+		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (dangerous!)"`
+		Limit int      `long:"limit" description:"number of requests/ip/hour" default:"2000"`
+		CORS  []string `long:"cors" description:"cors origin domain to allow (empty => '*'; use flag multiple times)"`
+		TLS   struct {
+			Use  bool   `long:"use" description:"enable tls"`
+			Cert string `long:"cert" description:"path to ssl certificate"`
+			Key  string `long:"key" description:"path to ssl key"`
+		} `group:"TLS Options" namespace:"tls"`
+	} `group:"HTTP Options" namespace:"http"`
 }
 
 var flags Flags
-var debug = log.New(ioutil.Discard, "debug: ", log.LstdFlags)
+var debug = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
+var db *DB
 
 func main() {
 	parser := gflags.NewParser(&flags, gflags.HelpFlag)
@@ -44,7 +57,7 @@ func main() {
 		debug.SetOutput(os.Stdout)
 	}
 
-	db := &DB{path: flags.DBPath}
+	db = &DB{path: flags.DBPath}
 
 	go func() {
 		var needsUpdate bool
@@ -70,7 +83,11 @@ func main() {
 		}
 	}()
 
+	httpCloser := make(chan struct{})
+	go initHTTP(httpCloser)
+
 	catch()
+	close(httpCloser)
 	fmt.Println("exiting")
 }
 

@@ -156,8 +156,8 @@ type IPSearch struct {
 	// } `maxminddb:"represented_country"`
 }
 
-// IPResult contains the geolocation and host information for an IP
-type IPResult struct {
+// AddrResult contains the geolocation and host information for an IP/host.
+type AddrResult struct {
 	City          string
 	Subdivision   string
 	Country       string
@@ -172,14 +172,8 @@ type IPResult struct {
 	Hosts         []string
 }
 
-// IPLookup does a geoip lookup of an IP address
-func IPLookup(path, addr string) (*IPResult, error) {
-	// TODO: This should probably have some form of daily IP cache (invalidates in 24h?)
-	ip := net.ParseIP(addr)
-	if ip == nil {
-		return nil, fmt.Errorf("address provided is not a valid ip: %s", addr)
-	}
-
+// addrLookup does a geoip lookup of an IP address
+func addrLookup(path string, addr net.IP) (*AddrResult, error) {
 	db, err := maxminddb.Open(path)
 	if err != nil {
 		return nil, err
@@ -187,14 +181,14 @@ func IPLookup(path, addr string) (*IPResult, error) {
 
 	var results IPSearch
 
-	err = db.Lookup(ip, &results)
+	err = db.Lookup(addr, &results)
 	db.Close()
 
 	if err != nil {
 		return nil, err
 	}
 
-	res := &IPResult{
+	res := &AddrResult{
 		City:          results.City.Names["en"],
 		Country:       results.Country.Names["en"],
 		CountryCode:   results.Country.Code,
@@ -213,14 +207,12 @@ func IPLookup(path, addr string) (*IPResult, error) {
 	}
 	res.Subdivision = strings.Join(subdiv, ", ")
 
-	if names, err := net.LookupAddr(addr); err == nil {
+	if names, err := net.LookupAddr(addr.String()); err == nil {
 		for i := 0; i < len(names); i++ {
-			// these are FQDN's where absolute hosts contain a suffixed "."
+			// These are FQDN's where absolute hosts contain a suffixed ".".
 			res.Hosts = append(res.Hosts, strings.TrimSuffix(names[i], "."))
 		}
 	}
-
-	fmt.Printf("%#v\n", res)
 
 	return res, nil
 }
