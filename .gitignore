@@ -9,4 +9,5 @@ dist
 *.toml
 vendor/*
 !vendor/*.json
+*.db
 geoip
