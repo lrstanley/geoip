@@ -17,6 +17,7 @@ func initHTTP(closer chan struct{}) {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 	r.Use(middleware.StripSlashes)
+	r.Use(dbDetailsMiddleware)
 	r.Use(middleware.GetHead)
 
 	if flags.HTTP.Proxy {
@@ -30,7 +31,7 @@ func initHTTP(closer chan struct{}) {
 		AllowedOrigins: flags.HTTP.CORS,
 		AllowedMethods: []string{"GET"},
 		AllowedHeaders: []string{"Accept", "Content-Type"},
-		ExposedHeaders: []string{"X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"},
+		ExposedHeaders: []string{"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset"},
 		MaxAge:         3600,
 	})
 
@@ -43,8 +44,8 @@ func initHTTP(closer chan struct{}) {
 			debug.Printf(
 				"connection %s has hit rate limit (limit: %s, reset: %s)",
 				r.RemoteAddr,
-				w.Header().Get("X-RateLimit-Limit"),
-				w.Header().Get("X-RateLimit-Reset"),
+				w.Header().Get("X-Ratelimit-Limit"),
+				w.Header().Get("X-Ratelimit-Reset"),
 			)
 		},
 		KeyMaker: httprl.DefaultKeyMaker, // This uses IP address by default.
