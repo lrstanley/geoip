@@ -7,8 +7,10 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	maxminddb "github.com/oschwald/maxminddb-golang"
@@ -17,6 +19,14 @@ import (
 type DB struct {
 	path string
 }
+
+// Note that cache may not always be filled.
+type MetaCache struct {
+	sync.RWMutex
+	cache *maxminddb.Metadata
+}
+
+var mcache = &MetaCache{}
 
 func (d *DB) checkForUpdates() (needsUpdate bool, err error) {
 	curSeconds := time.Now().UnixNano() / int64(time.Second)
@@ -29,10 +39,16 @@ func (d *DB) checkForUpdates() (needsUpdate bool, err error) {
 		return true, err
 	}
 
-	_, err = maxminddb.Open(d.path)
+	var db *maxminddb.Reader
+
+	db, err = maxminddb.Open(d.path)
 	if err != nil {
 		return true, err
 	}
+
+	mcache.Lock()
+	mcache.cache = &db.Metadata
+	mcache.Unlock()
 
 	if curSeconds-(stat.ModTime().UnixNano()/int64(time.Second)) < 604800 {
 		return false, nil
@@ -96,6 +112,10 @@ func (d *DB) update(url string) error {
 		db.Close()
 		return fmt.Errorf("error while attempting to verify geoip data: %s", err)
 	}
+
+	mcache.Lock()
+	mcache.cache = &db.Metadata
+	mcache.Unlock()
 	db.Close()
 
 	debug.Println("verification complete, updating active database")
@@ -130,9 +150,10 @@ type IPSearch struct {
 		Names map[string]string `maxminddb:"names"`
 	} `maxminddb:"continent"`
 	Location struct {
-		Lat      float64 `maxminddb:"latitude"`
-		Long     float64 `maxminddb:"longitude"`
-		TimeZone string  `maxminddb:"time_zone"`
+		Lat       float64 `maxminddb:"latitude"`
+		Long      float64 `maxminddb:"longitude"`
+		MetroCode int     `maxminddb:"metro_code"`
+		TimeZone  string  `maxminddb:"time_zone"`
 	} `maxminddb:"location"`
 	Postal struct {
 		Code string `maxminddb:"code"`
@@ -158,19 +179,25 @@ type IPSearch struct {
 
 // AddrResult contains the geolocation and host information for an IP/host.
 type AddrResult struct {
-	City          string
-	Subdivision   string
-	Country       string
-	CountryCode   string
-	Continent     string
-	ContinentCode string
-	Lat           float64
-	Long          float64
-	Timezone      string
-	PostalCode    string
-	Proxy         bool
-	Hosts         []string
+	IP            net.IP   `json:"ip"`
+	City          string   `json:"city"`
+	Subdivision   string   `json:"subdivision"`
+	Country       string   `json:"country"`
+	CountryCode   string   `json:"country_abbr"`
+	Continent     string   `json:"continent"`
+	ContinentCode string   `json:"continent_abbr"`
+	Lat           float64  `json:"latitude"`
+	Long          float64  `json:"longitude"`
+	Timezone      string   `json:"timezone"`
+	PostalCode    string   `json:"postal_code"`
+	Proxy         bool     `json:"proxy"`
+	Hosts         []string `json:"hosts"`
+	MapURL        string   `json:"map_url"`
+	MapEmbedURL   string   `json:"map_embed_url"`
 }
+
+const mapURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&z=0&q=%s"
+const mapEmbedURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&output=embed&z=%d&q=%s"
 
 // addrLookup does a geoip lookup of an IP address
 func addrLookup(path string, addr net.IP) (*AddrResult, error) {
@@ -179,40 +206,65 @@ func addrLookup(path string, addr net.IP) (*AddrResult, error) {
 		return nil, err
 	}
 
-	var results IPSearch
+	var query IPSearch
 
-	err = db.Lookup(addr, &results)
+	err = db.Lookup(addr, &query)
 	db.Close()
 
 	if err != nil {
 		return nil, err
 	}
 
-	res := &AddrResult{
-		City:          results.City.Names["en"],
-		Country:       results.Country.Names["en"],
-		CountryCode:   results.Country.Code,
-		Continent:     results.Continent.Names["en"],
-		ContinentCode: results.Continent.Code,
-		Lat:           results.Location.Lat,
-		Long:          results.Location.Long,
-		Timezone:      results.Location.TimeZone,
-		PostalCode:    results.Postal.Code,
-		Proxy:         results.Traits.Proxy,
+	result := &AddrResult{
+		IP:            addr,
+		City:          query.City.Names["en"],
+		Country:       query.Country.Names["en"],
+		CountryCode:   query.Country.Code,
+		Continent:     query.Continent.Names["en"],
+		ContinentCode: query.Continent.Code,
+		Lat:           query.Location.Lat,
+		Long:          query.Location.Long,
+		Timezone:      query.Location.TimeZone,
+		PostalCode:    query.Postal.Code,
+		Proxy:         query.Traits.Proxy,
 	}
 
 	var subdiv []string
-	for i := 0; i < len(results.Subdivisions); i++ {
-		subdiv = append(subdiv, results.Subdivisions[i].Names["en"])
+	for i := 0; i < len(query.Subdivisions); i++ {
+		subdiv = append(subdiv, query.Subdivisions[i].Names["en"])
 	}
-	res.Subdivision = strings.Join(subdiv, ", ")
+	result.Subdivision = strings.Join(subdiv, ", ")
+
+	mapZoom := 2
+	var mapQuery string
+	switch {
+	case result.City != "":
+		mapZoom = 6
+	case result.Subdivision != "":
+		mapZoom = 4
+	case result.Country != "":
+		mapZoom = 3
+	}
+
+	switch {
+	case result.Lat != 0 || result.Long != 0:
+		mapQuery = fmt.Sprintf("%f,%f", result.Lat, result.Long)
+	case result.City != "" && result.Subdivision != "" && result.CountryCode != "":
+		mapQuery = fmt.Sprintf("%s, %s, %s", result.City, result.Subdivision, result.CountryCode)
+	case result.Subdivision != "" && result.CountryCode != "":
+		mapQuery = fmt.Sprintf("%s, %s", result.Subdivision, result.CountryCode)
+	default:
+		mapQuery = result.Country
+	}
+	result.MapURL = fmt.Sprintf(mapURI, url.QueryEscape(mapQuery))
+	result.MapEmbedURL = fmt.Sprintf(mapEmbedURI, mapZoom, url.QueryEscape(mapQuery))
 
 	if names, err := net.LookupAddr(addr.String()); err == nil {
 		for i := 0; i < len(names); i++ {
 			// These are FQDN's where absolute hosts contain a suffixed ".".
-			res.Hosts = append(res.Hosts, strings.TrimSuffix(names[i], "."))
+			result.Hosts = append(result.Hosts, strings.TrimSuffix(names[i], "."))
 		}
 	}
 
-	return res, nil
+	return result, nil
 }
