@@ -28,6 +28,7 @@ type Flags struct {
 	DBPath         string        `long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
 	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
+	NoBogon        bool          `long:"no-bogon" description:"disallow bogon addresses in lookups"`
 	HTTP           struct {
 		Bind  string   `short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
 		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (dangerous!)"`

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi"
+	bogon "github.com/lrstanley/go-bogon"
 )
 
 func registerAPI(r chi.Router) {
@@ -28,6 +29,13 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		}
 
 		ip = net.ParseIP(ips[0])
+	}
+
+	if flags.NoBogon {
+		if is, _ := bogon.Is(ip.String()); is {
+			http.NotFound(w, r)
+			return
+		}
 	}
 
 	results, err := addrLookup(flags.DBPath, ip)
