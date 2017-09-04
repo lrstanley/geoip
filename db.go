@@ -165,16 +165,6 @@ type IPSearch struct {
 	Traits struct {
 		Proxy bool `maxminddb:"is_anonymous_proxy"`
 	} `maxminddb:"traits"`
-
-	// RegisteredCountry struct {
-	// 	Code  string            `maxminddb:"iso_code"`
-	// 	Names map[string]string `maxminddb:"names"`
-	// } `maxminddb:"registered_country"`
-	// RepresentedCountry struct {
-	// 	Code  string            `maxminddb:"iso_code"`
-	// 	Names map[string]string `maxminddb:"names"`
-	// 	Type  string            `maxminddb:"type"`
-	// } `maxminddb:"represented_country"`
 }
 
 // AddrResult contains the geolocation and host information for an IP/host.
