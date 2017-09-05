@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -19,6 +21,19 @@ func initHTTP(closer chan struct{}) {
 	r.Use(middleware.StripSlashes)
 	r.Use(dbDetailsMiddleware)
 	r.Use(middleware.GetHead)
+
+	r.Mount("/dist", http.StripPrefix("/dist", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.FileServer(rice.MustFindBox("static/dist").HTTPBox()).ServeHTTP(w, r)
+	})))
+
+	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api") {
+			http.NotFound(w, r)
+			return
+		}
+
+		w.Write(rice.MustFindBox("static").MustBytes("index.html"))
+	})
 
 	if flags.HTTP.Proxy {
 		r.Use(middleware.RealIP)
@@ -52,10 +67,6 @@ func initHTTP(closer chan struct{}) {
 	}
 	limiterBackend.Start()
 	defer limiterBackend.Stop()
-
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK\n"))
-	})
 
 	if flags.HTTP.Limit > 0 {
 		r.With(cors.Handler, limiter.Handle).Group(registerAPI)

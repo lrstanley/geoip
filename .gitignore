@@ -11,3 +11,5 @@ vendor/*
 !vendor/*.json
 *.db
 geoip
+node_modules
+rice*.go

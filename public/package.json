@@ -1,0 +1,29 @@
+{
+  "name": "geoip-frontend",
+  "description": "geoip-frontend",
+  "version": "1.0.0",
+  "author": "Liam Stanley <me@liamstanley.io>",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack --progress --hide-modules",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+  },
+  "dependencies": {
+    "less": "^2.7.2",
+    "less-loader": "^4.0.5",
+    "vue": "^2.3.3",
+    "vue-resource": "^1.3.4",
+    "vue-router": "^2.7.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-preset-env": "^1.5.1",
+    "cross-env": "^3.0.0",
+    "css-loader": "^0.25.0",
+    "file-loader": "^0.9.0",
+    "vue-loader": "^12.1.0",
+    "vue-template-compiler": "^2.3.3",
+    "webpack": "^2.6.1"
+  }
+}
