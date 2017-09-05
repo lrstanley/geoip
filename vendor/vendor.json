@@ -3,6 +3,24 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "c4dFBfQ1TiTG3CAp6MpMen/nWXU=",
+			"path": "github.com/GeertJohan/go.rice",
+			"revision": "c02ca9a983da5807ddf7d796784928f5be4afd09",
+			"revisionTime": "2017-04-20T13:57:05Z"
+		},
+		{
+			"checksumSHA1": "xECV8VmnSwtMPugLqB1OAXwOs48=",
+			"path": "github.com/GeertJohan/go.rice/embedded",
+			"revision": "c02ca9a983da5807ddf7d796784928f5be4afd09",
+			"revisionTime": "2017-04-20T13:57:05Z"
+		},
+		{
+			"checksumSHA1": "8i+beEgcVf0q/I7lTqo2ERZM/OU=",
+			"path": "github.com/daaku/go.zipexe",
+			"revision": "a5fe2436ffcb3236e175e5149162b41cd28bd27d",
+			"revisionTime": "2015-03-29T02:31:25Z"
+		},
+		{
 			"checksumSHA1": "Q7+4qzIIel3AD3Bu4vAxZBUSLVk=",
 			"path": "github.com/go-chi/chi",
 			"revision": "04ec7fc4179604b2390947258f9143eaae23b596",
@@ -31,6 +49,18 @@
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "5695738f733662da3e9afc2283bba6f3c879002d",
 			"revisionTime": "2017-05-21T21:21:05Z"
+		},
+		{
+			"checksumSHA1": "gEjGS03N1eysvpQ+FCHTxPcbxXc=",
+			"path": "github.com/kardianos/osext",
+			"revision": "ae77be60afb1dcacde03767a8c37337fad28ac14",
+			"revisionTime": "2017-05-10T13:15:34Z"
+		},
+		{
+			"checksumSHA1": "WAqjJeXei2ZCOJPSg8ip22DxbCk=",
+			"path": "github.com/lrstanley/go-bogon",
+			"revision": "b4547a4184e02fce8574511cf09f5c6cb84081a3",
+			"revisionTime": "2017-03-03T09:56:01Z"
 		},
 		{
 			"checksumSHA1": "N6I3i0LIjQckurgTeH3b2A5YTec=",
