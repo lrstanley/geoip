@@ -23,7 +23,7 @@ func initHTTP(closer chan struct{}) {
 	r.Use(middleware.GetHead)
 
 	r.Mount("/dist", http.StripPrefix("/dist", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.FileServer(rice.MustFindBox("static/dist").HTTPBox()).ServeHTTP(w, r)
+		http.FileServer(rice.MustFindBox("public/dist").HTTPBox()).ServeHTTP(w, r)
 	})))
 
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func initHTTP(closer chan struct{}) {
 			return
 		}
 
-		w.Write(rice.MustFindBox("static").MustBytes("index.html"))
+		w.Write(rice.MustFindBox("public/html").MustBytes("index.html"))
 	})
 
 	if flags.HTTP.Proxy {

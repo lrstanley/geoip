@@ -31,23 +31,20 @@ fetch: ## Fetches the necessary dependencies to build.
 	$(GOPATH)/bin/govendor sync
 
 clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "dist/" "static/" "${BINARY}"
+	/bin/rm -rfv "public/dist" "rice-box.go" "${BINARY}"
 
-generate-dev:
+generate-dev: ## Generate public html/css/js for use when developing (faster, but larger files).
 	cd public && npm run dev
-	mkdir -vp "static"
-	cp -av public/index.html static/
-	cp -av public/dist static/
 
-generate:
+generate-watch: ## Generate public html/css/js when files change (faster, but larger files).
+	cd public && npm run watch
+
+generate: ## Generate public html/css/js files for use in production (slower, smaller/minified files).
 	cd public && npm run build
-	mkdir -vp "static"
-	cp -av public/index.html static/
-	cp -av public/dist static/
 	$(GOPATH)/bin/rice -v embed-go
 
-debug: fetch clean generate-dev ## Runs the application in debug mode.
+debug: fetch clean generate-dev ## Runs the application in debug mode (with generate-dev).
 	go run *.go -d --http.limit 2000 --update-url "http://hq.liam.sh/tmp/GeoLite2-City.mmdb.gz"
 
-build: fetch clean generate ## Builds the application.
+build: fetch clean generate ## Builds the application (with generate).
 	go build -ldflags "${LD_FLAGS}" -i -v -o ${BINARY}

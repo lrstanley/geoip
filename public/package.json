@@ -5,6 +5,7 @@
   "author": "Liam Stanley <me@liamstanley.io>",
   "private": true,
   "scripts": {
+    "watch": "cross-env NODE_ENV=development webpack --watch --progress --hide-modules",
     "dev": "cross-env NODE_ENV=development webpack --progress --hide-modules",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },

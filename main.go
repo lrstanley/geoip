@@ -17,9 +17,7 @@ import (
 )
 
 // TODO:
-//  - https://github.com/yl2chen/cidranger (or lrstanley/go-bogon)
 //  - https://github.com/bluele/gcache
-//  - Provide google map direct link in full API?
 
 var version, commit, date = "unknown", "unknown", "unknown"
 
