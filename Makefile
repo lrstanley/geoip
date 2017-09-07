@@ -27,6 +27,7 @@ update-deps: fetch ## Updates all dependencies to the latest available versions.
 fetch: ## Fetches the necessary dependencies to build.
 	test -f $(GOPATH)/bin/govendor || go get -u -v github.com/kardianos/govendor
 	test -f $(GOPATH)/bin/goreleaser || go get -u -v github.com/goreleaser/goreleaser
+	test -f $(GOPATH)/bin/rice || go get -u -v github.com/GeertJohan/go.rice/rice
 	$(GOPATH)/bin/govendor sync
 
 clean: ## Cleans up generated files/folders from the build.
