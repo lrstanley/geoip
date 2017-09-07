@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bluele/gcache"
 	"github.com/go-chi/chi"
 	bogon "github.com/lrstanley/go-bogon"
 )
@@ -19,37 +20,55 @@ func registerAPI(r chi.Router) {
 
 func apiLookup(w http.ResponseWriter, r *http.Request) {
 	addr := chi.URLParam(r, "addr")
-	ip := net.ParseIP(addr)
-	if ip == nil {
-		ips, err := net.LookupHost(addr)
-		if err != nil || len(ips) == 0 {
-			debug.Printf("error looking up %q as host address: %s", addr, err)
-			http.NotFound(w, r)
+	var result *AddrResult
+
+	query, err := arc.GetIFPresent(addr)
+	if err == nil {
+		resultFromARC, _ := query.(AddrResult)
+		result = &resultFromARC
+		debug.Printf("query %s fetched from arc cache", addr)
+	} else {
+		if err != gcache.KeyNotFoundError {
+			debug.Printf("unable to get %s off arc stack: %s", addr, err)
+		}
+
+		ip := net.ParseIP(addr)
+		if ip == nil {
+			var ips []string
+			ips, err = net.LookupHost(addr)
+			if err != nil || len(ips) == 0 {
+				debug.Printf("error looking up %q as host address: %s", addr, err)
+				http.NotFound(w, r)
+				return
+			}
+
+			ip = net.ParseIP(ips[0])
+		}
+
+		if flags.NoBogon {
+			if is, _ := bogon.Is(ip.String()); is {
+				http.NotFound(w, r)
+				return
+			}
+		}
+
+		result, err = addrLookup(flags.DBPath, ip)
+		if err != nil {
+			debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
+			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
 
-		ip = net.ParseIP(ips[0])
-	}
-
-	if flags.NoBogon {
-		if is, _ := bogon.Is(ip.String()); is {
-			http.NotFound(w, r)
-			return
+		if err = arc.Set(addr, *result); err != nil {
+			debug.Printf("unable to add %s to arc cache: %s", addr, err)
 		}
-	}
-
-	results, err := addrLookup(flags.DBPath, ip)
-	if err != nil {
-		debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
-		w.WriteHeader(http.StatusServiceUnavailable)
-		return
 	}
 
 	if filter := strings.Split(chi.URLParam(r, "filter"), ","); filter != nil && len(filter) > 0 && filter[0] != "" {
 		base := make(map[string]*json.RawMessage)
 		var tmp []byte
 
-		tmp, err = json.Marshal(results)
+		tmp, err = json.Marshal(result)
 		if err != nil {
 			panic(err)
 		}
@@ -74,7 +93,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc.SetEscapeHTML(false) // Otherwise the map url will get unicoded.
-	err = enc.Encode(results)
+	err = enc.Encode(result)
 	if err != nil {
 		panic(err)
 	}

@@ -13,11 +13,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bluele/gcache"
 	gflags "github.com/jessevdk/go-flags"
 )
-
-// TODO:
-//  - https://github.com/bluele/gcache
 
 var version, commit, date = "unknown", "unknown", "unknown"
 
@@ -27,7 +25,11 @@ type Flags struct {
 	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
 	NoBogon        bool          `long:"no-bogon" description:"disallow bogon addresses in lookups"`
-	HTTP           struct {
+	Cache          struct {
+		Size   int           `long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"200"`
+		Expire time.Duration `long:"expire" description:"expiration time of cache" default:"5m"`
+	} `group:"Cache Options" namespace:"cache"`
+	HTTP struct {
 		Bind  string   `short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
 		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (dangerous!)"`
 		Limit int      `long:"limit" description:"number of requests/ip/hour" default:"2000"`
@@ -43,6 +45,7 @@ type Flags struct {
 var flags Flags
 var debug = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
 var db *DB
+var arc gcache.Cache
 
 func main() {
 	parser := gflags.NewParser(&flags, gflags.HelpFlag)
@@ -57,6 +60,7 @@ func main() {
 	}
 
 	db = &DB{path: flags.DBPath}
+	arc = gcache.New(flags.Cache.Size).ARC().Expiration(flags.Cache.Expire).Build()
 
 	go func() {
 		var needsUpdate bool

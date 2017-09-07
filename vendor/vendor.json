@@ -15,6 +15,12 @@
 			"revisionTime": "2017-04-20T13:57:05Z"
 		},
 		{
+			"checksumSHA1": "qGt958qm8rpp3TYSc+cSJNiINM4=",
+			"path": "github.com/bluele/gcache",
+			"revision": "6748215c018ea9d23fd269d499a3553c94d3ddf9",
+			"revisionTime": "2017-09-06T03:03:44Z"
+		},
+		{
 			"checksumSHA1": "8i+beEgcVf0q/I7lTqo2ERZM/OU=",
 			"path": "github.com/daaku/go.zipexe",
 			"revision": "a5fe2436ffcb3236e175e5149162b41cd28bd27d",

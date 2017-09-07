@@ -190,7 +190,7 @@ const mapURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&z=0&q=%s"
 const mapEmbedURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&output=embed&z=%d&q=%s"
 
 // addrLookup does a geoip lookup of an IP address
-func addrLookup(path string, addr net.IP) (*AddrResult, error) {
+func addrLookup(path string, addr net.IP) (result *AddrResult, err error) {
 	db, err := maxminddb.Open(path)
 	if err != nil {
 		return nil, err
@@ -205,7 +205,7 @@ func addrLookup(path string, addr net.IP) (*AddrResult, error) {
 		return nil, err
 	}
 
-	result := &AddrResult{
+	result = &AddrResult{
 		IP:            addr,
 		City:          query.City.Names["en"],
 		Country:       query.Country.Names["en"],
@@ -249,7 +249,8 @@ func addrLookup(path string, addr net.IP) (*AddrResult, error) {
 	result.MapURL = fmt.Sprintf(mapURI, url.QueryEscape(mapQuery))
 	result.MapEmbedURL = fmt.Sprintf(mapEmbedURI, mapZoom, url.QueryEscape(mapQuery))
 
-	if names, err := net.LookupAddr(addr.String()); err == nil {
+	var names []string
+	if names, err = net.LookupAddr(addr.String()); err == nil {
 		for i := 0; i < len(names); i++ {
 			// These are FQDN's where absolute hosts contain a suffixed ".".
 			result.Hosts = append(result.Hosts, strings.TrimSuffix(names[i], "."))
