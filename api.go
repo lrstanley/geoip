@@ -26,8 +26,10 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		resultFromARC, _ := query.(AddrResult)
 		result = &resultFromARC
+		w.Header().Set("X-Cache", "HIT")
 		debug.Printf("query %s fetched from arc cache", addr)
 	} else {
+		w.Header().Set("X-Cache", "MISS")
 		if err != gcache.KeyNotFoundError {
 			debug.Printf("unable to get %s off arc stack: %s", addr, err)
 		}
