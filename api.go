@@ -22,6 +22,13 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	addr := chi.URLParam(r, "addr")
 	var result *AddrResult
 
+	// Allow users to query themselves without having to have them specify
+	// their own IP address. Note that this will not work if you are querying
+	// the IP address locally.
+	if self := strings.ToLower(addr); self == "self" || self == "me" {
+		addr, _, _ = net.SplitHostPort(r.RemoteAddr)
+	}
+
 	query, err := arc.GetIFPresent(addr)
 	if err == nil {
 		resultFromARC, _ := query.(AddrResult)
