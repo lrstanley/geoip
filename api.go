@@ -84,6 +84,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 			out[i] = strings.Replace(fmt.Sprintf("%s", *base[filter[i]]), "\"", "", -1)
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(strings.Join(out, "|")))
 		return
 	}
@@ -95,6 +96,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc.SetEscapeHTML(false) // Otherwise the map url will get unicoded.
+	w.Header().Set("Content-Type", "application/json")
 	err = enc.Encode(result)
 	if err != nil {
 		panic(err)
