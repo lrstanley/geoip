@@ -8,13 +8,5 @@ import routes from './routes'
 Vue.use(VueResource)
 Vue.use(VueRouter)
 
-const router = new VueRouter({
-  routes,
-  mode: 'history'
-})
-
-new Vue({
-  router,
-  el: '#vue',
-  render: h => h(App)
-})
+const router = new VueRouter({ routes, mode: 'history' })
+new Vue({ router, el: '#vue', render: h => h(App) })

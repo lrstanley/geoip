@@ -1,14 +1,9 @@
-import Hello from './components/Hello'
-import Counter from './components/Counter'
+import Lookup from './components/Lookup'
+import Docs from './components/Docs'
+import About from './components/About'
 
 export default [
-  {
-    path: '/',
-    component: Hello,
-    name: 'hello'
-  }, {
-    path: '/counter',
-    component: Counter,
-    name: 'counter'
-  }
+  { path: '/', component: Lookup, name: 'lookup' },
+  { path: '/docs/api', component: Docs, name: 'apidocs' },
+  { path: '/about', component: About, name: 'about' }
 ]
