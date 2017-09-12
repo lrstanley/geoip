@@ -32,15 +32,6 @@
 //   - http://whois.arin.net/rest/ip/8.8.8.8.json
 export default {
   name: 'app',
-  // mounted: function () {
-  //   console.log("mounted")
-  //   this.$http.get('/api/8.8.8.8').then(response => {
-  //     console.log(response)
-  //     console.info(response.body.ip)
-  //   }, response => {
-  //     console.log(response)
-  //   });
-  // }
 }
 </script>
 
