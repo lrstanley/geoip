@@ -170,6 +170,7 @@ type IPSearch struct {
 // AddrResult contains the geolocation and host information for an IP/host.
 type AddrResult struct {
 	IP            net.IP   `json:"ip"`
+	Summary       string   `json:"summary"`
 	City          string   `json:"city"`
 	Subdivision   string   `json:"subdivision"`
 	Country       string   `json:"country"`
@@ -225,6 +226,24 @@ func addrLookup(path string, addr net.IP) (result *AddrResult, err error) {
 		subdiv = append(subdiv, query.Subdivisions[i].Names["en"])
 	}
 	result.Subdivision = strings.Join(subdiv, ", ")
+
+	var summary []string
+	if result.City != "" {
+		summary = append(summary, result.City)
+	}
+	if result.Subdivision != "" {
+		summary = append(summary, result.Subdivision)
+	}
+	if result.CountryCode != "" {
+		summary = append(summary, result.CountryCode)
+	} else if result.Country != "" {
+		summary = append(summary, result.Country)
+	} else if result.ContinentCode != "" {
+		summary = append(summary, result.ContinentCode)
+	} else if result.Continent != "" {
+		summary = append(summary, result.Continent)
+	}
+	result.Summary = strings.Join(summary, ", ")
 
 	mapZoom := 2
 	var mapQuery string
