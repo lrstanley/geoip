@@ -217,6 +217,7 @@ func addrLookup(path string, addr net.IP) (result *AddrResult, err error) {
 		Timezone:      query.Location.TimeZone,
 		PostalCode:    query.Postal.Code,
 		Proxy:         query.Traits.Proxy,
+		Hosts:         []string{},
 	}
 
 	var subdiv []string
