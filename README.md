@@ -7,6 +7,7 @@
   - [Manual Install](#manual-install)
   - [Source](#source)
 - [Usage](#usage)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
@@ -32,6 +33,11 @@ TODO
 ## Usage
 
 TODO
+
+## Contributing
+
+Please review the [CONTRIBUTING](https://github.com/lrstanley/geoip/blob/master/CONTRIBUTING.md)
+doc for submitting issues/a guide on submitting pull requests and helping out.
 
 ## License
 
