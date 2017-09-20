@@ -198,8 +198,11 @@ const mapEmbedURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&output=emb
 // addrLookup does a geoip lookup of an IP address. filters is passed into
 // this function, in case there are any long running tasks which the user
 // may not even want (e.g. reverse dns lookups).
-func addrLookup(path string, addr net.IP, filters []string) (result *AddrResult, err error) {
-	db, err := maxminddb.Open(path)
+func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult, error) {
+	var result *AddrResult
+	var err error
+
+	db, err := maxminddb.Open(flags.DBPath)
 	if err != nil {
 		return nil, err
 	}

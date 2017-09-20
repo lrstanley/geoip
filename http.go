@@ -20,6 +20,7 @@ import (
 
 func initHTTP(closer chan struct{}) {
 	r := chi.NewRouter()
+	r.Use(middleware.CloseNotify)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 	r.Use(middleware.StripSlashes)

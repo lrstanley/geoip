@@ -90,7 +90,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		result, err = addrLookup(flags.DBPath, ip, filters)
+		result, err = addrLookup(r.Context(), ip, filters)
 		if err != nil {
 			debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
 			w.WriteHeader(http.StatusServiceUnavailable)
