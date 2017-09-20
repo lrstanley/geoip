@@ -13,4 +13,3 @@ vendor/*
 geoip
 node_modules
 rice*.go
-static
