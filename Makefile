@@ -44,7 +44,7 @@ generate: ## Generate public html/css/js files for use in production (slower, sm
 	$(GOPATH)/bin/rice -v embed-go
 
 debug: fetch clean generate-dev ## Runs the application in debug mode (with generate-dev).
-	go run *.go -d --http.limit 200000 --update-url "http://hq.liam.sh/tmp/GeoLite2-City.mmdb.gz"
+	go run *.go -d --http.limit 200000 --update-url "http://hq.hq.liam.sh/tmp/GeoLite2-City.mmdb.gz"
 
 build: fetch clean generate ## Builds the application (with generate).
 	go build -ldflags "${LD_FLAGS}" -i -v -o ${BINARY}
