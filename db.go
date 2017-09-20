@@ -173,21 +173,21 @@ type IPSearch struct {
 
 // AddrResult contains the geolocation and host information for an IP/host.
 type AddrResult struct {
-	IP            net.IP   `json:"ip"`
-	Summary       string   `json:"summary"`
-	City          string   `json:"city"`
-	Subdivision   string   `json:"subdivision"`
-	Country       string   `json:"country"`
-	CountryCode   string   `json:"country_abbr"`
-	Continent     string   `json:"continent"`
-	ContinentCode string   `json:"continent_abbr"`
-	Lat           float64  `json:"latitude"`
-	Long          float64  `json:"longitude"`
-	Timezone      string   `json:"timezone"`
-	PostalCode    string   `json:"postal_code"`
-	Proxy         bool     `json:"proxy"`
-	Hosts         []string `json:"hosts"`
-	Error         string   `json:"error,omitempty"`
+	IP            net.IP  `json:"ip"`
+	Summary       string  `json:"summary"`
+	City          string  `json:"city"`
+	Subdivision   string  `json:"subdivision"`
+	Country       string  `json:"country"`
+	CountryCode   string  `json:"country_abbr"`
+	Continent     string  `json:"continent"`
+	ContinentCode string  `json:"continent_abbr"`
+	Lat           float64 `json:"latitude"`
+	Long          float64 `json:"longitude"`
+	Timezone      string  `json:"timezone"`
+	PostalCode    string  `json:"postal_code"`
+	Proxy         bool    `json:"proxy"`
+	Host          string  `json:"host"`
+	Error         string  `json:"error,omitempty"`
 }
 
 // addrLookup does a geoip lookup of an IP address. filters is passed into
@@ -223,7 +223,6 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 		Timezone:      query.Location.TimeZone,
 		PostalCode:    query.Postal.Code,
 		Proxy:         query.Traits.Proxy,
-		Hosts:         []string{},
 	}
 
 	var subdiv []string
@@ -270,11 +269,8 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 		dnsCtx, cancel := context.WithTimeout(ctx, flags.DNSTimeout)
 		defer cancel()
 
-		if names, err = resolver.LookupAddr(dnsCtx, addr.String()); err == nil {
-			for i := 0; i < len(names); i++ {
-				// These are FQDN's where absolute hosts contain a suffixed ".".
-				result.Hosts = append(result.Hosts, strings.TrimSuffix(names[i], "."))
-			}
+		if names, err = resolver.LookupAddr(dnsCtx, addr.String()); err == nil && len(names) > 0 {
+			result.Host = strings.TrimSuffix(names[0], ".")
 		}
 	}
 
