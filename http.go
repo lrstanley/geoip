@@ -88,9 +88,21 @@ func initHTTP(closer chan struct{}) {
 	if flags.HTTP.TLS.Use {
 		srv.TLSConfig = &tls.Config{PreferServerCipherSuites: true}
 
-		go srv.ListenAndServeTLS(flags.HTTP.TLS.Cert, flags.HTTP.TLS.Key)
+		go func() {
+			debug.Println("starting https server")
+			err := srv.ListenAndServeTLS(flags.HTTP.TLS.Cert, flags.HTTP.TLS.Key)
+			if err != nil {
+				fmt.Printf("error in https server: %s", err)
+			}
+		}()
 	} else {
-		go srv.ListenAndServe()
+		go func() {
+			debug.Println("starting http server")
+			err := srv.ListenAndServe()
+			if err != nil {
+				fmt.Printf("error in http server: %s", err)
+			}
+		}()
 	}
 
 	<-closer
