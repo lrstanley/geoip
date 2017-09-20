@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -93,7 +94,8 @@ func initHTTP(closer chan struct{}) {
 			debug.Println("starting https server")
 			err := srv.ListenAndServeTLS(flags.HTTP.TLS.Cert, flags.HTTP.TLS.Key)
 			if err != nil {
-				fmt.Printf("error in https server: %s", err)
+				fmt.Printf("error in https server: %s\n", err)
+				os.Exit(1)
 			}
 		}()
 	} else {
@@ -101,7 +103,8 @@ func initHTTP(closer chan struct{}) {
 			debug.Println("starting http server")
 			err := srv.ListenAndServe()
 			if err != nil {
-				fmt.Printf("error in http server: %s", err)
+				fmt.Printf("error in http server: %s\n", err)
+				os.Exit(1)
 			}
 		}()
 	}
