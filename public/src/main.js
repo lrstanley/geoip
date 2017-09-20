@@ -25,4 +25,14 @@ Vue.use(VueProgressBar, {
 })
 
 const router = new VueRouter({ routes, mode: 'history' })
+router.beforeEach((to, from, next) => {
+  if (to.meta.title !== undefined) {
+    document.title = `${to.meta.title} · GeoIP`
+  } else {
+    document.title = "GeoIP"
+  }
+
+  next()
+})
+
 new Vue({ router, el: '#vue', render: h => h(App) })
