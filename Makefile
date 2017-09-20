@@ -8,7 +8,7 @@ BINARY=geoip
 LD_FLAGS += -s -w
 
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 release: clean fetch ## Generate a release, but don't publish to GitHub.
 	$(GOPATH)/bin/goreleaser --skip-validate --skip-publish
