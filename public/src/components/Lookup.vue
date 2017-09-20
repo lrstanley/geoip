@@ -11,15 +11,29 @@
       <button class="ui right floated mini button" @click="clearHistory"><i class="ui remove circle icon"></i> Clear history</button>
 
       <transition-group name="list" appear>
-        <div v-for="(item, index) in history" class="result" :key="item.ip">
+        <div v-for="(item, index) in history" class="result" :index="index" :key="item.ip">
           <div class="fluid ui raised card">
             <div class="content">
               <i v-if="item.country_abbr.length != 0" :class="[item.country_abbr.toLowerCase()]" class="right floated flag"></i>
 
-              <div class="header">Q: {{ item.query }} <span v-if="item.query != item.ip">(<a data-tooltip="Click to copy to your clipboard" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.ip">{{ item.ip }}</a>)</span></div>
-              <div class="meta">
-                <span class="category" v-if="item.hosts.length != 0">(<a data-tooltip="Click to copy to your clipboard" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.hosts.join(', ')">{{ item.hosts.join(', ') }}</a>)</span>
+              <div class="header">
+                <i class="circle check icon"></i> {{ item.query }}
+                <span v-if="item.query != item.ip">
+                  (<a data-tooltip="Clip to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.ip">{{ item.ip }}</a>)
+                </span>
               </div>
+
+              <div class="meta">
+                <span class="category" v-if="item.host || item.longitude != 0 && item.latitude != 0">
+                  <span v-if="item.host">
+                    [host: <a data-tooltip="Clip to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.host">{{ item.host }}</a>]
+                  </span>
+                  <span v-if="item.longitude != 0 && item.latitude != 0" class="right floated">
+                    [lat/long: <a :href="'https://www.google.com/maps/@'+item.latitude+','+item.longitude+',5z'" target="_blank">{{item.latitude.toFixed(4)}}, {{item.longitude.toFixed(4)}}</a>]
+                  </span>
+                </span>
+              </div>
+
               <div class="description" v-if="item.longitude != 0 && item.latitude != 0">
                 <v-map style="height: 150px" :zoom=3 v-bind:center="[item.latitude, item.longitude]">
                   <v-tilelayer attribution="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors" url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
@@ -27,10 +41,18 @@
                 </v-map>
               </div>
             </div>
+
             <div class="extra content">
               <div v-if="item.timezone" class="ui label"><i class="wait icon"></i> {{item.timezone}}</div>
+
+              <a v-if="item.postal_code" data-tooltip="Timezone - Clip to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.postal_code">
+                <div class="ui blue label"><i class="building icon"></i> {{item.postal_code}}</div>
+              </a>
+
               <span class="ui right floated">
-                <div v-if="item.summary" class="ui label"><i class="map icon"></i> <a data-tooltip="Click to copy to your clipboard" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.summary">{{item.summary}}</a></div>
+                <a v-if="item.summary" data-tooltip="Location summary - Clip to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.summary">
+                  <div class="ui green label"><i class="map icon"></i> {{item.summary}}</div>
+                </a>
               </span>
             </div>
           </div>
@@ -78,10 +100,34 @@ export default {
       this.loading = true
       this.$Progress.start()
 
+      // Check to see if we've already looked it up, and it's in history.
+      for (var i = 0; i < this.history.length; i++) {
+        if (this.history[i].query == query) {
+          let result = this.history[i]
+          this.history.splice(i, 1)
+
+          // And propagate that change to the URL, so if they copy/paste it,
+          // it will pull up for others.
+          this.$router.replace({ name: this.name, query: { q: query } })
+          this.loading = false
+          this.$Progress.finish()
+          this.address = ""
+          this.addHistory(result)
+          this.selectInput()
+          return
+        }
+      }
+
       this.$http.get(`/api/${query}`).then(response => {
         this.loading = false
 
         if (response.body.error != undefined) {
+          if (query == 'self') {
+            // Don't show a nasty error if we can't even look up their own
+            // IP address on page load.
+            return
+          }
+
           this.error = "Error: " + response.body.error.charAt(0).toUpperCase() + response.body.error.slice(1);
           this.$Progress.fail()
           return
@@ -89,7 +135,11 @@ export default {
 
         // Add our query into the result, so when it gets saved to history,
         // we can use it later.
-        response.body.query = query;
+        response.body.query = query
+
+        // And propagate that change to the URL, so if they copy/paste it,
+        // it will pull up for others.
+        this.$router.replace({ name: this.name, query: { q: query } })
 
         this.$Progress.finish()
         this.address = ""
@@ -103,20 +153,14 @@ export default {
       });
     },
     addHistory: function (result) {
-        for (var i = 0; i < this.history.length; i++) {
-          if (this.history[i].query == result.query) {
-            this.history.splice(i, 1)
-            break
-          }
-        }
-        // Add the result to lookup history.
-        this.history.unshift(result)
-
         // Make sure we're only storing the last ~10 items.
         if (this.history.length > 10) {
           // this.history = this.history.split(0, 10)
           this.history.length = 10
         }
+
+        // Add the result to lookup history.
+        this.history.unshift(result)
 
         // And save it to localstorage.
         this.$ls.set("history", JSON.stringify(this.history))
@@ -129,10 +173,19 @@ export default {
   mounted: function () {
     // On load, try looking in localstorage to see if they have any previous
     // results.
-    this.history = JSON.parse(this.$ls.get("history", []))
+    var history = this.$ls.get("history", "")
+    if (history.length > 0) {
+      this.history = JSON.parse(history)
+    } else {
+      this.history = []
+    }
 
-    // If they don't have any results, lookup their own IP.
-    if (this.history.length == 0) {
+    // If they supplied a request via the URL, use that, otherwise if they
+    // have no history, lookup their own IP.
+    if (this.$route.query.q !== undefined) {
+      this.address = this.$route.query.q
+      this.lookup()
+    } else if (this.history.length == 0) {
       this.lookup(true)
     }
 
@@ -167,16 +220,12 @@ export default {
 
 .list-enter, .list-leave-to { opacity: 0; }
 .list-enter-active, .list-leave-active {
-  animation-duration: .3s;
+  animation-duration: .2s;
   animation-name: fadeInRight;
 }
 
-.ui.label a, .ui.label a:link, .ui.label a:hover, .ui.label a:active, .ui.label a:visited {
-  color: rgba(0, 0, 0, 1) !important;
-}
-
 @keyframes fadeInRight {
-   0% { opacity: 0; transform: translateX(100px); }
+   0% { opacity: 0; transform: translateX(200px); }
    100% { opacity: 1; transform: translateX(0); }
 }
 </style>
