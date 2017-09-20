@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -188,12 +187,8 @@ type AddrResult struct {
 	PostalCode    string   `json:"postal_code"`
 	Proxy         bool     `json:"proxy"`
 	Hosts         []string `json:"hosts"`
-	MapURL        string   `json:"map_url"`
-	MapEmbedURL   string   `json:"map_embed_url"`
+	Error         string   `json:"error,omitempty"`
 }
-
-const mapURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&z=0&q=%s"
-const mapEmbedURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&output=embed&z=%d&q=%s"
 
 // addrLookup does a geoip lookup of an IP address. filters is passed into
 // this function, in case there are any long running tasks which the user
@@ -255,29 +250,9 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 	}
 	result.Summary = strings.Join(summary, ", ")
 
-	mapZoom := 2
-	var mapQuery string
-	switch {
-	case result.City != "":
-		mapZoom = 6
-	case result.Subdivision != "":
-		mapZoom = 4
-	case result.Country != "":
-		mapZoom = 3
+	if result.Summary == "" {
+		result.Error = "no results found"
 	}
-
-	switch {
-	case result.Lat != 0 || result.Long != 0:
-		mapQuery = fmt.Sprintf("%f,%f", result.Lat, result.Long)
-	case result.City != "" && result.Subdivision != "" && result.CountryCode != "":
-		mapQuery = fmt.Sprintf("%s, %s, %s", result.City, result.Subdivision, result.CountryCode)
-	case result.Subdivision != "" && result.CountryCode != "":
-		mapQuery = fmt.Sprintf("%s, %s", result.Subdivision, result.CountryCode)
-	default:
-		mapQuery = result.Country
-	}
-	result.MapURL = fmt.Sprintf(mapURI, url.QueryEscape(mapQuery))
-	result.MapEmbedURL = fmt.Sprintf(mapEmbedURI, mapZoom, url.QueryEscape(mapQuery))
 
 	wantsHosts := len(filters) == 0
 	if !wantsHosts {

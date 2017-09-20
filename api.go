@@ -31,7 +31,8 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	// unwanted extra memory usage/be considered a resource usage attack),
 	// we shouldn't handle their request.
 	if len(filters) > 20 {
-		http.NotFound(w, r)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "too many filters supplied\n")
 		return
 	}
 
@@ -39,8 +40,6 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		filters = []string{}
 	}
 	sort.Strings(filters)
-
-	var result *AddrResult
 
 	// Allow users to query themselves without having to have them specify
 	// their own IP address. Note that this will not work if you are querying
@@ -58,51 +57,68 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		key = addr + ":" + strings.Join(filters, ",")
 	}
 
+	var result *AddrResult
+
 	query, err := arc.GetIFPresent(key)
 	if err == nil {
 		resultFromARC, _ := query.(AddrResult)
 		result = &resultFromARC
 		w.Header().Set("X-Cache", "HIT")
 		debug.Printf("query %s fetched from arc cache", addr)
-	} else {
-		w.Header().Set("X-Cache", "MISS")
-		if err != gcache.KeyNotFoundError {
-			debug.Printf("unable to get %s off arc stack: %s", addr, err)
-		}
 
-		ip := net.ParseIP(addr)
-		if ip == nil {
-			var ips []string
-			ips, err = net.LookupHost(addr)
-			if err != nil || len(ips) == 0 {
-				debug.Printf("error looking up %q as host address: %s", addr, err)
-				http.NotFound(w, r)
-				return
-			}
+		apiResponse(w, r, result, filters)
+		return
+	}
 
-			ip = net.ParseIP(ips[0])
-		}
+	w.Header().Set("X-Cache", "MISS")
+	if err != gcache.KeyNotFoundError {
+		debug.Printf("unable to get %s off arc stack: %s", addr, err)
+	}
 
-		if flags.NoBogon {
-			if is, _ := bogon.Is(ip.String()); is {
-				http.NotFound(w, r)
-				return
-			}
-		}
+	ip := net.ParseIP(addr)
+	if ip == nil {
+		var ips []string
+		ips, err = net.LookupHost(addr)
+		if err != nil || len(ips) == 0 {
+			debug.Printf("error looking up %q as host address: %s", addr, err)
 
-		result, err = addrLookup(r.Context(), ip, filters)
-		if err != nil {
-			debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
-			w.WriteHeader(http.StatusServiceUnavailable)
+			result = &AddrResult{Error: fmt.Sprintf("invalid ip/host specified: %s", addr)}
+			apiResponse(w, r, result, filters)
 			return
 		}
 
-		if err = arc.Set(key, *result); err != nil {
-			debug.Printf("unable to add %s to arc cache: %s", addr, err)
-		}
+		ip = net.ParseIP(ips[0])
 	}
 
+	if is, _ := bogon.Is(ip.String()); is {
+		result = &AddrResult{Error: "internal address"}
+		apiResponse(w, r, result, filters)
+		return
+	}
+
+	result, err = addrLookup(r.Context(), ip, filters)
+	if err != nil {
+		debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+
+	if err = arc.Set(key, *result); err != nil {
+		debug.Printf("unable to add %s to arc cache: %s", addr, err)
+	}
+
+	apiResponse(w, r, result, filters)
+}
+
+func apiResponse(w http.ResponseWriter, r *http.Request, result *AddrResult, filters []string) {
+	var err error
+
 	if len(filters) > 0 {
+		if result.Error != "" {
+			fmt.Fprintf(w, "err: %s", result.Error)
+			return
+		}
+
 		base := make(map[string]*json.RawMessage)
 		var tmp []byte
 
