@@ -289,10 +289,10 @@ func addrLookup(path string, addr net.IP, filters []string) (result *AddrResult,
 	if wantsHosts {
 		var names []string
 		resolver := &net.Resolver{}
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		dnsCtx, cancel := context.WithTimeout(ctx, flags.DNSTimeout)
 		defer cancel()
 
-		if names, err = resolver.LookupAddr(ctx, addr.String()); err == nil {
+		if names, err = resolver.LookupAddr(dnsCtx, addr.String()); err == nil {
 			for i := 0; i < len(names); i++ {
 				// These are FQDN's where absolute hosts contain a suffixed ".".
 				result.Hosts = append(result.Hosts, strings.TrimSuffix(names[i], "."))
