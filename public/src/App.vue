@@ -6,9 +6,10 @@
           <div class="three wide column navigation">
             <div class="ui secondary stackable vertical pointing menu">
               <a class="header item brand" href="#">GeoIP <i class="blue world icon"></i></a>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'lookup'}">Lookup Address <i class="olive search icon"></i></router-link>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'apidocs'}">API Documentation <i class="teal book icon"></i></router-link>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'about'}">About <i class="red help circle icon"></i></router-link>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'lookup' }">Lookup Address <i class="olive search icon"></i></router-link>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'bulkLookup' }">Bulk Lookup <i class="yellow database icon"></i></router-link>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'apidocs' }">API Documentation <i class="teal book icon"></i></router-link>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'about' }">About <i class="red help circle icon"></i></router-link>
             </div>
           </div>
           <div class="ui ten wide column">
@@ -82,7 +83,7 @@ export default {
   border-bottom: 1px solid #DEDEDE !important;
 }
 
-.fade-enter-active { transition: opacity .3s; }
-.fade-leave-active { transition: opacity .2s; }
+.fade-enter-active { transition: opacity .2s; }
+.fade-leave-active { transition: opacity .1s; }
 .fade-enter, .fade-leave-to { opacity: 0; }
 </style>

@@ -1,4 +1,5 @@
 import Lookup from './components/Lookup'
+import BulkLookup from './components/BulkLookup'
 import Docs from './components/Docs'
 import About from './components/About'
 
@@ -8,6 +9,12 @@ export default [
     component: Lookup,
     name: 'lookup',
     meta: { title: 'Lookup Address' },
+  },
+  {
+    path: '/lookup/bulk',
+    component: BulkLookup,
+    name: 'bulkLookup',
+    meta: { title: 'Bulk Lookup' },
   },
   {
     path: '/docs/api',
