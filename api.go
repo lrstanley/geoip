@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -24,6 +25,12 @@ func registerAPI(r chi.Router) {
 
 func apiLookup(w http.ResponseWriter, r *http.Request) {
 	addr := chi.URLParam(r, "addr")
+	filters := strings.Split(chi.URLParam(r, "filter"), ",")
+	if len(filters) == 1 && filters[0] == "" {
+		filters = []string{}
+	}
+	sort.Strings(filters)
+
 	var result *AddrResult
 
 	// Allow users to query themselves without having to have them specify
@@ -65,19 +72,24 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		result, err = addrLookup(flags.DBPath, ip)
+		result, err = addrLookup(flags.DBPath, ip, filters)
 		if err != nil {
 			debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
 
-		if err = arc.Set(addr, *result); err != nil {
+		if len(filters) > 0 {
+			err = arc.Set(addr+":"+strings.Join(filters, ","), *result)
+		} else {
+			err = arc.Set(addr, *result)
+		}
+		if err != nil {
 			debug.Printf("unable to add %s to arc cache: %s", addr, err)
 		}
 	}
 
-	if filter := strings.Split(chi.URLParam(r, "filter"), ","); filter != nil && len(filter) > 0 && filter[0] != "" {
+	if len(filters) > 0 {
 		base := make(map[string]*json.RawMessage)
 		var tmp []byte
 
@@ -90,9 +102,9 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 
-		out := make([]string, len(filter))
-		for i := 0; i < len(filter); i++ {
-			out[i] = strings.Replace(fmt.Sprintf("%s", *base[filter[i]]), "\"", "", -1)
+		out := make([]string, len(filters))
+		for i := 0; i < len(filters); i++ {
+			out[i] = strings.Replace(fmt.Sprintf("%s", *base[filters[i]]), "\"", "", -1)
 		}
 
 		w.Header().Set("Content-Type", "application/json")

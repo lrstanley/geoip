@@ -6,6 +6,7 @@ package main
 
 import (
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -194,8 +195,10 @@ type AddrResult struct {
 const mapURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&z=0&q=%s"
 const mapEmbedURI = "https://maps.google.com/maps?f=q&ie=UTF8&iwloc=A&output=embed&z=%d&q=%s"
 
-// addrLookup does a geoip lookup of an IP address
-func addrLookup(path string, addr net.IP) (result *AddrResult, err error) {
+// addrLookup does a geoip lookup of an IP address. filters is passed into
+// this function, in case there are any long running tasks which the user
+// may not even want (e.g. reverse dns lookups).
+func addrLookup(path string, addr net.IP, filters []string) (result *AddrResult, err error) {
 	db, err := maxminddb.Open(path)
 	if err != nil {
 		return nil, err
@@ -273,11 +276,27 @@ func addrLookup(path string, addr net.IP) (result *AddrResult, err error) {
 	result.MapURL = fmt.Sprintf(mapURI, url.QueryEscape(mapQuery))
 	result.MapEmbedURL = fmt.Sprintf(mapEmbedURI, mapZoom, url.QueryEscape(mapQuery))
 
-	var names []string
-	if names, err = net.LookupAddr(addr.String()); err == nil {
-		for i := 0; i < len(names); i++ {
-			// These are FQDN's where absolute hosts contain a suffixed ".".
-			result.Hosts = append(result.Hosts, strings.TrimSuffix(names[i], "."))
+	wantsHosts := len(filters) == 0
+	if !wantsHosts {
+		for i := 0; i < len(filters); i++ {
+			if filters[i] == "hosts" {
+				wantsHosts = true
+				break
+			}
+		}
+	}
+
+	if wantsHosts {
+		var names []string
+		resolver := &net.Resolver{}
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		if names, err = resolver.LookupAddr(ctx, addr.String()); err == nil {
+			for i := 0; i < len(names); i++ {
+				// These are FQDN's where absolute hosts contain a suffixed ".".
+				result.Hosts = append(result.Hosts, strings.TrimSuffix(names[i], "."))
+			}
 		}
 	}
 
