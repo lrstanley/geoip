@@ -26,6 +26,15 @@ func registerAPI(r chi.Router) {
 func apiLookup(w http.ResponseWriter, r *http.Request) {
 	addr := chi.URLParam(r, "addr")
 	filters := strings.Split(chi.URLParam(r, "filter"), ",")
+
+	// If they're trying to send us way too many filters (which could cause
+	// unwanted extra memory usage/be considered a resource usage attack),
+	// we shouldn't handle their request.
+	if len(filters) > 20 {
+		http.NotFound(w, r)
+		return
+	}
+
 	if len(filters) == 1 && filters[0] == "" {
 		filters = []string{}
 	}
@@ -40,7 +49,16 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		addr, _, _ = net.SplitHostPort(r.RemoteAddr)
 	}
 
-	query, err := arc.GetIFPresent(addr)
+	// This would be the index key used for arc cache, if they request custom
+	// filters, we should add that to the key, because those filters may
+	// mean that the returned lookup has excluded information, which may
+	// cause issues if the same query is returned with no requested filters.
+	key := addr
+	if len(filters) > 0 {
+		key = addr + ":" + strings.Join(filters, ",")
+	}
+
+	query, err := arc.GetIFPresent(key)
 	if err == nil {
 		resultFromARC, _ := query.(AddrResult)
 		result = &resultFromARC
@@ -79,12 +97,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if len(filters) > 0 {
-			err = arc.Set(addr+":"+strings.Join(filters, ","), *result)
-		} else {
-			err = arc.Set(addr, *result)
-		}
-		if err != nil {
+		if err = arc.Set(key, *result); err != nil {
 			debug.Printf("unable to add %s to arc cache: %s", addr, err)
 		}
 	}
