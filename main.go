@@ -26,12 +26,12 @@ type Flags struct {
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
 	NoBogon        bool          `long:"no-bogon" description:"disallow bogon addresses in lookups"`
 	Cache          struct {
-		Size   int           `long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"200"`
-		Expire time.Duration `long:"expire" description:"expiration time of cache" default:"5m"`
+		Size   int           `long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
+		Expire time.Duration `long:"expire" description:"expiration time of cache" default:"20m"`
 	} `group:"Cache Options" namespace:"cache"`
 	HTTP struct {
 		Bind  string   `short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
-		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (dangerous!)"`
+		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (dangerous, make sure to only bind to localhost)"`
 		Limit int      `long:"limit" description:"number of requests/ip/hour" default:"2000"`
 		CORS  []string `long:"cors" description:"cors origin domain to allow (empty => '*'; use flag multiple times)"`
 		TLS   struct {
