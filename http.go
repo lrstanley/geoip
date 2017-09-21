@@ -21,17 +21,26 @@ import (
 
 func initHTTP(closer chan struct{}) {
 	r := chi.NewRouter()
+	if flags.HTTP.Proxy {
+		r.Use(middleware.RealIP)
+	}
+
 	r.Use(middleware.CloseNotify)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
-	r.Use(middleware.StripSlashes)
-	r.Use(dbDetailsMiddleware)
 	r.Use(middleware.GetHead)
+	r.Use(middleware.StripSlashes)
+	r.Use(middleware.DefaultCompress)
+	r.Use(dbDetailsMiddleware)
 
 	r.Mount("/static/dist", http.StripPrefix("/static/dist", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Vary", "Accept-Encoding")
+		w.Header().Set("Cache-Control", "public, max-age=7776000")
 		http.FileServer(rice.MustFindBox("public/dist").HTTPBox()).ServeHTTP(w, r)
 	})))
 	r.Mount("/static", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Vary", "Accept-Encoding")
+		w.Header().Set("Cache-Control", "public, max-age=7776000")
 		http.FileServer(rice.MustFindBox("public/static").HTTPBox()).ServeHTTP(w, r)
 	})))
 
@@ -43,10 +52,6 @@ func initHTTP(closer chan struct{}) {
 
 		w.Write(rice.MustFindBox("public/static/html").MustBytes("index.html"))
 	})
-
-	if flags.HTTP.Proxy {
-		r.Use(middleware.RealIP)
-	}
 
 	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {
 		flags.HTTP.CORS = []string{"*"}
@@ -78,9 +83,9 @@ func initHTTP(closer chan struct{}) {
 	defer limiterBackend.Stop()
 
 	if flags.HTTP.Limit > 0 {
-		r.With(cors.Handler, limiter.Handle).Group(registerAPI)
+		r.With(cors.Handler, middleware.NoCache, limiter.Handle).Group(registerAPI)
 	} else {
-		r.With(cors.Handler).Group(registerAPI)
+		r.With(cors.Handler, middleware.NoCache).Group(registerAPI)
 	}
 
 	srv := http.Server{
