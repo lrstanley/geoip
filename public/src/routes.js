@@ -2,30 +2,42 @@ import Lookup from './components/Lookup'
 import BulkLookup from './components/BulkLookup'
 import Docs from './components/Docs'
 import About from './components/About'
+import NotFound from './components/NotFound'
 
 export default [
   {
+    name: 'lookup',
     path: '/',
     component: Lookup,
-    name: 'lookup',
-    meta: { title: 'Lookup Address' },
+    meta: { title: 'Lookup address' },
   },
   {
+    name: 'bulkLookup',
     path: '/lookup/bulk',
     component: BulkLookup,
-    name: 'bulkLookup',
-    meta: { title: 'Bulk Lookup' },
+    meta: { title: 'Bulk lookup' },
   },
   {
-    path: '/docs/api',
-    component: Docs,
     name: 'apidocs',
-    meta: { title: 'API Docs' },
+    path: '/lookup/docs',
+    component: Docs,
+    meta: { title: 'API docs' },
   },
   {
+    name: 'about',
     path: '/about',
     component: About,
-    name: 'about',
-    meta: { title: 'About This Tool' },
-  }
+    meta: { title: 'About this tool' },
+  },
+  {
+    name: 'catchall',
+    path: '*',
+    redirect: '/404'
+  },
+  {
+    name: '404',
+    path: '/404',
+    component: NotFound,
+    meta: { title: 'Page not found' },
+  },
 ]

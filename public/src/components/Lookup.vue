@@ -7,14 +7,14 @@
 
     <div v-if="error" class="ui negative message"><i class="icon warning sign"></i> {{ error }}</div>
 
-    <div v-if="history.length != 0" class="result-box">
+    <div v-if="history" class="result-box">
       <button class="ui right floated mini button" @click="clearHistory"><i class="ui remove circle icon"></i> Clear history</button>
 
       <transition-group name="list" appear>
         <div v-for="(item, index) in history" class="result" :index="index" :key="item.ip">
           <div class="fluid ui raised card">
             <div class="content">
-              <i v-if="item.country_abbr.length != 0" :class="[item.country_abbr.toLowerCase()]" class="right floated flag"></i>
+              <i v-if="item.country_abbr" :class="[item.country_abbr.toLowerCase()]" class="right floated flag"></i>
 
               <div class="header">
                 <i class="circle check icon"></i> {{ item.query }}
@@ -194,7 +194,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .input-box {
   transition: 0.15s padding ease-out, 0.15s margin ease-out, 0.15s border ease-out;
 }
