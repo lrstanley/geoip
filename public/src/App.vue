@@ -19,7 +19,9 @@
               </transition>
             </div>
 
-            <!-- TODO: footer here -->
+            <div class="footer">
+              Location data from <a target="_blank" href="http://www.maxmind.com">Maxmind</a> &middot; GeoIP: <a target="_blank" href="https://github.com/lrstanley/geoip">FOSS</a> lookup service, made with <i class="red heart icon"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -81,6 +83,11 @@ export default {
 
 .brand {
   border-bottom: 1px solid #DEDEDE !important;
+}
+
+.footer {
+  font-size: 13px;
+  float: right;
 }
 
 .fade-enter-active { transition: opacity .2s; }
