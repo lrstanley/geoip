@@ -24,7 +24,7 @@ func registerAPI(r chi.Router) {
 }
 
 func apiLookup(w http.ResponseWriter, r *http.Request) {
-	addr := chi.URLParam(r, "addr")
+	addr := strings.TrimSpace(chi.URLParam(r, "addr"))
 	filters := strings.Split(chi.URLParam(r, "filter"), ",")
 
 	// If they're trying to send us way too many filters (which could cause
