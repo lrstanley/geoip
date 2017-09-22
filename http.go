@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-web/httprl"
+	"github.com/lrstanley/recoverer"
 )
 
 func initHTTP(closer chan struct{}) {
@@ -26,7 +27,7 @@ func initHTTP(closer chan struct{}) {
 	}
 
 	r.Use(middleware.CloseNotify)
-	r.Use(middleware.Recoverer)
+	r.Use(recoverer.New(recoverer.Options{Logger: os.Stderr, Show: flags.Debug, Simple: false}))
 	r.Use(middleware.Logger)
 	r.Use(middleware.GetHead)
 	r.Use(middleware.StripSlashes)
