@@ -58,7 +58,7 @@ func initHTTP(closer chan struct{}) {
 	}
 	cors := cors.New(cors.Options{
 		AllowedOrigins: flags.HTTP.CORS,
-		AllowedMethods: []string{"GET"},
+		AllowedMethods: []string{"GET", "OPTIONS"},
 		AllowedHeaders: []string{"Accept", "Content-Type"},
 		ExposedHeaders: []string{"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset"},
 		MaxAge:         3600,
