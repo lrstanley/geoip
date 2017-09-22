@@ -20,7 +20,7 @@ import (
 var version, commit, date = "unknown", "unknown", "unknown"
 
 type Flags struct {
-	Debug          bool          `short:"d" long:"debug" description:"enable debug output"`
+	Debug          bool          `short:"d" long:"debug" description:"enable debug output, and exception display"`
 	DBPath         string        `long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
 	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
