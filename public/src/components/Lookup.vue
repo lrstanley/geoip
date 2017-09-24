@@ -7,7 +7,7 @@
 
     <div v-if="error" class="ui negative message"><i class="icon warning sign"></i> {{ error }}</div>
 
-    <div v-if="history" class="result-box">
+    <div v-if="history.length > 0" class="result-box">
       <button class="ui right floated mini button" @click="clearHistory"><i class="ui remove circle icon"></i> Clear history</button>
 
       <transition-group name="list" appear>
