@@ -9,7 +9,6 @@
               <router-link exact-active-class="active" class="item" :to="{ name: 'lookup' }">Lookup Address <i class="olive search icon"></i></router-link>
               <router-link exact-active-class="active" class="item" :to="{ name: 'bulkLookup' }">Bulk Lookup <i class="yellow database icon"></i></router-link>
               <router-link exact-active-class="active" class="item" :to="{ name: 'apidocs' }">API Documentation <i class="teal book icon"></i></router-link>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'about' }">About <i class="red help circle icon"></i></router-link>
             </div>
           </div>
           <div class="ui ten wide column">
