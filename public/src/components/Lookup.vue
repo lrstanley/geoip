@@ -82,115 +82,113 @@ export default {
     }
   },
   methods: {
-    copyClipboard: function (event) {
+    copyClipboard: (event) => {
       var clipboard = new Clipboard('.null');
-      clipboard.onClick(event)
-      toastr.success('Copied to clipboard', '', {timeOut: 1000, preventDuplicates: true})
-      clipboard.destroy()
+      clipboard.onClick(event);
+      toastr.success('Copied to clipboard', '', { timeOut: 1000, preventDuplicates: true });
+      clipboard.destroy();
     },
-    selectInput: function () {
-      // Select the address input box if it's not already selected.
-      setTimeout(function() { $("#addr_box").focus(); }, 500)
-    },
+    selectInput: () => { setTimeout(function() { $("#addr_box").focus(); }, 500); },
     lookup: function (lookupSelf) {
-      let query = lookupSelf === true ? 'self' : this.address
+      let query = lookupSelf === true ? 'self' : this.address;
 
-      if (query.length == 0 || this.loading) { return }
+      if (query.length == 0 || this.loading) { return; }
 
-      this.error = false
-      this.loading = true
-      this.$Progress.start()
+      this.error = false;
+      this.loading = true;
+      this.$Progress.start();
 
       // Check to see if we've already looked it up, and it's in history.
       for (var i = 0; i < this.history.length; i++) {
         if (this.history[i].query == query) {
-          let result = this.history[i]
-          this.history.splice(i, 1)
+          let result = this.history[i];
+          this.history.splice(i, 1);
 
           // And propagate that change to the URL, so if they copy/paste it,
           // it will pull up for others.
-          this.$router.replace({ name: this.name, query: { q: query } })
-          this.loading = false
-          this.$Progress.finish()
-          this.address = ""
-          this.addHistory(result)
-          this.selectInput()
-          return
+          this.$router.replace({ name: this.name, query: { q: query } });
+          this.loading = false;
+          this.$Progress.finish();
+          this.address = "";
+          this.addHistory(result);
+          this.selectInput();
+
+          return;
         }
       }
 
       this.$http.get(`/api/${query}`).then(response => {
-        this.loading = false
+        this.loading = false;
 
         if (response.body.error != undefined) {
           if (query == 'self') {
             // Don't show a nasty error if we can't even look up their own
             // IP address on page load.
-            return
+            return;
           }
 
           this.error = "Error: " + response.body.error.charAt(0).toUpperCase() + response.body.error.slice(1);
-          this.$Progress.fail()
+          this.$Progress.fail();
           return
         }
 
         // Add our query into the result, so when it gets saved to history,
         // we can use it later.
-        response.body.query = query
+        response.body.query = query;
 
         // And propagate that change to the URL, so if they copy/paste it,
         // it will pull up for others.
-        this.$router.replace({ name: this.name, query: { q: query } })
+        this.$router.replace({ name: this.name, query: { q: query } });
 
-        this.$Progress.finish()
-        this.address = ""
-        this.addHistory(response.body)
-        this.selectInput()
+        this.$Progress.finish();
+        this.address = "";
+        this.addHistory(response.body);
+        this.selectInput();
       }, response => {
-        this.$Progress.fail()
-        this.error = "An unknown exception occurred or service unavailable"
-        this.loading = false
-        this.selectInput()
+        this.$Progress.fail();
+        this.error = "An unknown exception occurred or service unavailable";
+        this.loading = false;
+        this.selectInput();
       });
     },
     addHistory: function (result) {
         // Make sure we're only storing the last ~10 items.
         if (this.history.length > 10) {
           // this.history = this.history.split(0, 10)
-          this.history.length = 10
+          this.history.length = 10;
         }
 
         // Add the result to lookup history.
-        this.history.unshift(result)
+        this.history.unshift(result);
 
         // And save it to localstorage.
-        this.$ls.set("history", JSON.stringify(this.history))
+        this.$ls.set("history", JSON.stringify(this.history));
     },
     clearHistory: function () {
-      this.history = []
-      this.$ls.set("history", JSON.stringify([]))
+      this.history = [];
+      this.$ls.set("history", JSON.stringify([]));
     }
   },
   mounted: function () {
     // On load, try looking in localstorage to see if they have any previous
     // results.
-    var history = this.$ls.get("history", "")
+    var history = this.$ls.get("history", "");
     if (history.length > 0) {
-      this.history = JSON.parse(history)
+      this.history = JSON.parse(history);
     } else {
-      this.history = []
+      this.history = [];
     }
 
     // If they supplied a request via the URL, use that, otherwise if they
     // have no history, lookup their own IP.
     if (this.$route.query.q !== undefined) {
-      this.address = this.$route.query.q
-      this.lookup()
+      this.address = this.$route.query.q;
+      this.lookup();
     } else if (this.history.length == 0) {
-      this.lookup(true)
+      this.lookup(true);
     }
 
-    this.selectInput()
+    this.selectInput();
   }
 }
 </script>
