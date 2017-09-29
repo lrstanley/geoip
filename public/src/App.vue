@@ -93,4 +93,22 @@ export default {
 .fade-enter-active { transition: opacity .2s; }
 .fade-leave-active { transition: opacity .1s; }
 .fade-enter, .fade-leave-to { opacity: 0; }
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 6px;
+}
+::-webkit-scrollbar-track-piece {
+  background-color: #F5F5F5;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #1678c2;
+  background-clip: padding-box;
+  border: 2px solid #FFFFFF;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background-color: #1678c2;
+}
 </style>
