@@ -235,18 +235,23 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 	if result.City != "" {
 		summary = append(summary, result.City)
 	}
-	if result.Subdivision != "" {
+
+	if result.Subdivision != "" && result.City != result.Subdivision {
 		summary = append(summary, result.Subdivision)
 	}
-	if result.CountryCode != "" {
-		summary = append(summary, result.CountryCode)
-	} else if result.Country != "" {
+
+	if result.Country != "" && len(summary) == 0 {
 		summary = append(summary, result.Country)
-	} else if result.ContinentCode != "" {
-		summary = append(summary, result.ContinentCode)
-	} else if result.Continent != "" {
-		summary = append(summary, result.Continent)
+	} else if result.CountryCode != "" {
+		summary = append(summary, result.CountryCode)
 	}
+
+	if result.Continent != "" && len(summary) == 0 {
+		summary = append(summary, result.Continent)
+	} else if result.ContinentCode != "" && result.Subdivision == "" && result.City == "" {
+		summary = append(summary, result.ContinentCode)
+	}
+
 	result.Summary = strings.Join(summary, ", ")
 
 	if result.Summary == "" {
