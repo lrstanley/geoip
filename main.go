@@ -21,7 +21,11 @@ import (
 	gflags "github.com/jessevdk/go-flags"
 )
 
-var version, commit, date = "unknown", "unknown", "unknown"
+var (
+	version = "unknown"
+	commit  = "unknown"
+	date    = "unknown"
+)
 
 type Flags struct {
 	Debug          bool          `short:"d" long:"debug" description:"enable exception display and pprof endpoints (warn: dangerous)"`
@@ -51,11 +55,13 @@ type Flags struct {
 	} `group:"DNS Lookup Options" namespace:"dns"`
 }
 
-var flags Flags
-var logger = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
-var db *DB
-var arc gcache.Cache
-var resolver *net.Resolver
+var (
+	flags    Flags
+	logger   = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
+	db       *DB
+	arc      gcache.Cache
+	resolver *net.Resolver
+)
 
 func main() {
 	parser := gflags.NewParser(&flags, gflags.HelpFlag)

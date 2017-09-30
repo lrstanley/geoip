@@ -29,6 +29,7 @@ fetch: ## Fetches the necessary dependencies to build.
 	test -f $(GOPATH)/bin/goreleaser || go get -u -v github.com/goreleaser/goreleaser
 	test -f $(GOPATH)/bin/rice || go get -u -v github.com/GeertJohan/go.rice/rice
 	$(GOPATH)/bin/govendor sync
+	test -d public/node_modules || (cd public && npm install)
 
 clean: ## Cleans up generated files/folders from the build.
 	/bin/rm -rfv "public/dist" "rice-box.go" "${BINARY}"
