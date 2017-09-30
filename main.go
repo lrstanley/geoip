@@ -5,11 +5,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
+	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -25,7 +29,6 @@ type Flags struct {
 	DBPath         string        `long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
 	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
-	DNSTimeout     time.Duration `long:"dns-timeout" description:"max allowed duration when looking up hostnames (may cause queries to be slow)" default:"2s"`
 	Cache          struct {
 		Size   int           `long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
 		Expire time.Duration `long:"expire" description:"expiration time of cache" default:"20m"`
@@ -41,12 +44,18 @@ type Flags struct {
 			Key  string `long:"key" description:"path to ssl key"`
 		} `group:"TLS Options" namespace:"tls"`
 	} `group:"HTTP Options" namespace:"http"`
+	DNS struct {
+		Timeout   time.Duration `long:"timeout" description:"max allowed duration when looking up hostnames (may cause queries to be slow)" default:"2s"`
+		Resolvers []string      `long:"resolver" description:"resolver (in host:port form) to use for dns lookups (doesn't work with windows and plan9) (can be used multiple times)"`
+		Local     bool          `long:"uselocal" description:"adds local (system) resolvers to the list of resolvers to use"`
+	} `group:"DNS Lookup Options" namespace:"dns"`
 }
 
 var flags Flags
 var logger = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
 var db *DB
 var arc gcache.Cache
+var resolver *net.Resolver
 
 func main() {
 	parser := gflags.NewParser(&flags, gflags.HelpFlag)
@@ -62,6 +71,12 @@ func main() {
 
 	db = &DB{path: flags.DBPath}
 	arc = gcache.New(flags.Cache.Size).ARC().Expiration(flags.Cache.Expire).Build()
+
+	if len(flags.DNS.Resolvers) == 0 {
+		resolver = net.DefaultResolver
+	} else {
+		resolver = &net.Resolver{PreferGo: true, Dial: customResolver}
+	}
 
 	go func() {
 		var needsUpdate bool
@@ -102,4 +117,29 @@ func catch() {
 	fmt.Println("listening for signal. CTRL+C to quit.")
 	<-signals
 	fmt.Println("\ninvoked termination, cleaning up")
+}
+
+func customResolver(ctx context.Context, network, address string) (net.Conn, error) {
+	var index int
+
+	if flags.DNS.Local {
+		index = rand.Intn(len(flags.DNS.Resolvers) + 1)
+	} else {
+		// Generate a random number, which is used to select a resolver.
+		// However, if the number generated is out of the bounds of the
+		// amount of resolvers, use the system resolver, since they
+		// requested it.
+		index = rand.Intn(len(flags.DNS.Resolvers))
+	}
+
+	if index == len(flags.DNS.Resolvers) {
+		return net.Dial(network, address)
+	}
+
+	addr := flags.DNS.Resolvers[index]
+
+	if strings.Contains(addr, ":") {
+		return net.Dial(network, addr)
+	}
+	return net.Dial(network, addr+":53")
 }

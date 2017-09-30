@@ -269,15 +269,22 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 	}
 
 	if wantsHosts {
-		var names []string
-		resolver := &net.Resolver{}
-		dnsCtx, cancel := context.WithTimeout(ctx, flags.DNSTimeout)
-		defer cancel()
-
-		if names, err = resolver.LookupAddr(dnsCtx, addr.String()); err == nil && len(names) > 0 {
-			result.Host = strings.TrimSuffix(names[0], ".")
-		}
+		result.Host, _ = lookupHost(ctx, addr)
 	}
 
 	return result, nil
+}
+
+func lookupHost(ctx context.Context, addr net.IP) (string, error) {
+	dnsCtx, cancel := context.WithTimeout(ctx, flags.DNS.Timeout)
+	defer cancel()
+
+	var names []string
+	var err error
+
+	if names, err = resolver.LookupAddr(dnsCtx, addr.String()); err == nil && len(names) > 0 {
+		return strings.TrimSuffix(names[0], "."), nil
+	}
+
+	return "", err
 }
