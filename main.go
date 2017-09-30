@@ -20,7 +20,8 @@ import (
 var version, commit, date = "unknown", "unknown", "unknown"
 
 type Flags struct {
-	Debug          bool          `short:"d" long:"debug" description:"enable debug output, and exception display"`
+	Debug          bool          `short:"d" long:"debug" description:"enable exception display and pprof endpoints (warn: dangerous)"`
+	Quiet          bool          `short:"q" long:"quiet" description:"disable verbose output"`
 	DBPath         string        `long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
 	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
 	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
@@ -31,7 +32,7 @@ type Flags struct {
 	} `group:"Cache Options" namespace:"cache"`
 	HTTP struct {
 		Bind  string   `short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
-		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (dangerous, make sure to only bind to localhost)"`
+		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (warn: dangerous, make sure to only bind to localhost)"`
 		Limit int      `long:"limit" description:"number of requests/ip/hour" default:"2000"`
 		CORS  []string `long:"cors" description:"cors origin domain to allow (empty => '*'; use flag multiple times)"`
 		TLS   struct {
@@ -43,7 +44,7 @@ type Flags struct {
 }
 
 var flags Flags
-var debug = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
+var logger = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
 var db *DB
 var arc gcache.Cache
 
@@ -55,8 +56,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	if flags.Debug {
-		debug.SetOutput(os.Stdout)
+	if !flags.Quiet {
+		logger.SetOutput(os.Stdout)
 	}
 
 	db = &DB{path: flags.DBPath}
@@ -66,20 +67,20 @@ func main() {
 		var needsUpdate bool
 		var err error
 		for {
-			debug.Println("checking for database updates")
+			logger.Println("checking for database updates")
 			needsUpdate, err = db.checkForUpdates()
 			if needsUpdate {
 				if err != nil {
-					debug.Printf("database needs update due to error (%s)", err)
+					logger.Printf("database needs update due to error (%s)", err)
 				} else {
-					debug.Println("database needs update")
+					logger.Println("database needs update")
 				}
 
 				if err = db.update(flags.UpdateURL); err != nil {
-					debug.Println(err)
+					logger.Println(err)
 				}
 			} else {
-				debug.Println("no database updates needed")
+				logger.Println("no database updates needed")
 			}
 
 			time.Sleep(flags.UpdateInterval)

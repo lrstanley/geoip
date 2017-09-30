@@ -34,6 +34,10 @@ func initHTTP(closer chan struct{}) {
 	r.Use(middleware.DefaultCompress)
 	r.Use(dbDetailsMiddleware)
 
+	if flags.Debug {
+		r.Mount("/debug", middleware.Profiler())
+	}
+
 	r.Mount("/static/dist", http.StripPrefix("/static/dist", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Vary", "Accept-Encoding")
 		w.Header().Set("Cache-Control", "public, max-age=7776000")
@@ -71,7 +75,7 @@ func initHTTP(closer chan struct{}) {
 		Limit:    uint64(flags.HTTP.Limit),
 		Interval: 60 * 60, // 1h.
 		LimitExceededFunc: func(w http.ResponseWriter, r *http.Request) {
-			debug.Printf(
+			logger.Printf(
 				"connection %s has hit rate limit (limit: %s, reset: %s)",
 				r.RemoteAddr,
 				w.Header().Get("X-Ratelimit-Limit"),
@@ -100,7 +104,7 @@ func initHTTP(closer chan struct{}) {
 		srv.TLSConfig = &tls.Config{PreferServerCipherSuites: true}
 
 		go func() {
-			debug.Println("starting https server")
+			logger.Println("starting https server")
 			err := srv.ListenAndServeTLS(flags.HTTP.TLS.Cert, flags.HTTP.TLS.Key)
 			if err != nil {
 				fmt.Printf("error in https server: %s\n", err)
@@ -109,7 +113,7 @@ func initHTTP(closer chan struct{}) {
 		}()
 	} else {
 		go func() {
-			debug.Println("starting http server")
+			logger.Println("starting http server")
 			err := srv.ListenAndServe()
 			if err != nil {
 				fmt.Printf("error in http server: %s\n", err)
@@ -122,6 +126,6 @@ func initHTTP(closer chan struct{}) {
 	fmt.Println("gracefully closing http connections")
 
 	if err := srv.Close(); err != nil {
-		debug.Printf("error while stopping http server: %s", err)
+		logger.Printf("error while stopping http server: %s", err)
 	}
 }

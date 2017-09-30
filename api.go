@@ -64,7 +64,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		resultFromARC, _ := query.(AddrResult)
 		result = &resultFromARC
 		w.Header().Set("X-Cache", "HIT")
-		debug.Printf("query %s fetched from arc cache", addr)
+		logger.Printf("query %s fetched from arc cache", addr)
 
 		apiResponse(w, r, result, filters)
 		return
@@ -72,7 +72,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("X-Cache", "MISS")
 	if err != gcache.KeyNotFoundError {
-		debug.Printf("unable to get %s off arc stack: %s", addr, err)
+		logger.Printf("unable to get %s off arc stack: %s", addr, err)
 	}
 
 	ip := net.ParseIP(addr)
@@ -80,7 +80,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		var ips []string
 		ips, err = net.LookupHost(addr)
 		if err != nil || len(ips) == 0 {
-			debug.Printf("error looking up %q as host address: %s", addr, err)
+			logger.Printf("error looking up %q as host address: %s", addr, err)
 
 			result = &AddrResult{Error: fmt.Sprintf("invalid ip/host specified: %s", addr)}
 			apiResponse(w, r, result, filters)
@@ -98,13 +98,13 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 
 	result, err = addrLookup(r.Context(), ip, filters)
 	if err != nil {
-		debug.Printf("error looking up address %q (%q): %s", addr, ip, err)
+		logger.Printf("error looking up address %q (%q): %s", addr, ip, err)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
 
 	if err = arc.Set(key, *result); err != nil {
-		debug.Printf("unable to add %s to arc cache: %s", addr, err)
+		logger.Printf("unable to add %s to arc cache: %s", addr, err)
 	}
 
 	apiResponse(w, r, result, filters)

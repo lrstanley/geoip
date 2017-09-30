@@ -63,7 +63,7 @@ func (d *DB) checkForUpdates() (needsUpdate bool, err error) {
 
 func (d *DB) update(url string) error {
 	started := time.Now()
-	debug.Printf("fetching new geoip data from: %s", url)
+	logger.Printf("fetching new geoip data from: %s", url)
 
 	// Create or truncate if already exists.
 	tmpfile, err := ioutil.TempFile("", "geoipdb-")
@@ -72,15 +72,15 @@ func (d *DB) update(url string) error {
 	}
 	defer func() {
 		if err = tmpfile.Close(); err != nil {
-			debug.Printf("error while closing %q: %s", tmpfile.Name(), err)
+			logger.Printf("error while closing %q: %s", tmpfile.Name(), err)
 		}
-		debug.Printf("deleting: %q", tmpfile.Name())
+		logger.Printf("deleting: %q", tmpfile.Name())
 		if err = os.Remove(tmpfile.Name()); err != nil {
-			debug.Printf("error while removing %q: %s", tmpfile.Name(), err)
+			logger.Printf("error while removing %q: %s", tmpfile.Name(), err)
 		}
 	}()
 
-	debug.Printf("streaming new database to: %q", tmpfile.Name())
+	logger.Printf("streaming new database to: %q", tmpfile.Name())
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -102,7 +102,7 @@ func (d *DB) update(url string) error {
 		return err
 	}
 
-	debug.Printf("successfully downloaded and decompressed new database to %q, verifying now", tmpfile.Name())
+	logger.Printf("successfully downloaded and decompressed new database to %q, verifying now", tmpfile.Name())
 	if _, err = tmpfile.Seek(0, 0); err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (d *DB) update(url string) error {
 	mcache.Unlock()
 	db.Close()
 
-	debug.Println("verification complete, updating active database")
+	logger.Println("verification complete, updating active database")
 
 	file, err := os.Create(d.path)
 	if err != nil {
@@ -135,7 +135,7 @@ func (d *DB) update(url string) error {
 		return err
 	}
 
-	debug.Printf("successfully wrote %d bytes to %q (took %s)", written, file.Name(), time.Since(started))
+	logger.Printf("successfully wrote %d bytes to %q (took %s)", written, file.Name(), time.Since(started))
 
 	return nil
 }
