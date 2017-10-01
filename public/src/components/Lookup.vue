@@ -63,10 +63,12 @@
 </template>
 
 <script>
+import { utils } from '../utils'
 import Vue2Leaflet from 'vue2-leaflet'
 
 export default {
   name: "lookup",
+  mixins: [utils],
   components: {
     'v-map': Vue2Leaflet.Map,
     'v-tilelayer' :Vue2Leaflet.TileLayer,
@@ -88,7 +90,6 @@ export default {
       toastr.success('Copied to clipboard', '', { timeOut: 1000 });
       clipboard.destroy();
     },
-    selectInput: () => { setTimeout(function() { $("#addr_box").focus(); }, 350); },
     lookup: function (lookupSelf) {
       let query = lookupSelf === true ? 'self' : this.address;
 
@@ -111,7 +112,7 @@ export default {
           this.$Progress.finish();
           this.address = "";
           this.addHistory(result);
-          this.selectInput();
+          this.$autofocus();
 
           return;
         }
@@ -143,12 +144,12 @@ export default {
         this.$Progress.finish();
         this.address = "";
         this.addHistory(response.body);
-        this.selectInput();
+        this.$autofocus();
       }, response => {
         this.$Progress.fail();
         this.error = "An unknown exception occurred or service unavailable";
         this.loading = false;
-        this.selectInput();
+        this.$autofocus();
       });
     },
     addHistory: function (result) {
@@ -167,7 +168,7 @@ export default {
     clearHistory: function () {
       this.history = [];
       this.$ls.set("history", JSON.stringify([]));
-      this.selectInput();
+        this.$autofocus();
     }
   },
   mounted: function () {
@@ -189,7 +190,7 @@ export default {
       this.lookup(true);
     }
 
-    this.selectInput();
+    this.$autofocus();
   }
 }
 </script>

@@ -44,8 +44,11 @@
 </template>
 
 <script>
+import { utils } from '../utils'
+
 export default {
   name: "bulklookup",
+  mixins: [utils],
   data: function () {
     return {
       query: "",
@@ -61,9 +64,6 @@ export default {
       clipboard.onClick(event);
       toastr.success('Copied to clipboard', '', { timeOut: 1000, preventDuplicates: true });
       clipboard.destroy();
-    },
-    selectInput: () => {
-      setTimeout(function() { $(".bulk-form textarea").focus(); }, 350);
     },
     lookup: function () {
       if (this.query.length == 0 || this.loading) { return; }
@@ -130,12 +130,12 @@ export default {
         this.loading = false;
         this.$Progress.finish();
         this.query = "";
-        this.selectInput();
+        this.$autofocus();
       });
     }
   },
   mounted: function () {
-    this.selectInput();
+    this.$autofocus();
   }
 }
 </script>
