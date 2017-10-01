@@ -14,7 +14,7 @@
         <div v-for="(item, index) in history" class="result" :index="index" :key="item.ip">
           <div class="fluid ui raised card">
             <div class="content">
-              <i v-if="item.country_abbr" :class="[item.country_abbr.toLowerCase()]" class="right floated flag"></i>
+              <span v-if="item.country_abbr" :data-tooltip="item.country + ' (' + item.country_abbr + ')'" data-inverted class="right floated"><i :class="[item.country_abbr.toLowerCase()]" class="flag"></i></span>
 
               <div class="header">
                 <i class="circle check icon"></i> {{ item.query }}
@@ -85,7 +85,7 @@ export default {
     copyClipboard: (event) => {
       var clipboard = new Clipboard('.null');
       clipboard.onClick(event);
-      toastr.success('Copied to clipboard', '', { timeOut: 1000, preventDuplicates: true });
+      toastr.success('Copied to clipboard', '', { timeOut: 1000 });
       clipboard.destroy();
     },
     selectInput: () => { setTimeout(function() { $("#addr_box").focus(); }, 500); },
