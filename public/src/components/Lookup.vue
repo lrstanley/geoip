@@ -88,7 +88,7 @@ export default {
       toastr.success('Copied to clipboard', '', { timeOut: 1000 });
       clipboard.destroy();
     },
-    selectInput: () => { setTimeout(function() { $("#addr_box").focus(); }, 500); },
+    selectInput: () => { setTimeout(function() { $("#addr_box").focus(); }, 350); },
     lookup: function (lookupSelf) {
       let query = lookupSelf === true ? 'self' : this.address;
 

@@ -63,7 +63,7 @@ export default {
       clipboard.destroy();
     },
     selectInput: () => {
-      setTimeout(function() { $(".bulk-form textarea").focus(); }, 500);
+      setTimeout(function() { $(".bulk-form textarea").focus(); }, 350);
     },
     lookup: function () {
       if (this.query.length == 0 || this.loading) { return; }
