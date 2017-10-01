@@ -19,14 +19,14 @@
               <div class="header">
                 <i class="circle check icon"></i> {{ item.query }}
                 <span v-if="item.query != item.ip">
-                  (<a data-tooltip="Clip to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.ip">{{ item.ip }}</a>)
+                  (<a data-tooltip="Click to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.ip">{{ item.ip }}</a>)
                 </span>
               </div>
 
               <div class="meta">
                 <span class="category" v-if="item.host || item.longitude != 0 && item.latitude != 0">
                   <span v-if="item.host">
-                    [host: <a data-tooltip="Clip to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.host">{{ item.host }}</a>]
+                    [host: <a data-tooltip="Click to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.host">{{ item.host }}</a>]
                   </span>
                   <span v-if="item.longitude != 0 && item.latitude != 0" class="right floated">
                     [lat/long: <a :href="'https://www.google.com/maps/@'+item.latitude+','+item.longitude+',5z'" target="_blank">{{item.latitude.toFixed(4)}}, {{item.longitude.toFixed(4)}}</a>]
@@ -45,12 +45,12 @@
             <div class="extra content">
               <div v-if="item.timezone" class="ui label"><i class="wait icon"></i> {{item.timezone}}</div>
 
-              <a v-if="item.postal_code" data-tooltip="Timezone - Clip to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.postal_code">
+              <a v-if="item.postal_code" data-tooltip="Postal code - Click to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.postal_code">
                 <div class="ui blue label"><i class="building icon"></i> {{item.postal_code}}</div>
               </a>
 
               <span class="ui right floated">
-                <a v-if="item.summary" data-tooltip="Location summary - Clip to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.summary">
+                <a v-if="item.summary" data-tooltip="Location - Click to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.summary">
                   <div class="ui green label"><i class="map icon"></i> {{item.summary}}</div>
                 </a>
               </span>
