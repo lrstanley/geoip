@@ -10,9 +10,6 @@ script:
 branches:
   only:
   - master
-cache:
-  directories:
-    - "public/node_modules"
 notifications:
   irc:
     channels:
