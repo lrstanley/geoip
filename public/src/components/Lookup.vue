@@ -167,6 +167,7 @@ export default {
     clearHistory: function () {
       this.history = [];
       this.$ls.set("history", JSON.stringify([]));
+      this.selectInput();
     }
   },
   mounted: function () {
