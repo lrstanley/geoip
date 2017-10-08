@@ -151,7 +151,7 @@ func apiResponse(w http.ResponseWriter, r *http.Request, result *AddrResult, fil
 	w.Header().Set("Content-Type", "application/json")
 	err = enc.Encode(result)
 	if err != nil {
-		panic(err)
+		logger.Printf("error during json encode for %s: %s", r.RemoteAddr, err)
 	}
 }
 

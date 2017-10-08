@@ -6,6 +6,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -19,6 +20,10 @@ import (
 	"github.com/go-web/httprl"
 	"github.com/lrstanley/recoverer"
 )
+
+var apiPong = map[string]bool{
+	"pong": true,
+}
 
 func initHTTP(closer chan struct{}) {
 	r := chi.NewRouter()
@@ -58,6 +63,17 @@ func initHTTP(closer chan struct{}) {
 		w.Write(rice.MustFindBox("public/static/html").MustBytes("index.html"))
 	})
 
+	// Register the /api/ping route separately, as it shouldn't be counted
+	// towards API limits. This endpoint will both let users verify that the
+	// service is functional, but also let them use headers to check API
+	// limit information.
+	r.Get("/api/ping", func(w http.ResponseWriter, r *http.Request) {
+		enc := json.NewEncoder(w)
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		_ = enc.Encode(apiPong)
+	})
+
 	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {
 		flags.HTTP.CORS = []string{"*"}
 	}
@@ -84,6 +100,7 @@ func initHTTP(closer chan struct{}) {
 		},
 		KeyMaker: httprl.DefaultKeyMaker, // This uses IP address by default.
 	}
+
 	limiterBackend.Start()
 	defer limiterBackend.Stop()
 
