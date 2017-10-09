@@ -8,6 +8,7 @@
     <div v-if="error" class="ui negative message"><i class="icon warning sign"></i> {{ error }}</div>
 
     <div v-if="history.length > 0" class="result-box">
+      <a v-if="stats.rate_remaining" data-position="top left" class="ui label" :data-tooltip="stats.rate_remaining + '/' + stats.rate_limit + ' calls remain; resets in ' + stats.rate_reset_seconds + ' sec'" data-inverted>remaining calls <div class="detail"><strong>{{ stats.rate_remaining.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong></div></a>
       <button class="ui right floated mini button" @click="clearHistory"><i class="ui remove circle icon"></i> Clear history</button>
 
       <transition-group name="list" appear>

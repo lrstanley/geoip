@@ -5,6 +5,7 @@
         <textarea class="fluid" rows="10" v-model="query" placeholder="List of hostnames, IP's, or a text block that contains IP's; e.g. webserver logs" autofocus></textarea>
       </div>
 
+      <a v-if="stats.rate_remaining" data-position="top left" class="ui label" :data-tooltip="stats.rate_remaining + '/' + stats.rate_limit + ' calls remain; resets in ' + stats.rate_reset_seconds + ' sec'" data-inverted>remaining calls <div class="detail"><strong>{{ stats.rate_remaining.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong></div></a>
       <button class="ui right floated submit primary button" @click="lookup"><i class="yellow database icon"></i> Bulk lookup</button>
     </div>
 
