@@ -107,17 +107,13 @@ export default {
         index--;
 
         promises.push(new Promise((resolve, reject) => {
-          this.$http.get(`/api/${query}`).then(response => {
-            if (response.body.error != undefined) {
-              this.results[index].error = "Error: " + response.body.error.charAt(0).toUpperCase() + response.body.error.slice(1);
-            } else {
-              this.results[index].data = response.body;
-            }
+          this.$lookup(query).then(data => {
+            this.results[index].data = data;
 
             this.$set(this.results, index, this.results[index]);
             resolve();
-          }, response => {
-            this.results[index].error = "An unknown exception occurred or service unavailable";
+          }, error => {
+            this.results[index].error = error;
             this.results[index].data = {error: true};
 
             this.$set(this.results, index, this.results[index]);

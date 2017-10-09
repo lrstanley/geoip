@@ -92,7 +92,6 @@ export default {
     },
     lookup: function (lookupSelf) {
       let query = lookupSelf === true ? 'self' : this.address;
-
       if (query.length == 0 || this.loading) { return; }
 
       this.error = false;
@@ -118,38 +117,28 @@ export default {
         }
       }
 
-      this.$http.get(`/api/${query}`).then(response => {
+      this.$lookup(query).then(data => {
         this.loading = false;
 
-        if (response.body.error != undefined) {
-          if (query == 'self') {
-            // Don't show a nasty error if we can't even look up their own
-            // IP address on page load.
-            return;
-          }
-
-          this.error = "Error: " + response.body.error.charAt(0).toUpperCase() + response.body.error.slice(1);
-          this.$Progress.fail();
-          return
-        }
-
-        // Add our query into the result, so when it gets saved to history,
-        // we can use it later.
-        response.body.query = query;
-
-        // And propagate that change to the URL, so if they copy/paste it,
+        // Propagate that change to the URL, so if they copy/paste it,
         // it will pull up for others.
         this.$router.replace({ name: this.name, query: { q: query } });
 
         this.$Progress.finish();
         this.address = "";
-        this.addHistory(response.body);
+        this.addHistory(data);
         this.$autofocus();
-      }, response => {
-        this.$Progress.fail();
-        this.error = "An unknown exception occurred or service unavailable";
+      }, error => {
         this.loading = false;
-        this.$autofocus();
+
+        // Indicates that we shouldn't show anything.
+        if (error == null) {
+          this.$Progress.finish();
+          return;
+        }
+
+        this.$Progress.fail();
+        this.error = error;
       });
     },
     addHistory: function (result) {
