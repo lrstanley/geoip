@@ -11,7 +11,19 @@
 
     <div v-if="error" class="ui negative message"><i class="icon warning sign"></i> {{ error }}</div>
 
+    <div v-if="Object.keys(countries).length > 0" class="result-box">
+      <div class="ui list country-list">
+        <div v-for="country in countrySort()" :key="country.name" class="item">
+          <p>
+            <span class="ui teal circular horizontal mini label">{{ country.count }}</span>
+            <i v-if="country.name" :class="[country.name.toLowerCase()]" class="flag"></i>
+            {{ country.name }}
+          </p>
 
+          <div class="ui tiny progress" data-auto-success="false" :data-value="country.count" :data-total="country.top"><div class="bar"></div></div>
+        </div>
+      </div>
+    </div>
     <div v-if="results.length > 0" class="result-box">
         <transition-group name="list" tag="div" class="ui middle relaxed divided list" appear>
           <div v-for="(item, index) in results" class="item" :index="index" :key="item.query">
@@ -56,10 +68,38 @@ export default {
       error: false,
       loading: false,
       results: [],
+      countries: {},
     }
   },
   methods: {
     ellipsis: (text) => { return text.length > 45 ? text.substring(0, 43) + '...' : text; },
+    countrySort: function () {
+      let out = [];
+      let key;
+      let top = 0;
+
+      for (key in this.countries) {
+        if (top < this.countries[key]) {
+          top = this.countries[key];
+        }
+        out.push({ name: key, count: this.countries[key] });
+      }
+
+      out.sort(function(a, b) {
+        return a.count == b.count ? 0 : +(a.count < b.count) || -1;
+      });
+
+      for (var i = 0; i < out.length; i++) {
+        out.top = top;
+      }
+
+      $(".ui.list.country-list .ui.tiny.progress").each(function() {
+        $(this).progress('update progress', $(this).attr("data-value"));
+        $(this).progress('set total', top);
+      });
+
+      return out;
+    },
     copyClipboard: (event) => {
       let clipboard = new Clipboard('.null');
       clipboard.onClick(event);
@@ -72,6 +112,7 @@ export default {
       this.error = false;
       this.loading = true;
       this.results = [];
+      this.countries = {};
       this.$Progress.start();
 
       let hostRegex = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$/ig;
@@ -112,6 +153,8 @@ export default {
             this.results[index].data = data;
 
             this.$set(this.results, index, this.results[index]);
+
+            this.countries[data.country_abbr] = this.countries[data.country_abbr] ? this.countries[data.country_abbr] + 1 : 1;
             resolve();
           }, error => {
             this.results[index].error = error;
@@ -154,6 +197,21 @@ export default {
 
 .result-box .image, .result-box .image {padding-top: 10px !important; }
 .result-box .icon { padding-right: 11px !important; }
+
+.result-box .ui.list.country-list .item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.result-box .ui.list.country-list .item p { min-width: 100px; margin-bottom: 0; }
+.result-box .ui.list.country-list .item p span { margin-right: 10px; }
+.result-box .ui.list.country-list .item .ui.progress {
+  flex-grow: 1;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
 
 .list-enter, .list-leave-to { opacity: 0; }
 .list-enter-active, .list-leave-active {
