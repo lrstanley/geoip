@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -20,26 +19,25 @@ import (
 
 func registerAPI(r chi.Router) {
 	r.Get("/api/{addr}", apiLookup)
-	r.Get("/api/{addr}/{filter}", apiLookup)
+	r.Get("/api/{addr}/{filters}", apiLookup)
 }
 
 func apiLookup(w http.ResponseWriter, r *http.Request) {
 	addr := strings.TrimSpace(chi.URLParam(r, "addr"))
-	filters := strings.Split(chi.URLParam(r, "filter"), ",")
+	filters := strings.Split(chi.URLParam(r, "filters"), ",")
 
 	// If they're trying to send us way too many filters (which could cause
 	// unwanted extra memory usage/be considered a resource usage attack),
 	// we shouldn't handle their request.
 	if len(filters) > 20 {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "too many filters supplied\n")
+		fmt.Fprintf(w, "error: too many filters supplied")
 		return
 	}
 
 	if len(filters) == 1 && filters[0] == "" {
 		filters = []string{}
 	}
-	sort.Strings(filters)
 
 	// Allow users to query themselves without having to have them specify
 	// their own IP address. Note that this will not work if you are querying

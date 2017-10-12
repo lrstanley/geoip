@@ -261,7 +261,7 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 	wantsHosts := len(filters) == 0
 	if !wantsHosts {
 		for i := 0; i < len(filters); i++ {
-			if filters[i] == "hosts" {
+			if filters[i] == "host" {
 				wantsHosts = true
 				break
 			}
