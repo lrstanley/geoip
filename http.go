@@ -34,7 +34,6 @@ func initHTTP(closer chan struct{}) {
 	r.Use(middleware.CloseNotify)
 	r.Use(recoverer.New(recoverer.Options{Logger: os.Stderr, Show: flags.Debug, Simple: false}))
 	r.Use(middleware.Logger)
-	r.Use(middleware.GetHead)
 	r.Use(middleware.StripSlashes)
 	r.Use(middleware.DefaultCompress)
 	r.Use(dbDetailsMiddleware)
@@ -66,13 +65,10 @@ func initHTTP(closer chan struct{}) {
 	// Register the /api/ping route separately, as it shouldn't be counted
 	// towards API limits. This endpoint will both let users verify that the
 	// service is functional, but also let them use headers to check API
-	// limit information.
-	r.Get("/api/ping", func(w http.ResponseWriter, r *http.Request) {
-		enc := json.NewEncoder(w)
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		_ = enc.Encode(apiPong)
-	})
+	// limit information. This endpoint is the only one which has HTTP HEAD
+	// support.
+	r.Get("/api/ping", pingHandler)
+	r.Head("/api/ping", pingHandler)
 
 	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {
 		flags.HTTP.CORS = []string{"*"}
@@ -145,4 +141,16 @@ func initHTTP(closer chan struct{}) {
 	if err := srv.Close(); err != nil {
 		logger.Printf("error while stopping http server: %s", err)
 	}
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodHead {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	enc := json.NewEncoder(w)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = enc.Encode(apiPong)
 }

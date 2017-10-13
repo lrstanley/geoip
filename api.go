@@ -147,6 +147,7 @@ func apiResponse(w http.ResponseWriter, r *http.Request, result *AddrResult, fil
 
 	enc.SetEscapeHTML(false) // Otherwise the map url will get unicoded.
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	err = enc.Encode(result)
 	if err != nil {
 		logger.Printf("error during json encode for %s: %s", r.RemoteAddr, err)
