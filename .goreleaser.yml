@@ -10,6 +10,8 @@ build:
   goarch:
     - amd64
     - 386
+  hooks:
+    post: make compress
 fpm:
   homepage: https://github.com/lrstanley/geoip
   maintainer: Liam Stanley <me@liamstanley.io>
