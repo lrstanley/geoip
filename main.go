@@ -21,6 +21,7 @@ import (
 	gflags "github.com/jessevdk/go-flags"
 )
 
+// Should be automatically added by goreleaser.
 var (
 	version = "unknown"
 	commit  = "unknown"
@@ -53,6 +54,7 @@ type Flags struct {
 		Resolvers []string      `long:"resolver" description:"resolver (in host:port form) to use for dns lookups (doesn't work with windows and plan9) (can be used multiple times)"`
 		Local     bool          `long:"uselocal" description:"adds local (system) resolvers to the list of resolvers to use"`
 	} `group:"DNS Lookup Options" namespace:"dns"`
+	Version bool `short:"v" long:"version" description:"print the version and compilation date"`
 }
 
 var (
@@ -69,6 +71,11 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+
+	if flags.Version {
+		fmt.Printf("geoip version %q (compiled: %q, commit: %q)\n", version, date, commit)
+		os.Exit(0)
 	}
 
 	if !flags.Quiet {
