@@ -11,13 +11,13 @@ COMPRESS_CONC ?= $(shell nproc)
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-release: clean fetch ## Generate a release, but don't publish to GitHub.
+release: clean fetch generate ## Generate a release, but don't publish to GitHub.
 	$(GOPATH)/bin/goreleaser --skip-validate --skip-publish
 
-publish: clean fetch ## Generate a release, and publish to GitHub.
+publish: clean fetch generate ## Generate a release, and publish to GitHub.
 	$(GOPATH)/bin/goreleaser
 
-snapshot: clean fetch ## Generate a snapshot release.
+snapshot: clean fetch generate ## Generate a snapshot release.
 	$(GOPATH)/bin/goreleaser --snapshot --skip-validate --skip-publish
 
 update-deps: fetch ## Updates all dependencies to the latest available versions.
