@@ -12,19 +12,32 @@
 
 ## Installation
 
-TODO
+Check out the [releases](https://github.com/lrstanley/geoip/releases)
+page for prebuilt versions. Below are example commands of how you would install
+the utility (ensure to replace `${VERSION...}` etc, with the appropriate vars).
+Some of the more popular OS/distro steps are provided below, but there are
+more released versions on the releases page previously mentioned.
 
 ### Ubuntu/Debian
 
-TODO
+```bash
+$ wget https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.deb
+$ dpkg -i check-ircd_${VERSION_OS_ARCH}.deb
+```
 
 ### CentOS/Redhat
 
-TODO
+```bash
+$ yum localinstall https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.rpm
+```
 
 ### Manual Install
 
-TODO
+```bash
+$ wget https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.tar.gz
+$ tar -C /usr/bin/ -xzvf geoip_${VERSION_OS_ARCH}.tar.gz geoip
+$ chmod +x /usr/bin/geoip
+```
 
 ### Build From Source
 
