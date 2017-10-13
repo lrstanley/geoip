@@ -25,6 +25,8 @@ var apiPong = map[string]bool{
 	"pong": true,
 }
 
+var mapLimiter = NewMapLimiter(10)
+
 func initHTTP(closer chan struct{}) {
 	r := chi.NewRouter()
 	if flags.HTTP.Proxy {
@@ -62,14 +64,6 @@ func initHTTP(closer chan struct{}) {
 		w.Write(rice.MustFindBox("public/static/html").MustBytes("index.html"))
 	})
 
-	// Register the /api/ping route separately, as it shouldn't be counted
-	// towards API limits. This endpoint will both let users verify that the
-	// service is functional, but also let them use headers to check API
-	// limit information. This endpoint is the only one which has HTTP HEAD
-	// support.
-	r.Get("/api/ping", pingHandler)
-	r.Head("/api/ping", pingHandler)
-
 	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {
 		flags.HTTP.CORS = []string{"*"}
 	}
@@ -81,9 +75,8 @@ func initHTTP(closer chan struct{}) {
 		MaxAge:         3600,
 	})
 
-	limiterBackend := httprl.NewMap(10)
 	limiter := &httprl.RateLimiter{
-		Backend:  limiterBackend,
+		Backend:  mapLimiter,
 		Limit:    uint64(flags.HTTP.Limit),
 		Interval: 60 * 60, // 1h.
 		LimitExceededFunc: func(w http.ResponseWriter, r *http.Request) {
@@ -97,14 +90,22 @@ func initHTTP(closer chan struct{}) {
 		KeyMaker: httprl.DefaultKeyMaker, // This uses IP address by default.
 	}
 
-	limiterBackend.Start()
-	defer limiterBackend.Stop()
+	mapLimiter.Start()
+	defer mapLimiter.Stop()
 
 	if flags.HTTP.Limit > 0 {
 		r.With(cors.Handler, middleware.NoCache, limiter.Handle).Group(registerAPI)
 	} else {
 		r.With(cors.Handler, middleware.NoCache).Group(registerAPI)
 	}
+
+	// Register the /api/ping route separately, as it shouldn't be counted
+	// towards API limits. This endpoint will both let users verify that the
+	// service is functional, but also let them use headers to check API
+	// limit information. This endpoint is the only one which has HTTP HEAD
+	// support.
+	r.With(middleware.NoCache, rateHeaderMiddleware).Get("/api/ping", pingHandler)
+	r.With(middleware.NoCache, rateHeaderMiddleware).Head("/api/ping", pingHandler)
 
 	srv := http.Server{
 		Addr:         flags.HTTP.Bind,
