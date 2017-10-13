@@ -5,8 +5,6 @@ build:
   goos:
     - linux
     - freebsd
-    - darwin
-    - windows
   goarch:
     - amd64
     - 386
