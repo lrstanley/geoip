@@ -69,10 +69,14 @@ func initHTTP(closer chan struct{}) {
 	}
 	cors := cors.New(cors.Options{
 		AllowedOrigins: flags.HTTP.CORS,
-		AllowedMethods: []string{"GET", "OPTIONS"},
+		AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
 		AllowedHeaders: []string{"Accept", "Content-Type"},
-		ExposedHeaders: []string{"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset"},
-		MaxAge:         3600,
+		ExposedHeaders: []string{
+			"X-Maxmind-Type", "X-Maxmind-Version",
+			"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset",
+			"X-Cache",
+		},
+		MaxAge: 3600,
 	})
 
 	limiter := &httprl.RateLimiter{
@@ -104,8 +108,8 @@ func initHTTP(closer chan struct{}) {
 	// service is functional, but also let them use headers to check API
 	// limit information. This endpoint is the only one which has HTTP HEAD
 	// support.
-	r.With(middleware.NoCache, rateHeaderMiddleware).Get("/api/ping", pingHandler)
-	r.With(middleware.NoCache, rateHeaderMiddleware).Head("/api/ping", pingHandler)
+	r.With(cors.Handler, middleware.NoCache, rateHeaderMiddleware).Get("/api/ping", pingHandler)
+	r.With(cors.Handler, middleware.NoCache, rateHeaderMiddleware).Head("/api/ping", pingHandler)
 
 	srv := http.Server{
 		Addr:         flags.HTTP.Bind,

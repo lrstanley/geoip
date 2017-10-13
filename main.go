@@ -41,7 +41,7 @@ type Flags struct {
 		Bind  string   `short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
 		Proxy bool     `long:"proxy" description:"obey X-Forwarded-For headers (warn: dangerous, make sure to only bind to localhost)"`
 		Limit int      `long:"limit" description:"number of requests/ip/hour" default:"2000"`
-		CORS  []string `long:"cors" description:"cors origin domain to allow (empty => '*'; use flag multiple times)"`
+		CORS  []string `long:"cors" description:"cors origin domain to allow with https?:// prefix (empty => '*'; use flag multiple times)"`
 		TLS   struct {
 			Use  bool   `long:"use" description:"enable tls"`
 			Cert string `long:"cert" description:"path to ssl certificate"`
