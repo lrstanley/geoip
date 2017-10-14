@@ -37,7 +37,7 @@
 
               <div class="description" v-if="item.longitude != 0 && item.latitude != 0">
                 <v-map style="height: 150px" :options="mapOptions" :zoom=3 v-bind:center="[item.latitude, item.longitude]">
-                  <v-tilelayer attribution="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors" url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+                  <v-tilelayer attribution="&copy; <a href='https://osm.org/copyright'>OpenStreetMap</a> contributors" url="//{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
                   <v-marker v-bind:lat-lng="[item.latitude, item.longitude]"></v-marker>
                 </v-map>
               </div>
