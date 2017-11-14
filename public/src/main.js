@@ -5,7 +5,43 @@ import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 import VueProgressBar from 'vue-progressbar'
 
-import routes from './routes'
+// For routes.
+import Lookup from './components/Lookup'
+import BulkLookup from './components/BulkLookup'
+import Docs from './components/Docs'
+import NotFound from './components/NotFound'
+
+const routes = [
+  {
+    name: 'lookup',
+    path: '/',
+    component: Lookup,
+    meta: { title: 'Lookup address' },
+  },
+  {
+    name: 'bulkLookup',
+    path: '/lookup/bulk',
+    component: BulkLookup,
+    meta: { title: 'Bulk lookup' },
+  },
+  {
+    name: 'apidocs',
+    path: '/lookup/docs',
+    component: Docs,
+    meta: { title: 'API docs' },
+  },
+  {
+    name: 'catchall',
+    path: '*',
+    redirect: '/404'
+  },
+  {
+    name: '404',
+    path: '/404',
+    component: NotFound,
+    meta: { title: 'Page not found' },
+  },
+]
 
 Vue.use(VueLocalStorage, { name: 'ls' })
 Vue.use(VueResource)
