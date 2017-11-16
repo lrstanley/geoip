@@ -40,6 +40,10 @@ func initHTTP(closer chan struct{}) {
 	r.Use(middleware.DefaultCompress)
 	r.Use(dbDetailsMiddleware)
 
+	if flags.HTTP.Throttle > 0 {
+		r.Use(middleware.ThrottleBacklog(flags.HTTP.Throttle, flags.HTTP.Throttle*2, 30*time.Second))
+	}
+
 	if flags.Debug {
 		r.Mount("/debug", middleware.Profiler())
 	}

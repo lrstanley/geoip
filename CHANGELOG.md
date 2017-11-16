@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Added
 - "Source on Github" sidebar link.
+- `--http.throttle` flag, allowing the limitation of concurrent requests.
 
 ## [0.0.1] - 2017-10-13
 
