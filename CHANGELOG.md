@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- "Source on Github" sidebar link.
 
 ## [0.0.1] - 2017-10-13
 
