@@ -23,7 +23,7 @@ more released versions on the releases page previously mentioned.
 
 ```bash
 $ wget https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.deb
-$ dpkg -i check-ircd_${VERSION_OS_ARCH}.deb
+$ dpkg -i geoip_${VERSION_OS_ARCH}.deb
 ```
 
 ### CentOS/Redhat
