@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 - "Source on Github" sidebar link.
 - `--http.throttle` flag, allowing the limitation of concurrent requests.
 
+### Changed
+- fix: spinner icon for each entry on the bulk lookup page was misaligned.
+
 ## [0.0.1] - 2017-10-13
 
 - Initial release.

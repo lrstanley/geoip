@@ -34,7 +34,7 @@
             <i v-if="item.data.ip && !item.data.country_abbr" class="help circle icon image"></i>
             <i v-if="item.data.country_abbr" :class="[item.data.country_abbr.toLowerCase()]" class="flag image"></i>
             <i v-if="item.error" class="red ban icon image"></i>
-            <i v-if="!item.data.ip && !item.error" class="spinner loading icon image"></i>
+            <i v-if="!item.data.ip && !item.error" class="notched circle loading icon"></i>
 
             <div class="content">
               <span class="header">
@@ -195,8 +195,7 @@ export default {
   padding: 15px 15px 0 15px;
 }
 
-.result-box .image, .result-box .image {padding-top: 10px !important; }
-.result-box .icon { padding-right: 11px !important; }
+.result-box .image, .result-box .icon:not(.search) { padding-top: 10px !important; }
 
 .result-box .ui.list.country-list .item {
   display: flex;
