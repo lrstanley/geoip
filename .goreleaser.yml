@@ -7,7 +7,6 @@ build:
     - freebsd
   goarch:
     - amd64
-    - 386
   hooks:
     post: make compress
 fpm:
