@@ -15,28 +15,27 @@
 
 Check out the [releases](https://github.com/lrstanley/geoip/releases)
 page for prebuilt versions. Below are example commands of how you would install
-the utility (ensure to replace `${VERSION...}` etc, with the appropriate vars).
-Some of the more popular OS/distro steps are provided below, but there are
-more released versions on the releases page previously mentioned.
+the utility. Some of the more popular OS/distro steps are provided below, but
+there are more released versions on the releases page previously mentioned.
 
 ### Ubuntu/Debian
 
 ```bash
-$ wget https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.deb
-$ dpkg -i geoip_${VERSION_OS_ARCH}.deb
+$ wget https://liam.sh/ghr/geoip_0.1.0_linux_amd64.deb
+$ dpkg -i geoip_0.1.0_linux_amd64.deb
 ```
 
 ### CentOS/Redhat
 
 ```bash
-$ yum localinstall https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.rpm
+$ yum localinstall https://liam.sh/ghr/geoip_0.1.0_linux_amd64.rpm
 ```
 
 ### Manual Install
 
 ```bash
-$ wget https://github.com/lrstanley/geoip/releases/download/${VERSION}/geoip_${VERSION_OS_ARCH}.tar.gz
-$ tar -C /usr/bin/ -xzvf geoip_${VERSION_OS_ARCH}.tar.gz geoip
+$ wget https://liam.sh/ghr/geoip_0.1.0_linux_amd64.tar.gz
+$ tar -C /usr/bin/ -xzvf geoip_0.1.0_linux_amd64.tar.gz geoip
 $ chmod +x /usr/bin/geoip
 ```
 
