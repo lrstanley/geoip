@@ -20,20 +20,20 @@ there are more released versions on the releases page previously mentioned.
 
 ### Ubuntu/Debian
 
-```bash
+```console
 $ wget https://liam.sh/ghr/geoip_[[tag]]_[[os]]_[[arch]].deb
 $ dpkg -i geoip_[[tag]]_[[os]]_[[arch]].deb
 ```
 
 ### CentOS/Redhat
 
-```bash
+```console
 $ yum localinstall https://liam.sh/ghr/geoip_[[tag]]_[[os]]_[[arch]].rpm
 ```
 
 ### Manual Install
 
-```bash
+```console
 $ wget https://liam.sh/ghr/geoip_[[tag]]_[[os]]_[[arch]].tar.gz
 $ tar -C /usr/bin/ -xzvf geoip_[[tag]]_[[os]]_[[arch]].tar.gz geoip
 $ chmod +x /usr/bin/geoip
@@ -49,7 +49,7 @@ Dependencies (to build from source only):
 
 Setup:
 
-```bash
+```console
 $ go get -d -u github.com/lrstanley/geoip
 $ cd $GOPATH/src/github.com/lrstanley/geoip
 # this will show you all of the available options (to fetch dependencies,
@@ -61,7 +61,7 @@ $ ./geoip --help
 
 For active development:
 
-```bash
+```console
 $ make fetch # make sure this is ran at least once to fetch all dependencies.
 $ make debug
 # run this in a different window. this will rebundle the frontend assets on
@@ -71,7 +71,7 @@ $ make generate-watch
 
 ## Usage
 
-```
+```console
 $ geoip --help
 Usage:
   geoip [OPTIONS]
@@ -112,7 +112,7 @@ Help Options:
 
 ### Example
 
-```bash
+```console
 $ geoip --cache.size 1000 --http.bind "localhost:8080" --http.proxy --http.limit 15000 --dns.resolver 8.8.8.8 --dns.resolver 8.8.4.4
 ```
 
