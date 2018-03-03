@@ -118,8 +118,8 @@ $ geoip --cache.size 1000 --http.bind "localhost:8080" --http.proxy --http.limit
 
 ## Contributing
 
-Please review the [CONTRIBUTING](https://github.com/lrstanley/geoip/blob/master/CONTRIBUTING.md)
-doc for submitting issues/a guide on submitting pull requests and helping out.
+Please review the [CONTRIBUTING](CONTRIBUTING.md) doc for submitting issues/a guide
+on submitting pull requests and helping out.
 
 ## License
 

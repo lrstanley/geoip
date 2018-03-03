@@ -11,7 +11,7 @@
 ## Pull requests
 
 To review what is currently being worked on, or looked into, feel free to head
-over to the [issues list](https://github.com/lrstanley/geoip/issues).
+over to the [issues list](../../issues).
 
 Below are a few guidelines if you would like to contribute. Keep the code
 clean, standardized, and much of the quality should match Golang's standard
