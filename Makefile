@@ -5,7 +5,6 @@ PATH := $(GOPATH)/bin:$(PATH)
 export $(PATH)
 
 BINARY=geoip
-LD_FLAGS += -s -w
 COMPRESS_CONC ?= $(shell nproc)
 VERSION=$(shell git describe --tags --abbrev=0 2>/dev/null | sed -r "s:^v::g")
 RSRC=README_TPL.md
@@ -59,4 +58,4 @@ debug: fetch clean generate-dev ## Runs the application in debug mode (with gene
 	go run *.go -d --http.limit 200000 --update-url "http://hq.hq.liam.sh/tmp/GeoLite2-City.mmdb.gz"
 
 build: fetch clean generate ## Builds the application (with generate.)
-	go build -ldflags "${LD_FLAGS}" -i -v -o ${BINARY}
+	go build -ldflags '-d -s -w' -tags netgo -installsuffix netgo -v -x -o "${BINARY}"
