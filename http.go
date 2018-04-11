@@ -65,7 +65,7 @@ func initHTTP(closer chan struct{}) {
 			return
 		}
 
-		w.Write(rice.MustFindBox("public/static/html").MustBytes("index.html"))
+		w.Write(rice.MustFindBox("public/dist").MustBytes("index.html"))
 	})
 
 	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {

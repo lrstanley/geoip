@@ -39,13 +39,10 @@ fetch: ## Fetches the necessary dependencies to build.
 	test -d public/node_modules || (cd public && npm install)
 
 clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "dist" "public/dist" "rice-box.go" "${BINARY}"
+	/bin/rm -rfv "dist" "public/dist" "public/.cache" "rice-box.go" "${BINARY}"
 
 compress: ## Uses upx to compress release binaries (if installed, uses all cores/parallel comp.)
 	(which upx > /dev/null && find dist/*/* | xargs -I{} -n1 -P ${COMPRESS_CONC} upx --best "{}") || echo "not using upx for binary compression"
-
-generate-dev: ## Generate public html/css/js for use when developing (faster, but larger files.)
-	cd public && npm run dev
 
 generate-watch: ## Generate public html/css/js when files change (faster, but larger files.)
 	cd public && npm run watch
@@ -54,7 +51,7 @@ generate: ## Generate public html/css/js files for use in production (slower, sm
 	cd public && npm run build
 	$(GOPATH)/bin/rice -v embed-go
 
-debug: fetch clean generate-dev ## Runs the application in debug mode (with generate-dev.)
+debug: fetch clean generate ## Runs the application in debug mode (with generate-dev.)
 	go run *.go -d --http.limit 200000 --update-url "http://hq.hq.liam.sh/tmp/GeoLite2-City.mmdb.gz"
 
 build: fetch clean generate ## Builds the application (with generate.)
