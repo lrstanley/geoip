@@ -15,10 +15,10 @@
 			"revisionTime": "2017-04-20T13:57:05Z"
 		},
 		{
-			"checksumSHA1": "qGt958qm8rpp3TYSc+cSJNiINM4=",
+			"checksumSHA1": "RLjW2GoEu83LAZLuLSlzLdiyHYQ=",
 			"path": "github.com/bluele/gcache",
-			"revision": "6748215c018ea9d23fd269d499a3553c94d3ddf9",
-			"revisionTime": "2017-09-06T03:03:44Z"
+			"revision": "472614239ac7e5bc6461e237c798a6ebd5aff8c1",
+			"revisionTime": "2017-10-10T15:56:17Z"
 		},
 		{
 			"checksumSHA1": "8i+beEgcVf0q/I7lTqo2ERZM/OU=",
@@ -27,16 +27,16 @@
 			"revisionTime": "2015-03-29T02:31:25Z"
 		},
 		{
-			"checksumSHA1": "Q7+4qzIIel3AD3Bu4vAxZBUSLVk=",
+			"checksumSHA1": "YODbzvhUr0Tzp2/MkXflXph2hdY=",
 			"path": "github.com/go-chi/chi",
-			"revision": "04ec7fc4179604b2390947258f9143eaae23b596",
-			"revisionTime": "2017-09-01T02:07:29Z"
+			"revision": "e223a795a06a5598451cf022558c17c779f5a7ab",
+			"revisionTime": "2018-02-02T19:41:35Z"
 		},
 		{
-			"checksumSHA1": "YKrfqJ73/9of8mrxB+DF71305LI=",
+			"checksumSHA1": "1Xlo4sCR+zeOzjslXc/NAOmkgXg=",
 			"path": "github.com/go-chi/chi/middleware",
-			"revision": "04ec7fc4179604b2390947258f9143eaae23b596",
-			"revisionTime": "2017-09-01T02:07:29Z"
+			"revision": "e223a795a06a5598451cf022558c17c779f5a7ab",
+			"revisionTime": "2018-02-02T19:41:35Z"
 		},
 		{
 			"checksumSHA1": "r/8uaoEFx3XAL2U2MJ3xmgJ78qo=",
@@ -51,10 +51,10 @@
 			"revisionTime": "2016-05-05T07:01:43Z"
 		},
 		{
-			"checksumSHA1": "Oqx/4M+xDiB2ME3YkffeZmz/ohk=",
+			"checksumSHA1": "OH94abBdbmoVqyRqYBfgUT9N494=",
 			"path": "github.com/jessevdk/go-flags",
-			"revision": "5695738f733662da3e9afc2283bba6f3c879002d",
-			"revisionTime": "2017-05-21T21:21:05Z"
+			"revision": "1c38ed7ad0cc3d9e66649ac398c30e45f395c4eb",
+			"revisionTime": "2018-03-31T12:42:32Z"
 		},
 		{
 			"checksumSHA1": "gEjGS03N1eysvpQ+FCHTxPcbxXc=",
@@ -63,10 +63,10 @@
 			"revisionTime": "2017-05-10T13:15:34Z"
 		},
 		{
-			"checksumSHA1": "WAqjJeXei2ZCOJPSg8ip22DxbCk=",
+			"checksumSHA1": "V/ZGRuixzozZ3c+Aeqx9Yyd5/eI=",
 			"path": "github.com/lrstanley/go-bogon",
-			"revision": "b4547a4184e02fce8574511cf09f5c6cb84081a3",
-			"revisionTime": "2017-03-03T09:56:01Z"
+			"revision": "bfbffe3e8b4541db18fe3bc78e2a1f4b2dd1cca2",
+			"revisionTime": "2017-09-25T00:24:30Z"
 		},
 		{
 			"checksumSHA1": "BJgErvTzq2Pl/2ory+k3Vez1EU8=",
@@ -75,22 +75,22 @@
 			"revisionTime": "2017-09-25T05:38:53Z"
 		},
 		{
-			"checksumSHA1": "N6I3i0LIjQckurgTeH3b2A5YTec=",
+			"checksumSHA1": "a1WxG0wMDGFnjojQghwu1i1SDhk=",
 			"path": "github.com/oschwald/maxminddb-golang",
-			"revision": "d19f6d453e836d12ee8fe895d0494421e93ef8c1",
-			"revisionTime": "2017-05-03T13:30:35Z"
+			"revision": "c5bec84d1963260297932a1b7a1753c8420717a7",
+			"revisionTime": "2018-02-25T17:45:17Z"
 		},
 		{
-			"checksumSHA1": "L3tXuh/pDgQbi7y9/xIBhP0wkbs=",
+			"checksumSHA1": "y+hetQOwCwtYeZnDPE5COtsGDkk=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "a07a691ac871746ae690ccf3ab217363b2144531",
-			"revisionTime": "2017-08-30T09:57:17Z"
+			"revision": "3b87a42e500a6dc65dae1a55d0b641295971163e",
+			"revisionTime": "2018-04-06T09:01:59Z"
 		},
 		{
-			"checksumSHA1": "gVfCD++7aVcdKF2spv6XkEM/wYw=",
+			"checksumSHA1": "Dfz4tGItokMvHZENCsBmPPB8FGQ=",
 			"path": "golang.org/x/sys/windows",
-			"revision": "a07a691ac871746ae690ccf3ab217363b2144531",
-			"revisionTime": "2017-08-30T09:57:17Z"
+			"revision": "3b87a42e500a6dc65dae1a55d0b641295971163e",
+			"revisionTime": "2018-04-06T09:01:59Z"
 		}
 	],
 	"rootPath": "github.com/lrstanley/geoip"

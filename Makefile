@@ -27,9 +27,12 @@ snapshot: clean fetch generate ## Generate a snapshot release.
 	$(GOPATH)/bin/goreleaser --snapshot --skip-validate --skip-publish
 
 update-deps: fetch ## Updates all dependencies to the latest available versions.
-	$(GOPATH)/bin/govendor add +external
-	$(GOPATH)/bin/govendor remove +unused
-	$(GOPATH)/bin/govendor update +external
+	$(GOPATH)/bin/govendor add -v +external
+	$(GOPATH)/bin/govendor remove -v +unused
+	$(GOPATH)/bin/govendor update -v +external
+
+upgrade-deps: update-deps ## Upgrades all dependencies to the latest available versions and saves them.
+	$(GOPATH)/bin/govendor fetch -v +vendor
 
 fetch: ## Fetches the necessary dependencies to build.
 	test -f $(GOPATH)/bin/govendor || go get -u -v github.com/kardianos/govendor
