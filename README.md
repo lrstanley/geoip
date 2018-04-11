@@ -21,21 +21,21 @@ there are more released versions on the releases page previously mentioned.
 ### Ubuntu/Debian
 
 ```console
-$ wget https://liam.sh/ghr/geoip_0.1.1_linux_amd64.deb
-$ dpkg -i geoip_0.1.1_linux_amd64.deb
+$ wget https://liam.sh/ghr/geoip_0.1.2_linux_amd64.deb
+$ dpkg -i geoip_0.1.2_linux_amd64.deb
 ```
 
 ### CentOS/Redhat
 
 ```console
-$ yum localinstall https://liam.sh/ghr/geoip_0.1.1_linux_amd64.rpm
+$ yum localinstall https://liam.sh/ghr/geoip_0.1.2_linux_amd64.rpm
 ```
 
 ### Manual Install
 
 ```console
-$ wget https://liam.sh/ghr/geoip_0.1.1_linux_amd64.tar.gz
-$ tar -C /usr/bin/ -xzvf geoip_0.1.1_linux_amd64.tar.gz geoip
+$ wget https://liam.sh/ghr/geoip_0.1.2_linux_amd64.tar.gz
+$ tar -C /usr/bin/ -xzvf geoip_0.1.2_linux_amd64.tar.gz geoip
 $ chmod +x /usr/bin/geoip
 ```
 
