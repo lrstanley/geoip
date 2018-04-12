@@ -43,7 +43,11 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	// their own IP address. Note that this will not work if you are querying
 	// the IP address locally.
 	if self := strings.ToLower(addr); self == "self" || self == "me" {
-		addr, _, _ = net.SplitHostPort(r.RemoteAddr)
+		if strings.Contains(r.RemoteAddr, ":") {
+			addr, _, _ = net.SplitHostPort(r.RemoteAddr)
+		} else {
+			addr = r.RemoteAddr
+		}
 	}
 
 	// This would be the index key used for arc cache, if they request custom

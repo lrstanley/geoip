@@ -17,13 +17,13 @@ readme-gen: ## Generates readme from template file
 	cp -av "${RSRC}" "${ROUT}"
 	sed -ri -e "s:\[\[tag\]\]:${VERSION}:g" -e "s:\[\[os\]\]:linux:g" -e "s:\[\[arch\]\]:amd64:g" "${ROUT}"
 
-release: clean fetch generate ## Generate a release, but don't publish to GitHub.
+release: clean clean-cache fetch generate ## Generate a release, but don't publish to GitHub.
 	$(GOPATH)/bin/goreleaser --skip-validate --skip-publish
 
-publish: clean fetch generate ## Generate a release, and publish to GitHub.
+publish: clean clean-cache fetch generate ## Generate a release, and publish to GitHub.
 	$(GOPATH)/bin/goreleaser
 
-snapshot: clean fetch generate ## Generate a snapshot release.
+snapshot: clean clean-cache fetch generate ## Generate a snapshot release.
 	$(GOPATH)/bin/goreleaser --snapshot --skip-validate --skip-publish
 
 update-deps: fetch ## Updates all dependencies to the latest available versions.
@@ -42,7 +42,10 @@ fetch: ## Fetches the necessary dependencies to build.
 	test -d public/node_modules || (cd public && npm install)
 
 clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "dist" "public/dist" "public/.cache" "rice-box.go" "${BINARY}"
+	/bin/rm -rfv "dist" "public/dist" "rice-box.go" "${BINARY}"
+
+clean-cache: ## Cleans up generated cache (speeds up during dev time).
+	/bin/rm -rfv "public/.cache"
 
 compress: ## Uses upx to compress release binaries (if installed, uses all cores/parallel comp.)
 	(which upx > /dev/null && find dist/*/* | xargs -I{} -n1 -P ${COMPRESS_CONC} upx --best "{}") || echo "not using upx for binary compression"
@@ -55,7 +58,7 @@ generate: ## Generate public html/css/js files for use in production (slower, sm
 	$(GOPATH)/bin/rice -v embed-go
 
 debug: fetch clean generate ## Runs the application in debug mode (with generate-dev.)
-	go run *.go -d --http.limit 200000 --update-url "http://hq.hq.liam.sh/tmp/GeoLite2-City.mmdb.gz"
+	go run *.go -d --http.limit 200000 --http.proxy
 
-build: fetch clean generate ## Builds the application (with generate.)
+build: fetch clean clean-cache generate ## Builds the application (with generate.)
 	go build -ldflags '-d -s -w' -tags netgo -installsuffix netgo -v -x -o "${BINARY}"
