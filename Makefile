@@ -1,14 +1,18 @@
 .DEFAULT_GOAL := build
 
-GOPATH := $(shell go env | grep GOPATH | sed 's/GOPATH="\(.*\)"/\1/')
-PATH := $(GOPATH)/bin:$(PATH)
-export $(PATH)
-
+DIRS=bin dist
 BINARY=geoip
-COMPRESS_CONC ?= $(shell nproc)
-VERSION=$(shell git describe --tags --abbrev=0 2>/dev/null | sed -r "s:^v::g")
+
+VERSION=$(shell git describe --tags --always --abbrev=0 --match=v* 2> /dev/null | sed -r "s:^v::g" || echo 0)
+VERSION_FULL=$(shell git describe --tags --always --dirty --match=v* 2> /dev/null | sed -r "s:^v::g" || echo 0)
+
 RSRC=README_TPL.md
 ROUT=README.md
+
+$(info $(shell mkdir -p $(DIRS)))
+BIN=$(CURDIR)/bin
+export GOBIN=$(CURDIR)/bin
+
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -26,39 +30,35 @@ publish: clean clean-cache fetch generate ## Generate a release, and publish to 
 snapshot: clean clean-cache fetch generate ## Generate a snapshot release.
 	$(GOPATH)/bin/goreleaser --snapshot --skip-validate --skip-publish
 
-update-deps: fetch ## Updates all dependencies to the latest available versions.
-	$(GOPATH)/bin/govendor add -v +external
-	$(GOPATH)/bin/govendor remove -v +unused
-	$(GOPATH)/bin/govendor update -v +external
-
-upgrade-deps: update-deps ## Upgrades all dependencies to the latest available versions and saves them.
-	$(GOPATH)/bin/govendor fetch -v +vendor
-
 fetch: ## Fetches the necessary dependencies to build.
-	test -f $(GOPATH)/bin/govendor || go get -u -v github.com/kardianos/govendor
-	test -f $(GOPATH)/bin/goreleaser || go get -u -v github.com/goreleaser/goreleaser
-	test -f $(GOPATH)/bin/rice || go get -u -v github.com/GeertJohan/go.rice/rice
-	$(GOPATH)/bin/govendor sync
+	which $(BIN)/rice 2>&1 > /dev/null || go get -v github.com/GeertJohan/go.rice/rice
+	which $(BIN)/goreleaser 2>&1 > /dev/null || wget -qO- "https://github.com/goreleaser/goreleaser/releases/download/v0.122.0/goreleaser_Linux_x86_64.tar.gz" | tar -xz -C $(BIN) goreleaser
+	go mod download
+	go mod tidy
+	go mod vendor
 	test -d public/node_modules || (cd public && npm install)
 
+upgrade-deps: ## Upgrade all dependencies to the latest version.
+	go get -u ./...
+
+upgrade-deps-patch: ## Upgrade all dependencies to the latest patch release.
+	go get -u=patch ./...
+
 clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "dist" "public/dist" "rice-box.go" "${BINARY}"
+	/bin/rm -rfv "dist" "public/dist" "rice-box.go" "${BINARY}-${VERSION_FULL}"
 
 clean-cache: ## Cleans up generated cache (speeds up during dev time).
 	/bin/rm -rfv "public/.cache"
-
-compress: ## Uses upx to compress release binaries (if installed, uses all cores/parallel comp.)
-	(which upx > /dev/null && find dist/*/* | xargs -I{} -n1 -P ${COMPRESS_CONC} upx --best "{}") || echo "not using upx for binary compression"
 
 generate-watch: ## Generate public html/css/js when files change (faster, but larger files.)
 	cd public && npm run watch
 
 generate: ## Generate public html/css/js files for use in production (slower, smaller/minified files.)
 	cd public && npm run build
-	$(GOPATH)/bin/rice -v embed-go
+	$(BIN)/rice -v embed-go
+
+build: fetch clean clean-cache generate ## Builds the application (with generate.)
+	go build -ldflags '-s -w' -tags netgo -installsuffix netgo -v -o "${BINARY}-${VERSION_FULL}"
 
 debug: fetch clean generate ## Runs the application in debug mode (with generate-dev.)
 	go run *.go -d --http.limit 200000 --http.proxy
-
-build: fetch clean clean-cache generate ## Builds the application (with generate.)
-	go build -ldflags '-d -s -w' -tags netgo -installsuffix netgo -v -x -o "${BINARY}"

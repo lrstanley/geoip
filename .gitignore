@@ -3,14 +3,15 @@
 *.tmp
 *.txt
 dist
+bin
 *.test
 *.prof
 *.conf
 *.toml
-vendor/*
-!vendor/*.json
 *.db
 geoip
+geoip-*
 .cache
+vendor
 node_modules
 rice*.go
