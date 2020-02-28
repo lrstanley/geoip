@@ -4,25 +4,28 @@ build:
   binary: geoip
   goos:
     - linux
+    - windows
     - freebsd
   goarch:
     - amd64
-  hooks:
-    post: make compress
-fpm:
-  homepage: https://github.com/lrstanley/geoip
-  maintainer: Liam Stanley <me@liamstanley.io>
-  description: GeoIP location service.
-  license: MIT
-  formats:
-    - deb
-    - rpm
-archive:
-  format: tar.gz
-  format_overrides:
-    - goos: windows
-      format: zip
-snapshot:
-  name_template: snapshot-{{.Commit}}
+  ldflags: -s -w -X main.version=v{{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+nfpms:
+  - homepage: https://github.com/lrstanley/geoip
+    maintainer: Liam Stanley <me@liamstanley.io>
+    description: GeoIP location service.
+    license: MIT
+    formats:
+      - deb
+      - rpm
+archives:
+  - id: tgz
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
 release:
   draft: true
+snapshot:
+  name_template: snapshot-{{.Commit}}
