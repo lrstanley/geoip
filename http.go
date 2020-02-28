@@ -33,7 +33,6 @@ func initHTTP(closer chan struct{}) {
 		r.Use(middleware.RealIP)
 	}
 
-	r.Use(middleware.CloseNotify)
 	r.Use(recoverer.New(recoverer.Options{Logger: os.Stderr, Show: flags.Debug, Simple: false}))
 	r.Use(middleware.Logger)
 	r.Use(middleware.StripSlashes)
