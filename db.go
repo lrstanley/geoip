@@ -5,8 +5,10 @@
 package main
 
 import (
+	"archive/tar"
 	"compress/gzip"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -61,26 +63,41 @@ func (d *DB) checkForUpdates() (needsUpdate bool, err error) {
 	return true, nil
 }
 
-func (d *DB) update(url string) error {
+func (d *DB) update(url, licenseKey string) error {
 	started := time.Now()
+	url = fmt.Sprintf(url, licenseKey)
+
 	logger.Printf("fetching new geoip data from: %s", url)
 
-	// Create or truncate if already exists.
-	tmpfile, err := ioutil.TempFile("", "geoipdb-")
+	archiveTempFile, err := ioutil.TempFile("", "geoip-archive-")
 	if err != nil {
 		return fmt.Errorf("unable to create temp file: %s", err)
 	}
 	defer func() {
-		if err = tmpfile.Close(); err != nil {
-			logger.Printf("error while closing %q: %s", tmpfile.Name(), err)
+		if err = archiveTempFile.Close(); err != nil {
+			logger.Printf("error while closing %q: %s", archiveTempFile.Name(), err)
 		}
-		logger.Printf("deleting: %q", tmpfile.Name())
-		if err = os.Remove(tmpfile.Name()); err != nil {
-			logger.Printf("error while removing %q: %s", tmpfile.Name(), err)
+		logger.Printf("deleting: %q", archiveTempFile.Name())
+		if err = os.Remove(archiveTempFile.Name()); err != nil {
+			logger.Printf("error while removing %q: %s", archiveTempFile.Name(), err)
 		}
 	}()
 
-	logger.Printf("streaming new database to: %q", tmpfile.Name())
+	dbTempFile, err := ioutil.TempFile("", "geoip-db-")
+	if err != nil {
+		return fmt.Errorf("unable to create temp file: %s", err)
+	}
+	defer func() {
+		if err = dbTempFile.Close(); err != nil {
+			logger.Printf("error while closing %q: %s", dbTempFile.Name(), err)
+		}
+		logger.Printf("deleting: %q", dbTempFile.Name())
+		if err = os.Remove(dbTempFile.Name()); err != nil {
+			logger.Printf("error while removing %q: %s", dbTempFile.Name(), err)
+		}
+	}()
+
+	logger.Printf("streaming new database archive to: %q", dbTempFile.Name())
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -94,20 +111,44 @@ func (d *DB) update(url string) error {
 		return err
 	}
 
-	if _, err = io.Copy(tmpfile, gz); err != nil {
-		return err
+	tarReader := tar.NewReader(gz)
+	dbFound := false
+
+	// loop through the tar file and extract first .mmdb file we find in the
+	// archive.
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return fmt.Errorf("unable to read tar archive: %w", err)
+		}
+
+		if header.Typeflag == tar.TypeReg && strings.HasSuffix(header.Name, ".mmdb") {
+			logger.Printf("found database in tar archive, extracting and writing to file: %v", dbTempFile.Name())
+			if _, err := io.Copy(dbTempFile, tarReader); err != nil {
+				return fmt.Errorf("error extracting database from tar archive: %w", err)
+			}
+			dbFound = true
+		}
+	}
+
+	if !dbFound {
+		return errors.New("no database file found in tar archive")
 	}
 
 	if err = gz.Close(); err != nil {
 		return err
 	}
 
-	logger.Printf("successfully downloaded and decompressed new database to %q, verifying now", tmpfile.Name())
-	if _, err = tmpfile.Seek(0, 0); err != nil {
+	logger.Printf("successfully downloaded and decompressed new database to %q, verifying now", dbTempFile.Name())
+	if _, err = dbTempFile.Seek(0, 0); err != nil {
 		return err
 	}
 
-	db, err := maxminddb.Open(tmpfile.Name())
+	db, err := maxminddb.Open(dbTempFile.Name())
 	if err != nil {
 		return fmt.Errorf("error while attempting to verify geoip data: %s", err)
 	}
@@ -130,7 +171,7 @@ func (d *DB) update(url string) error {
 	}
 
 	var written int64
-	written, err = io.Copy(file, tmpfile)
+	written, err = io.Copy(file, dbTempFile)
 	if err != nil {
 		return err
 	}

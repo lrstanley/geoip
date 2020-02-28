@@ -32,8 +32,9 @@ type Flags struct {
 	Debug          bool          `short:"d" long:"debug" description:"enable exception display and pprof endpoints (warn: dangerous)"`
 	Quiet          bool          `short:"q" long:"quiet" description:"disable verbose output"`
 	DBPath         string        `long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
-	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"2h"`
-	UpdateURL      string        `long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz"`
+	UpdateInterval time.Duration `long:"interval" description:"interval of time between database update checks" default:"12h"`
+	UpdateURL      string        `long:"update-url" env:"MAXMIND_UPDATE_URL" description:"maxmind database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"`
+	LicenseKey     string        `long:"license-key" env:"MAXMIND_LICENSE_KEY" description:"maxmind license key (must register for a maxmind account)" required:"true"`
 	Cache          struct {
 		Size   int           `long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
 		Expire time.Duration `long:"expire" description:"expiration time of cache" default:"20m"`
@@ -105,7 +106,7 @@ func main() {
 					logger.Println("database needs update")
 				}
 
-				if err = db.update(flags.UpdateURL); err != nil {
+				if err = db.update(flags.UpdateURL, flags.LicenseKey); err != nil {
 					logger.Println(err)
 				}
 			} else {

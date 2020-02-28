@@ -80,8 +80,10 @@ Application Options:
   -d, --debug          enable exception display and pprof endpoints (warn: dangerous)
   -q, --quiet          disable verbose output
       --db=            path to read/store Maxmind DB (default: geoip.db)
-      --interval=      interval of time between database update checks (default: 2h)
-      --update-url=    maxmind database file download location (must be gzipped) (default: http://geolite.maxmind.com/download/geoip/database/GeoLite2-City.mmdb.gz)
+      --interval=      interval of time between database update checks (default: 12h)
+      --update-url=    maxmind database file download location (must be gzipped) (default:
+                       https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz) [$MAXMIND_UPDATE_URL]
+      --license-key=   maxmind license key (must register for a maxmind account) [$MAXMIND_LICENSE_KEY]
   -v, --version        print the version and compilation date
 
 Cache Options:
