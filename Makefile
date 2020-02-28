@@ -22,13 +22,13 @@ readme-gen: ## Generates readme from template file
 	sed -ri -e "s:\[\[tag\]\]:${VERSION}:g" -e "s:\[\[os\]\]:linux:g" -e "s:\[\[arch\]\]:amd64:g" "${ROUT}"
 
 release: clean clean-cache fetch generate ## Generate a release, but don't publish to GitHub.
-	$(GOPATH)/bin/goreleaser --skip-validate --skip-publish
+	$(BIN)/goreleaser --skip-validate --skip-publish
 
 publish: clean clean-cache fetch generate ## Generate a release, and publish to GitHub.
-	$(GOPATH)/bin/goreleaser
+	$(BIN)/goreleaser
 
 snapshot: clean clean-cache fetch generate ## Generate a snapshot release.
-	$(GOPATH)/bin/goreleaser --snapshot --skip-validate --skip-publish
+	$(BIN)/goreleaser --snapshot --skip-validate --skip-publish
 
 fetch: ## Fetches the necessary dependencies to build.
 	which $(BIN)/rice 2>&1 > /dev/null || go get -v github.com/GeertJohan/go.rice/rice
