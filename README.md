@@ -2,6 +2,7 @@
 
 ## Table of Contents
 - [Installation](#installation)
+  - [Docker](#docker)
   - [Ubuntu/Debian](#ubuntudebian)
   - [CentOS/Redhat](#centosredhat)
   - [Manual Install](#manual-install)
@@ -18,24 +19,34 @@ page for prebuilt versions. Below are example commands of how you would install
 the utility. Some of the more popular OS/distro steps are provided below, but
 there are more released versions on the releases page previously mentioned.
 
+### Docker
+
+```bash
+$ docker run -it --rm -p 8080:80 lrstanley/geoip:latest geoip --http :80 --db /data/store.db
+$ curl -I http://localhost:8080
+HTTP/1.1 200 OK
+Content-Type: text/html
+Date: Thu, 06 Aug 2020 00:55:21 GMT
+```
+
 ### Ubuntu/Debian
 
 ```console
-$ wget https://liam.sh/ghr/geoip_0.1.4_linux_amd64.deb
-$ dpkg -i geoip_0.1.4_linux_amd64.deb
+$ wget https://liam.sh/ghr/geoip_<version>_linux_amd64.deb
+$ dpkg -i geoip_<version>_linux_amd64.deb
 ```
 
 ### CentOS/Redhat
 
 ```console
-$ yum localinstall https://liam.sh/ghr/geoip_0.1.4_linux_amd64.rpm
+$ yum localinstall https://liam.sh/ghr/geoip_<version>_linux_amd64.rpm
 ```
 
 ### Manual Install
 
 ```console
-$ wget https://liam.sh/ghr/geoip_0.1.4_linux_amd64.tar.gz
-$ tar -C /usr/bin/ -xzvf geoip_0.1.4_linux_amd64.tar.gz geoip
+$ wget https://liam.sh/ghr/geoip_<version>_linux_amd64.tar.gz
+$ tar -C /usr/bin/ -xzvf geoip_<version>_linux_amd64.tar.gz geoip
 $ chmod +x /usr/bin/geoip
 ```
 

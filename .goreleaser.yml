@@ -1,7 +1,6 @@
 # goreleaser.yml
 project_name: geoip
 build:
-  binary: geoip
   goos:
     - linux
     - windows
@@ -11,8 +10,6 @@ build:
   ldflags: -s -w -X main.version=v{{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
 nfpms:
   - homepage: https://github.com/lrstanley/geoip
-    maintainer: Liam Stanley <me@liamstanley.io>
-    description: GeoIP location service.
     license: MIT
     formats:
       - deb
@@ -25,7 +22,7 @@ archives:
         format: zip
     files:
       - LICENSE
-release:
-  draft: true
+# release:
+#   draft: true
 snapshot:
   name_template: snapshot-{{.Commit}}
