@@ -16,7 +16,7 @@
     </h3>
     <p>
       The HTTP API takes <code>GET</code> requests in the following scheme:
-      <pre class="block"><code>http[s]://geoip.cf/api{/endpoint}</code></pre>
+      <pre class="block"><code>http[s]://geoip.pw/api{/endpoint}</code></pre>
     </p>
 
     <h3 class="ui dividing header">
@@ -28,16 +28,16 @@
       hostname/domain lookups. To obtain JSON information about a given IP
       address or hostname, simply use the following format (replacing
       <code class="inline">{query}</code> with the IP or hostname):
-      <pre class="block"><code>https://geoip.cf/api/{ip}</code></pre>
+      <pre class="block"><code>https://geoip.pw/api/{ip}</code></pre>
       <br>
 
       For example:
-      <pre class="block"><code>$ curl https://geoip.cf/api/8.8.8.8
+      <pre class="block"><code>$ curl https://geoip.pw/api/8.8.8.8
 {"ip":"8.8.8.8","summary":"United States, NA","city":"","subdivision":"","country":"United States","country_abbr":"US","continent":"North America","continent_abbr":"NA","latitude":37.751,"longitude":-97.822,"timezone":"","postal_code":"","proxy":false,"host":"google-public-dns-a.google.com"}</code></pre>
       <br>
 
       We can take that one step further, and prettify the JSON:
-      <pre class="block"><code>$ curl https://geoip.cf/api/8.8.8.8?pretty=1
+      <pre class="block"><code>$ curl https://geoip.pw/api/8.8.8.8?pretty=1
 {
   "ip": "8.8.8.8",
   "summary": "United States, NA",
@@ -70,7 +70,7 @@
       <br><br>
 
       The syntax is as follows:
-      <pre class="block"><code>http[s]://geoip.cf/api/{query}/{comma-list-of-fields}</code></pre>
+      <pre class="block"><code>http[s]://geoip.pw/api/{query}/{comma-list-of-fields}</code></pre>
 
       <div class="ui warning message">
         <strong>Warning:</strong> the <code class="inline">{comma-list-of-fields}</code>
@@ -89,7 +89,7 @@
       <br><br>
 
       For example:
-      <pre class="block"><code>$ curl https://geoip.cf/api/8.8.8.8/summary,country,host
+      <pre class="block"><code>$ curl https://geoip.pw/api/8.8.8.8/summary,country,host
 United States, NA|United States|google-public-dns-a.google.com</code></pre>
     </p>
 
@@ -103,7 +103,7 @@ United States, NA|United States|google-public-dns-a.google.com</code></pre>
       obtain these headers without submitting a query for a given IP/hostname,
       simply use the below endpoint, which will not count towards your API
       limits:
-      <pre class="block"><code>http[s]://geoip.cf/api/ping</code></pre>
+      <pre class="block"><code>http[s]://geoip.pw/api/ping</code></pre>
 
       <h4>Access-Control headers:</h4>
       GeoIP also has support to restrict connections based on the
@@ -174,7 +174,7 @@ United States, NA|United States|google-public-dns-a.google.com</code></pre>
       <br>
 
       An example response may look like this:
-      <pre class="block"><code>$ curl -i https://geoip.cf/api/ping
+      <pre class="block"><code>$ curl -i https://geoip.pw/api/ping
 HTTP/1.1 200 OK
 Content-Type: application/json
 X-Maxmind-Build: 6-1501721259
