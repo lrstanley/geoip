@@ -13,10 +13,12 @@ export GOBIN=$(CURDIR)/bin
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-fetch: ## Fetches the necessary dependencies to build.
+fetch-go: ## Fetches the necessary Go dependencies to build.
 	which $(BIN)/rice 2>&1 > /dev/null || go get -v github.com/GeertJohan/go.rice/rice
 	go mod download
 	go mod tidy
+
+fetch-node: ## Fetches the necessary NodeJS dependencies to build.
 	test -d public/node_modules || (cd public && npm install)
 
 upgrade-deps: ## Upgrade all dependencies to the latest version.
@@ -34,7 +36,7 @@ clean-cache: ## Cleans up generated cache (speeds up during dev time).
 generate-watch: ## Generate public html/css/js when files change (faster, but larger files.)
 	cd public && npm run watch
 
-generate-frontend: ## Generate public html/css/js files for use in production (slower, smaller/minified files.)
+generate-node: ## Generate public html/css/js files for use in production (slower, smaller/minified files.)
 	cd public && npm run build
 
 generate-go: ## Generate go bundled files from frontend
@@ -43,8 +45,8 @@ generate-go: ## Generate go bundled files from frontend
 compile:
 	go build -ldflags '-s -w' -tags netgo -installsuffix netgo -v -o "${BINARY}"
 
-build: fetch clean clean-cache generate-frontend generate-go compile ## Builds the application (with generate.)
+build: fetch-go fetch-node clean clean-cache generate-node generate-go compile ## Builds the application (with generate.)
 	echo
 
-debug: fetch clean generate-frontend ## Runs the application in debug mode (with generate-dev.)
+debug: fetch-go fetch-node clean generate-node ## Runs the application in debug mode (with generate-dev.)
 	go run *.go -d --http.limit 200000 --http.proxy
