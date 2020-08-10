@@ -44,7 +44,6 @@ jobs:
         tag_semver: true
   docker-publish-latest:
     if: github.ref == 'refs/heads/master'
-    needs: [goreleaser]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
