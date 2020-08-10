@@ -13,10 +13,12 @@ jobs:
     steps:
     - uses: actions/setup-go@v2
       with: { go-version: ^1.14 }
+    - uses: actions/setup-node@v1
+      with: { node-version: 8 }
     - uses: actions/checkout@v2
       with: { fetch-depth: 0 }
     - name: build
-      run: make fetch generate
+      run: make fetch-node generate-node fetch-go generate-go
     - name: add release note context
       run: |
         echo "Docker Releases are [located here](https://hub.docker.com/r/lrstanley/geoip/tags)." >> notes-header.md
