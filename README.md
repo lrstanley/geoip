@@ -1,4 +1,10 @@
-## geoip -- GeoIP lookup service.
+<p align="center">geoip -- GeoIP lookup service.</p>
+<p align="center">
+  <a href="https://github.com/lrstanley/geoip/releases"><img src="https://github.com/lrstanley/geoip/workflows/release/badge.svg" alt="Release Status"></a>
+  <a href="https://github.com/lrstanley/geoip/actions"><img src="https://github.com/lrstanley/geoip/workflows/build/badge.svg" alt="Build Status"></a>
+  <a href="https://hub.docker.com/r/lrstanley/geoip/tags"><img src="https://img.shields.io/badge/Docker-lrstanley%2Fgeoip%3Alatest-blue.svg" alt="Docker"></a>
+  <a href="https://liam.sh/chat"><img src="https://img.shields.io/badge/Community-Chat%20with%20us-green.svg" alt="Community Chat"></a>
+</p>
 
 ## Table of Contents
 - [Installation](#installation)
@@ -22,7 +28,7 @@ there are more released versions on the releases page previously mentioned.
 ### Docker
 
 ```bash
-$ docker run -it --rm -p 8080:80 lrstanley/geoip:latest geoip --http :80 --db /data/store.db
+$ docker run -it --rm -p 8080:80 lrstanley/geoip:latest geoip --http.bind 0.0.0.0:80 --db /data/geoip.db
 $ curl -I http://localhost:8080
 HTTP/1.1 200 OK
 Content-Type: text/html
@@ -54,17 +60,15 @@ $ chmod +x /usr/bin/geoip
 
 Dependencies (to build from source only):
 
-   * [Go](https://golang.org/doc/install) (1.9 or greater, though latest
-   preferred). Ensure your `$GOPATH` is setup.
-   * [NodeJS](https://nodejs.org/en/download/) (v6 or greater)
+   * [Go](https://golang.org/doc/install) (latest)
+   * [NodeJS](https://nodejs.org/en/download/) (v8)
 
 Setup:
 
 ```console
-$ go get -d -u github.com/lrstanley/geoip
-$ cd $GOPATH/src/github.com/lrstanley/geoip
-# this will show you all of the available options (to fetch dependencies,
-# run in debug mode, etc.)
+$ git clone <repo>
+$ cd geoip
+# this will show you all of the available options (to fetch dependencies, run in debug mode, etc.)
 $ make help
 $ make
 $ ./geoip --help
@@ -73,7 +77,6 @@ $ ./geoip --help
 For active development:
 
 ```console
-$ make fetch # make sure this is ran at least once to fetch all dependencies.
 $ make debug
 # run this in a different window. this will rebundle the frontend assets on
 # change.
