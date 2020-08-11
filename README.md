@@ -106,7 +106,7 @@ Cache Options:
 
 HTTP Options:
   -b, --http.bind=     address and port to bind to (default: :8080) [$HTTP_BIND]
-      --http.proxy     obey X-Forwarded-For headers (warn: dangerous, make sure to only bind to localhost) [$HTTP_PROXY]
+      --http.proxy     obey X-Forwarded-For headers (warn: dangerous, make sure to only bind to localhost) [$HTTP_BEHIND_PROXY]
       --http.throttle= limit total max concurrent requests across all connections [$HTTP_THROTTLE]
       --http.limit=    number of requests/ip/hour (default: 2000) [$HTTP_LIMIT]
       --http.cors=     cors origin domain to allow with https?:// prefix (empty => '*'; use flag multiple times) [$HTTP_CORS]

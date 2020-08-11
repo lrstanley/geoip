@@ -41,7 +41,7 @@ type Flags struct {
 	} `group:"Cache Options" namespace:"cache"`
 	HTTP struct {
 		Bind     string   `env:"HTTP_BIND" short:"b" long:"bind" description:"address and port to bind to" default:":8080"`
-		Proxy    bool     `env:"HTTP_PROXY" long:"proxy" description:"obey X-Forwarded-For headers (warn: dangerous, make sure to only bind to localhost)"`
+		Proxy    bool     `env:"HTTP_BEHIND_PROXY" long:"proxy" description:"obey X-Forwarded-For headers (warn: dangerous, make sure to only bind to localhost)"`
 		Throttle int      `env:"HTTP_THROTTLE" long:"throttle" description:"limit total max concurrent requests across all connections"`
 		Limit    int      `env:"HTTP_LIMIT" long:"limit" description:"number of requests/ip/hour" default:"2000"`
 		CORS     []string `env:"HTTP_CORS" long:"cors" description:"cors origin domain to allow with https?:// prefix (empty => '*'; use flag multiple times)"`
