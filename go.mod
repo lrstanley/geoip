@@ -14,8 +14,6 @@ require (
 	github.com/jessevdk/go-flags v1.4.1-0.20180331124232-1c38ed7ad0cc
 	github.com/lrstanley/go-bogon v0.0.0-20181215043000-fd460d06a8c6
 	github.com/lrstanley/recoverer v0.0.0-20190113032426-b7f0a5e82680
-	github.com/oschwald/maxminddb-golang v1.6.0
-	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/oschwald/maxminddb-golang v1.9.0
 	golang.org/x/net v0.0.0-20200226051749-491c5fce7268 // indirect
-	golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae // indirect
 )
