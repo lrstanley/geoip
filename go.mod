@@ -8,7 +8,7 @@ require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
 	github.com/daaku/go.zipexe v1.0.1 // indirect
 	github.com/fiorix/go-redis v0.0.0-20160104010333-d987058b55eb // indirect
-	github.com/go-chi/chi v4.0.3+incompatible
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/cors v1.0.0
 	github.com/go-web/httprl v0.0.0-20160505070143-20dc8024cb5d
 	github.com/jessevdk/go-flags v1.4.1-0.20180331124232-1c38ed7ad0cc
