@@ -17,4 +17,3 @@ jobs:
       has-ghcr: true
       upload-artifacts: true
       node-version: "16.13.0"
-      node-cache: public/package-lock.json
