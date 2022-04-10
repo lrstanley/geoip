@@ -27,12 +27,12 @@ type DB struct {
 }
 
 // Note that cache may not always be filled.
-type MetaCache struct {
+type metaCache struct {
 	sync.RWMutex
 	cache *maxminddb.Metadata
 }
 
-var mcache = &MetaCache{}
+var mcache = &metaCache{}
 
 func (d *DB) checkForUpdates() (needsUpdate bool, err error) {
 	curSeconds := time.Now().UnixNano() / int64(time.Second)
@@ -139,7 +139,7 @@ func (d *DB) update(url, licenseKey string) error {
 		return errors.New("no database file found in tar archive")
 	}
 
-	if err = gz.Close(); err != nil {
+	if err := gz.Close(); err != nil {
 		return err
 	}
 

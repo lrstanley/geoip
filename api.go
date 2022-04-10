@@ -135,7 +135,7 @@ func apiResponse(w http.ResponseWriter, r *http.Request, result *AddrResult, fil
 
 		out := make([]string, len(filters))
 		for i := 0; i < len(filters); i++ {
-			out[i] = strings.Replace(fmt.Sprintf("%s", *base[filters[i]]), "\"", "", -1)
+			out[i] = strings.ReplaceAll(fmt.Sprintf("%s", *base[filters[i]]), "\"", "")
 		}
 
 		w.Header().Set("Content-Type", "text/plain")

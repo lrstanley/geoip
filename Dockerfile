@@ -1,17 +1,27 @@
 # build-node image
-FROM node:8 as build-node
-COPY public/ /build/public/
+FROM node:16 as build-node
+
+# for cache reasons, copy these separately.
+COPY public/package.json /build/public/package.json
+COPY public/package-lock.json /build/public/package-lock.json
 COPY Makefile /build/
+
+COPY public/ /build/public/
 WORKDIR /build
 RUN make fetch-node generate-node
 
 # build-go image
 FROM golang:alpine as build-go
+
+# for cache reasons, copy these separately.
+COPY go.mod /build/go.mod
+COPY go.sum /build/go.sum
+
 RUN apk add --no-cache g++ make
 COPY . /build/
 COPY --from=build-node /build/public/dist/ /build/public/dist/
 WORKDIR /build
-RUN make fetch-go generate-go compile
+RUN make fetch-go compile
 
 # runtime image
 FROM alpine:latest

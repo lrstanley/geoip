@@ -7,7 +7,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"net"
@@ -61,7 +61,7 @@ type Flags struct {
 
 var (
 	flags    Flags
-	logger   = log.New(ioutil.Discard, "", log.LstdFlags|log.Lshortfile)
+	logger   = log.New(io.Discard, "", log.LstdFlags|log.Lshortfile)
 	db       *DB
 	arc      gcache.Cache
 	resolver *net.Resolver

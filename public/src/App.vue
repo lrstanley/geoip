@@ -5,28 +5,40 @@
         <div class="row">
           <div class="three wide column navigation">
             <div class="ui secondary stackable vertical pointing menu">
-              <a class="header item brand" href="#">GeoIP <i class="blue world icon"></i></a>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'lookup' }">Lookup Address <i class="olive search icon"></i></router-link>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'bulkLookup' }">Bulk Lookup <i class="yellow database icon"></i></router-link>
-              <router-link exact-active-class="active" class="item" :to="{ name: 'apidocs' }">API Documentation <i class="teal book icon"></i></router-link>
-              <a href="https://github.com/lrstanley/geoip" class="item">Source on GitHub <i class="purple github icon"></i></a>
+              <a class="header item brand" href="#">
+                GeoIP <i class="blue world icon" />
+              </a>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'lookup' }">
+                Lookup Address <i class="olive search icon" />
+              </router-link>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'bulkLookup' }">
+                Bulk Lookup <i class="yellow database icon" />
+              </router-link>
+              <router-link exact-active-class="active" class="item" :to="{ name: 'apidocs' }">
+                API Documentation <i class="teal book icon" />
+              </router-link>
+              <a href="https://github.com/lrstanley/geoip" class="item">
+                Source on GitHub <i class="purple github icon" />
+              </a>
             </div>
           </div>
           <div class="ui ten wide column">
             <div class="ui segment main">
               <transition mode="out-in" name="fade" appear>
-                <router-view></router-view>
+                <router-view />
               </transition>
             </div>
 
             <div class="footer">
-              Location data from <a target="_blank" href="http://www.maxmind.com">Maxmind</a> &middot; GeoIP: <a target="_blank" href="https://github.com/lrstanley/geoip">FOSS</a> lookup service, made with <i class="red heart icon"></i>
+              Location data from <a target="_blank" href="http://www.maxmind.com">Maxmind</a>
+              &middot; GeoIP: <a target="_blank" href="https://github.com/lrstanley/geoip">FOSS</a>
+              lookup service, made with <i class="red heart icon" />
             </div>
           </div>
         </div>
       </div>
     </div>
-    <vue-progress-bar></vue-progress-bar>
+    <vue-progress-bar />
   </div>
 </template>
 
@@ -49,7 +61,7 @@ export default {
 
       next()
     })
-    this.$router.afterEach((to, from) => {
+    this.$router.afterEach(() => {
       this.$Progress.finish()
     })
   }

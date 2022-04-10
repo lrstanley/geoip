@@ -1,62 +1,25 @@
-<p align="center">geoip -- GeoIP lookup service.</p>
-<p align="center">
-  <a href="https://github.com/lrstanley/geoip/releases"><img src="https://github.com/lrstanley/geoip/workflows/release/badge.svg" alt="Release Status"></a>
-  <a href="https://github.com/lrstanley/geoip/actions"><img src="https://github.com/lrstanley/geoip/workflows/build/badge.svg" alt="Build Status"></a>
-  <a href="https://hub.docker.com/r/lrstanley/geoip/tags"><img src="https://img.shields.io/badge/Docker-lrstanley%2Fgeoip%3Alatest-blue.svg" alt="Docker"></a>
-  <a href="https://liam.sh/chat"><img src="https://img.shields.io/badge/Community-Chat%20with%20us-green.svg" alt="Community Chat"></a>
-</p>
+<!-- template:begin:header -->
+<!-- template:end:header -->
 
-## Table of Contents
-- [Installation](#installation)
-  - [Docker](#docker)
-  - [Ubuntu/Debian](#ubuntudebian)
-  - [CentOS/Redhat](#centosredhat)
-  - [Manual Install](#manual-install)
-  - [Build from source](#build-from-source)
-- [Usage](#usage)
-  - [Example](#example)
-- [Contributing](#contributing)
-- [License](#license)
+<!-- template:begin:toc -->
+<!-- template:end:toc -->
 
-## Installation
+## :computer: Installation
 
 Check out the [releases](https://github.com/lrstanley/geoip/releases)
-page for prebuilt versions. Below are example commands of how you would install
-the utility. Some of the more popular OS/distro steps are provided below, but
-there are more released versions on the releases page previously mentioned.
+page for prebuilt versions.
 
-### Docker
+### :whale: Container Images (ghcr)
 
-```bash
-$ docker run -it --rm -p 8080:80 lrstanley/geoip:latest geoip --http.bind 0.0.0.0:80 --db /data/geoip.db
+```console
+$ docker run -it --rm -p 8080:80 ghcr.io/lrstanley/geoip:latest geoip --http.bind 0.0.0.0:80 --db /data/geoip.db
 $ curl -I http://localhost:8080
 HTTP/1.1 200 OK
 Content-Type: text/html
 Date: Thu, 06 Aug 2020 00:55:21 GMT
 ```
 
-### Ubuntu/Debian
-
-```console
-$ wget https://liam.sh/ghr/geoip_<version>_linux_amd64.deb
-$ dpkg -i geoip_<version>_linux_amd64.deb
-```
-
-### CentOS/Redhat
-
-```console
-$ yum localinstall https://liam.sh/ghr/geoip_<version>_linux_amd64.rpm
-```
-
-### Manual Install
-
-```console
-$ wget https://liam.sh/ghr/geoip_<version>_linux_amd64.tar.gz
-$ tar -C /usr/bin/ -xzvf geoip_<version>_linux_amd64.tar.gz geoip
-$ chmod +x /usr/bin/geoip
-```
-
-### Build From Source
+### :toolbox: Build From Source
 
 Dependencies (to build from source only):
 
@@ -80,10 +43,10 @@ For active development:
 $ make debug
 # run this in a different window. this will rebundle the frontend assets on
 # change.
-$ make generate-watch
+$ make frontend-watch
 ```
 
-## Usage
+## :gear: Usage
 
 ```console
 $ geoip --help
@@ -132,30 +95,11 @@ Help Options:
 $ geoip --cache.size 1000 --http.bind "localhost:8080" --http.proxy --http.limit 15000 --dns.resolver 8.8.8.8 --dns.resolver 8.8.4.4
 ```
 
-## Contributing
+<!-- template:begin:support -->
+<!-- template:end:support -->
 
-Please review the [CONTRIBUTING](CONTRIBUTING.md) doc for submitting issues/a guide
-on submitting pull requests and helping out.
+<!-- template:begin:contributing -->
+<!-- template:end:contributing -->
 
-## License
-
-    LICENSE: The MIT License (MIT)
-    Copyright (c) 2015 Liam Stanley <me@liamstanley.io>
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+<!-- template:begin:license -->
+<!-- template:end:license -->

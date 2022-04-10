@@ -1,0 +1,8 @@
+goreleaser:
+  post:
+    nfpms:
+      - homepage: https://github.com/lrstanley/geoip
+        license: MIT
+        formats:
+          - deb
+          - rpm

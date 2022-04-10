@@ -1,15 +1,15 @@
 import Vue from 'vue'
-import App from './App.vue'
+import App from '@/App.vue'
 import VueLocalStorage from 'vue-localstorage'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 import VueProgressBar from 'vue-progressbar'
 
 // For routes.
-import Lookup from './components/Lookup'
-import BulkLookup from './components/BulkLookup'
-import Docs from './components/Docs'
-import NotFound from './components/NotFound'
+import Lookup from '@/components/Lookup.vue'
+import BulkLookup from '@/components/BulkLookup.vue'
+import Docs from '@/components/Docs.vue'
+import NotFound from '@/components/NotFound.vue'
 
 const routes = [
   {

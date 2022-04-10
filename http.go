@@ -6,20 +6,24 @@ package main
 
 import (
 	"crypto/tls"
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	rice "github.com/GeertJohan/go.rice"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-web/httprl"
 	"github.com/lrstanley/recoverer"
 )
+
+//go:embed all:public/dist
+var publicDist embed.FS
 
 var apiPong = map[string]bool{
 	"pong": true,
@@ -28,6 +32,11 @@ var apiPong = map[string]bool{
 var mapLimiter = NewMapLimiter(10)
 
 func initHTTP(closer chan struct{}) {
+	dist, err := fs.Sub(publicDist, "public/dist")
+	if err != nil {
+		panic(err)
+	}
+
 	r := chi.NewRouter()
 	if flags.HTTP.Proxy {
 		r.Use(middleware.RealIP)
@@ -36,7 +45,7 @@ func initHTTP(closer chan struct{}) {
 	r.Use(recoverer.New(recoverer.Options{Logger: os.Stderr, Show: flags.Debug, Simple: false}))
 	r.Use(middleware.Logger)
 	r.Use(middleware.StripSlashes)
-	r.Use(middleware.DefaultCompress)
+	r.Use(middleware.Compress(9))
 	r.Use(dbDetailsMiddleware)
 
 	if flags.HTTP.Throttle > 0 {
@@ -47,15 +56,10 @@ func initHTTP(closer chan struct{}) {
 		r.Mount("/debug", middleware.Profiler())
 	}
 
-	r.Mount("/static/dist", http.StripPrefix("/static/dist", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	r.Mount("/dist", http.StripPrefix("/dist/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Vary", "Accept-Encoding")
 		w.Header().Set("Cache-Control", "public, max-age=7776000")
-		http.FileServer(rice.MustFindBox("public/dist").HTTPBox()).ServeHTTP(w, r)
-	})))
-	r.Mount("/static", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Vary", "Accept-Encoding")
-		w.Header().Set("Cache-Control", "public, max-age=7776000")
-		http.FileServer(rice.MustFindBox("public/static").HTTPBox()).ServeHTTP(w, r)
+		http.FileServer(http.FS(dist)).ServeHTTP(w, r)
 	})))
 
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -64,13 +68,17 @@ func initHTTP(closer chan struct{}) {
 			return
 		}
 
-		w.Write(rice.MustFindBox("public/dist").MustBytes("index.html"))
+		b, err := publicDist.ReadFile("public/dist/index.html")
+		if err != nil {
+			panic(err)
+		}
+		w.Write(b)
 	})
 
 	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {
 		flags.HTTP.CORS = []string{"*"}
 	}
-	cors := cors.New(cors.Options{
+	corsh := cors.New(cors.Options{
 		AllowedOrigins: flags.HTTP.CORS,
 		AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
 		AllowedHeaders: []string{"Accept", "Content-Type"},
@@ -101,9 +109,9 @@ func initHTTP(closer chan struct{}) {
 	defer mapLimiter.Stop()
 
 	if flags.HTTP.Limit > 0 {
-		r.With(cors.Handler, middleware.NoCache, limiter.Handle).Group(registerAPI)
+		r.With(corsh.Handler, middleware.NoCache, limiter.Handle).Group(registerAPI)
 	} else {
-		r.With(cors.Handler, middleware.NoCache).Group(registerAPI)
+		r.With(corsh.Handler, middleware.NoCache).Group(registerAPI)
 	}
 
 	// Register the /api/ping route separately, as it shouldn't be counted
@@ -111,8 +119,8 @@ func initHTTP(closer chan struct{}) {
 	// service is functional, but also let them use headers to check API
 	// limit information. This endpoint is the only one which has HTTP HEAD
 	// support.
-	r.With(cors.Handler, middleware.NoCache, rateHeaderMiddleware).Get("/api/ping", pingHandler)
-	r.With(cors.Handler, middleware.NoCache, rateHeaderMiddleware).Head("/api/ping", pingHandler)
+	r.With(corsh.Handler, middleware.NoCache, rateHeaderMiddleware).Get("/api/ping", pingHandler)
+	r.With(corsh.Handler, middleware.NoCache, rateHeaderMiddleware).Head("/api/ping", pingHandler)
 
 	srv := http.Server{
 		Addr:         flags.HTTP.Bind,

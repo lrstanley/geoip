@@ -14,12 +14,11 @@ help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 fetch-go: ## Fetches the necessary Go dependencies to build.
-	which $(BIN)/rice 2>&1 > /dev/null || go get -v github.com/GeertJohan/go.rice/rice
 	go mod download
 	go mod tidy
 
 fetch-node: ## Fetches the necessary NodeJS dependencies to build.
-	test -d public/node_modules || (cd public && npm install)
+	test -d public/node_modules || (cd public && npm run run-install)
 
 upgrade-deps: ## Upgrade all dependencies to the latest version.
 	go get -u ./...
@@ -28,25 +27,23 @@ upgrade-deps-patch: ## Upgrade all dependencies to the latest patch release.
 	go get -u=patch ./...
 
 clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "public/dist" "rice-box.go" "${BINARY}"
-
-clean-cache: ## Cleans up generated cache (speeds up during dev time).
-	/bin/rm -rfv "public/.cache"
-
-generate-watch: ## Generate public html/css/js when files change (faster, but larger files.)
-	cd public && npm run watch
+	/bin/rm -rfv "public/dist" "${BINARY}"
+	mkdir -p public/dist
+	touch public/dist/.gitkeep
 
 generate-node: ## Generate public html/css/js files for use in production (slower, smaller/minified files.)
 	cd public && npm run build
+	ls -lah public/dist/
 
-generate-go: ## Generate go bundled files from frontend
-	$(BIN)/rice -v embed-go
+frontend-watch: ## Use this to spin up vite, and proxy calls to the backend.
+	cd public && npm run server
 
-compile:
-	go build -ldflags '-s -w' -tags netgo -installsuffix netgo -v -o "${BINARY}"
-
-build: fetch-go fetch-node clean clean-cache generate-node generate-go compile ## Builds the application (with generate.)
-	echo
-
-debug: fetch-go fetch-node clean generate-node ## Runs the application in debug mode (with generate-dev.)
+debug: fetch-go fetch-node clean ## Runs the application in debug mode (with generate-dev.)
 	go run *.go -d --http.limit 200000 --http.proxy
+
+prepare: fetch-go fetch-node clean generate-node ## Runs preparation steps for build.
+	@echo
+
+build: prepare ## Builds the application (with generate.)
+	go generate ./...
+	CGO_ENABLED=0 go build -ldflags '-d -s -w -extldflags=-static' -tags=netgo,osusergo,static_build -installsuffix netgo -buildvcs=false -trimpath -o "${BINARY}"

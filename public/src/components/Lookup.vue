@@ -1,58 +1,98 @@
 <template>
   <div style="padding-bottom: 0;">
     <div class="ui fluid icon input input-box" :class="{ loading: loading, error: error, noresults: history.length == 0 }">
-      <input id="addr_box" type="text" v-model="address" @keyup.enter="lookup" placeholder="IP address (e.g 1.2.3.4) or host (e.g google.com)" autofocus>
-      <i class="circular search link icon" @click="lookup"></i>
+      <input
+        id="addr_box" v-model="address" type="text"
+        placeholder="IP address (e.g 1.2.3.4) or host (e.g google.com)"
+        autofocus @keyup.enter="lookup"
+      >
+      <i class="circular search link icon" @click="lookup" />
     </div>
 
-    <div v-if="error" class="ui negative message"><i class="icon warning sign"></i> {{ error }}</div>
+    <div v-if="error" class="ui negative message"><i class="icon warning sign" /> {{ error }}</div>
 
     <div v-if="history.length > 0" class="result-box">
-      <a v-if="stats.rate_remaining" data-position="top left" class="ui label" :data-tooltip="stats.rate_remaining + '/' + stats.rate_limit + ' calls remain; resets in ' + stats.rate_reset_seconds + ' sec'" data-inverted>remaining calls <div class="detail"><strong>{{ stats.rate_remaining.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong></div></a>
-      <button class="ui right floated mini button" @click="clearHistory"><i class="ui remove circle icon"></i> Clear history</button>
+      <a
+        v-if="stats.rate_remaining" data-position="top left" class="ui label"
+        :data-tooltip="stats.rate_remaining + '/' + stats.rate_limit + ' calls remain; resets in ' + stats.rate_reset_seconds + ' sec'" data-inverted
+      >
+        remaining calls
+        <div class="detail">
+          <strong>{{ stats.rate_remaining.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</strong>
+        </div>
+      </a>
+      <button class="ui right floated mini button" @click="clearHistory">
+        <i class="ui remove circle icon" /> Clear history
+      </button>
 
       <transition-group name="list" appear>
-        <div v-for="(item, index) in history" class="result" :index="index" :key="item.ip">
+        <div v-for="(item, index) in history" :key="item.ip" :index="index" class="result">
           <div class="fluid ui raised card">
             <div class="content">
-              <span v-if="item.country_abbr" :data-tooltip="item.country + ' (' + item.country_abbr + ')'" data-inverted class="right floated"><i :class="[item.country_abbr.toLowerCase()]" class="flag"></i></span>
+              <span v-if="item.country_abbr" :data-tooltip="item.country + ' (' + item.country_abbr + ')'" data-inverted class="right floated">
+                <i :class="[item.country_abbr.toLowerCase()]" class="flag" />
+              </span>
 
               <div class="header">
-                <i class="circle check icon"></i> {{ item.query }}
+                <i class="circle check icon" /> {{ item.query }}
                 <span v-if="item.query != item.ip">
-                  (<a data-tooltip="Click to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.ip">{{ item.ip }}</a>)
+                  (<a data-tooltip="Click to copy" data-inverted="" :data-clipboard-text="item.ip" @click="copyClipboard">{{ item.ip }}</a>)
                 </span>
               </div>
 
               <div class="meta">
-                <span class="category" v-if="item.host || item.longitude != 0 && item.latitude != 0">
+                <span v-if="item.host || item.longitude != 0 && item.latitude != 0" class="category">
                   <span v-if="item.host">
-                    [host: <a data-tooltip="Click to copy" data-inverted="" @click="copyClipboard" :data-clipboard-text="item.host">{{ item.host }}</a>]
+                    [host:
+                    <a
+                      data-tooltip="Click to copy" data-inverted=""
+                      :data-clipboard-text="item.host" @click="copyClipboard"
+                    >{{ item.host }}</a>]
                   </span>
                   <span v-if="item.longitude != 0 && item.latitude != 0" class="right floated">
-                    [lat/long: <a :href="'https://www.google.com/maps/@'+item.latitude+','+item.longitude+',5z'" target="_blank">{{item.latitude.toFixed(4)}}, {{item.longitude.toFixed(4)}}</a>]
+                    [lat/long:
+                    <a
+                      :href="'https://www.google.com/maps/@'+item.latitude+','+item.longitude+',5z'" target="_blank"
+                    >{{ item.latitude.toFixed(4) }}, {{ item.longitude.toFixed(4) }}</a>]
                   </span>
                 </span>
               </div>
 
-              <div class="description" v-if="item.longitude != 0 && item.latitude != 0">
-                <v-map style="height: 150px" :options="mapOptions" :zoom=3 v-bind:center="[item.latitude, item.longitude]">
-                  <v-tilelayer attribution="&copy; <a href='https://osm.org/copyright'>OpenStreetMap</a> contributors" url="//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"></v-tilelayer>
-                  <v-marker v-bind:lat-lng="[item.latitude, item.longitude]"></v-marker>
+              <div v-if="item.longitude != 0 && item.latitude != 0" class="description">
+                <v-map style="height: 150px" :center="[item.latitude, item.longitude]" :options="mapOptions" :zoom="3">
+                  <v-tilelayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+                  />
+                  <v-marker :lat-lng="[item.latitude, item.longitude]" />
                 </v-map>
               </div>
             </div>
 
             <div class="extra content">
-              <div v-if="item.timezone" class="ui label"><i class="wait icon"></i> {{item.timezone}}</div>
+              <div v-if="item.timezone" class="ui label">
+                <i class="wait icon" /> {{ item.timezone }}
+              </div>
 
-              <a v-if="item.postal_code" data-tooltip="Postal code - Click to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.postal_code">
-                <div class="ui blue label"><i class="building icon"></i> {{item.postal_code}}</div>
+              <a
+                v-if="item.postal_code" data-tooltip="Postal code - Click to copy"
+                data-inverted="" data-position="bottom center"
+                :data-clipboard-text="item.postal_code" @click="copyClipboard"
+              >
+                <div class="ui blue label">
+                  <i class="building icon" /> {{ item.postal_code }}
+                </div>
               </a>
 
               <span class="ui right floated">
-                <a v-if="item.summary" data-tooltip="Location - Click to copy" data-inverted="" data-position="bottom center" @click="copyClipboard" :data-clipboard-text="item.summary">
-                  <div class="ui green label"><i class="map icon"></i> {{item.summary}}</div>
+                <a
+                  v-if="item.summary" data-tooltip="Location - Click to copy"
+                  data-inverted="" data-position="bottom center"
+                  :data-clipboard-text="item.summary" @click="copyClipboard"
+                >
+                  <div class="ui green label">
+                    <i class="map icon" /> {{ item.summary }}
+                  </div>
                 </a>
               </span>
             </div>
@@ -65,16 +105,16 @@
 
 <script>
 import { utils } from '../utils'
-import Vue2Leaflet from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
 
 export default {
   name: "lookup",
-  mixins: [utils],
   components: {
-    'v-map': Vue2Leaflet.Map,
-    'v-tilelayer' :Vue2Leaflet.TileLayer,
-    'v-marker': Vue2Leaflet.Marker
+    'v-map': LMap,
+    'v-tilelayer' :LTileLayer,
+    'v-marker': LMarker
   },
+  mixins: [utils],
   data: function () {
     return {
       address: "",
@@ -83,6 +123,27 @@ export default {
       mapOptions: { scrollWheelZoom: false },
       history: [],
     }
+  },
+  mounted: function () {
+    // On load, try looking in localstorage to see if they have any previous
+    // results.
+    var history = this.$ls.get("history", "");
+    if (history.length > 0) {
+      this.history = JSON.parse(history);
+    } else {
+      this.history = [];
+    }
+
+    // If they supplied a request via the URL, use that, otherwise if they
+    // have no history, lookup their own IP.
+    if (this.$route.query.q !== undefined) {
+      this.address = this.$route.query.q;
+      this.lookup();
+    } else if (this.history.length == 0) {
+      this.lookup(true);
+    }
+
+    this.$autofocus();
   },
   methods: {
     copyClipboard: (event) => {
@@ -161,27 +222,6 @@ export default {
         this.$autofocus();
     }
   },
-  mounted: function () {
-    // On load, try looking in localstorage to see if they have any previous
-    // results.
-    var history = this.$ls.get("history", "");
-    if (history.length > 0) {
-      this.history = JSON.parse(history);
-    } else {
-      this.history = [];
-    }
-
-    // If they supplied a request via the URL, use that, otherwise if they
-    // have no history, lookup their own IP.
-    if (this.$route.query.q !== undefined) {
-      this.address = this.$route.query.q;
-      this.lookup();
-    } else if (this.history.length == 0) {
-      this.lookup(true);
-    }
-
-    this.$autofocus();
-  }
 }
 </script>
 

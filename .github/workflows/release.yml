@@ -2,56 +2,17 @@ name: release
 
 on:
   push:
-    paths-ignore: ['.gitignore', '**/*.md']
-    branches: [master]
-    tags: ["*"]
+    tags: [v*]
 
 jobs:
-  goreleaser:
-    if: contains(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-    - id: goversion
-      run: |
-        echo ::set-output name=version::$(curl -s https://raw.githubusercontent.com/actions/go-versions/main/versions-manifest.json | sed -rn 's/.*"version": "([0-9]\.[0-9]+(\.[0-9]+)?)".*/\1/p' | head -1)
-    - uses: actions/setup-go@v2
-      with: { go-version: "${{ steps.goversion.outputs.version }}" }
-    - uses: actions/setup-node@v1
-      with: { node-version: 8 }
-    - uses: actions/checkout@v2
-      with: { fetch-depth: 0 }
-    - name: build
-      run: make fetch-node generate-node fetch-go generate-go
-    - name: add release note context
-      run: |
-        echo "Docker Releases are [located here](https://hub.docker.com/r/lrstanley/geoip/tags)." >> notes-header.md
-        go version >> notes-footer.md
-    - name: release
-      uses: goreleaser/goreleaser-action@v2
-      with:
-        version: latest
-        args: release --rm-dist --skip-validate --release-header=notes-header.md --release-footer=notes-footer.md
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  docker-publish-tags:
-    if: contains(github.ref, 'refs/tags/v')
-    needs: [goreleaser]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: lrstanley/geoip
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_semver: true
-  docker-publish-latest:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: lrstanley/geoip
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+  docker-release:
+    uses: lrstanley/.github/.github/workflows/docker-release.yml@master
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    with:
+      scan: false
+  go-release:
+    uses: lrstanley/.github/.github/workflows/lang-go-release.yml@master
+    with:
+      has-ghcr: true
+      upload-artifacts: true

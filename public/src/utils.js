@@ -26,7 +26,6 @@ export const utils = {
     },
     $lookup: function (address) {
       return new Promise((resolve, reject) => {
-        let error;
         this.$http.get(`/api/${address}`).then(response => {
           this.$updateStats(response);
 
@@ -47,7 +46,7 @@ export const utils = {
           response.body.query = address;
 
           resolve(response.body);
-        }, response => {
+        }, () => {
           reject("An unknown exception occurred or service unavailable");
           return
         });
