@@ -1,14 +1,5 @@
 .DEFAULT_GOAL := build
-
-DIRS=bin
 BINARY=geoip
-
-VERSION=$(shell git describe --tags --always --abbrev=0 --match=v* 2> /dev/null | sed -r "s:^v::g" || echo 0)
-
-$(info $(shell mkdir -p $(DIRS)))
-BIN=$(CURDIR)/bin
-export GOBIN=$(CURDIR)/bin
-
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
