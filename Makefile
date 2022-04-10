@@ -31,7 +31,7 @@ frontend-watch: ## Use this to spin up vite, and proxy calls to the backend.
 debug: fetch-go fetch-node clean ## Runs the application in debug mode (with generate-dev.)
 	go run *.go -d --http.limit 200000 --http.proxy
 
-prepare: fetch-go fetch-node clean generate-node ## Runs preparation steps for build.
+prepare: fetch-go fetch-node clean generate-node ## Prepare the dependencies needed for a build.
 	go generate ./...
 	@echo
 

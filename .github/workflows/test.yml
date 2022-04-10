@@ -14,7 +14,7 @@ jobs:
     uses: lrstanley/.github/.github/workflows/lang-go-test-matrix.yml@master
     with:
       go-version: latest
-      node-version: "16.13.0"
+      node-version: "17.9.0"
   go-lint:
     uses: lrstanley/.github/.github/workflows/lang-go-lint.yml@master
     secrets:
