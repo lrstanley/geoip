@@ -12,7 +12,11 @@ on:
 jobs:
   go-test:
     uses: lrstanley/.github/.github/workflows/lang-go-test-matrix.yml@master
-    with: { num-minor: 2, num-patch: 2 }
+    with:
+      num-minor: 2
+      num-patch: 2
+      node-version: "16.13.0"
+      node-cache: public/package-lock.json
   go-lint:
     uses: lrstanley/.github/.github/workflows/lang-go-lint.yml@master
     secrets:
