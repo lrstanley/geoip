@@ -21,7 +21,7 @@ RUN apk add --no-cache g++ make
 COPY . /build/
 COPY --from=build-node /build/public/dist/ /build/public/dist/
 WORKDIR /build
-RUN make build
+RUN make fetch-go build
 
 # runtime image
 FROM alpine:latest

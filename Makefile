@@ -35,5 +35,5 @@ prepare: fetch-go fetch-node clean generate-node ## Runs preparation steps for b
 	go generate ./...
 	@echo
 
-build: prepare ## Builds the application (with generate.)
+build: ## Builds the application (with generate.)
 	CGO_ENABLED=0 go build -ldflags '-d -s -w -extldflags=-static' -tags=netgo,osusergo,static_build -installsuffix netgo -buildvcs=false -trimpath -o "${BINARY}"
