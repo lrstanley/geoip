@@ -27,8 +27,7 @@ upgrade-deps-patch: ## Upgrade all dependencies to the latest patch release.
 	go get -u=patch ./...
 
 clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "public/dist" "${BINARY}"
-	mkdir -p public/dist
+	/bin/rm -rfv "public/dist/*" "${BINARY}"
 	touch public/dist/.gitkeep
 
 generate-node: ## Generate public html/css/js files for use in production (slower, smaller/minified files.)
@@ -42,8 +41,8 @@ debug: fetch-go fetch-node clean ## Runs the application in debug mode (with gen
 	go run *.go -d --http.limit 200000 --http.proxy
 
 prepare: fetch-go fetch-node clean generate-node ## Runs preparation steps for build.
+	go generate ./...
 	@echo
 
 build: prepare ## Builds the application (with generate.)
-	go generate ./...
 	CGO_ENABLED=0 go build -ldflags '-d -s -w -extldflags=-static' -tags=netgo,osusergo,static_build -installsuffix netgo -buildvcs=false -trimpath -o "${BINARY}"

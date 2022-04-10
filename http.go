@@ -22,6 +22,7 @@ import (
 	"github.com/lrstanley/recoverer"
 )
 
+//go:generate touch public/dist/.gitkeep
 //go:embed all:public/dist
 var publicDist embed.FS
 
