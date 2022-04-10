@@ -11,10 +11,6 @@
   <a href="https://github.com/lrstanley/geoip/commits/master">
     <img title="Last commit" src="https://img.shields.io/github/last-commit/lrstanley/geoip?style=flat-square">
   </a>
-  <a href="https://github.com/lrstanley/geoip/actions?query=workflow%3Abuild+event%3Apush">
-    <img title="GitHub Workflow Status (build @ master)" src="https://img.shields.io/github/workflow/status/lrstanley/geoip/build/master?label=build&style=flat-square&event=push">
-  </a>
-
 
 
 
