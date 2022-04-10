@@ -13,8 +13,7 @@ jobs:
   go-test:
     uses: lrstanley/.github/.github/workflows/lang-go-test-matrix.yml@master
     with:
-      num-minor: 2
-      num-patch: 2
+      go-version: latest
       node-version: "16.13.0"
   go-lint:
     uses: lrstanley/.github/.github/workflows/lang-go-lint.yml@master
