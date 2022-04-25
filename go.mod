@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/bluele/gcache v0.0.2
 	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/go-chi/cors v1.2.0
+	github.com/go-chi/cors v1.2.1
 	github.com/go-web/httprl v0.0.0-20160505070143-20dc8024cb5d
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/lrstanley/go-bogon v0.0.0-20220410131243-68221aeff8ff
