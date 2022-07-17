@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -22,9 +23,29 @@ func registerAPI(r chi.Router) {
 	r.Get("/api/{addr}/{filters}", apiLookup)
 }
 
+var reLanguage = regexp.MustCompile(`^[^a-zA-Z, ]+.*?$`)
+
 func apiLookup(w http.ResponseWriter, r *http.Request) {
 	addr := strings.TrimSpace(chi.URLParam(r, "addr"))
 	filters := strings.Split(chi.URLParam(r, "filters"), ",")
+
+	// Prioritize "lang" query param.
+	lang := matchLanguage(strings.ReplaceAll(r.FormValue("lang"), " ", ""))
+
+	if lang == "" {
+		// Try to get the language from the Accept-Language header.
+		for _, l := range strings.Split(reLanguage.ReplaceAllString(r.Header.Get("Accept-Language"), ""), ",") {
+			lang = matchLanguage(l)
+			if lang != "" {
+				break
+			}
+		}
+	}
+
+	// If we still don't have a language, default to global language default.
+	if lang == "" {
+		lang = flags.DefaultLanguage
+	}
 
 	// If they're trying to send us way too many filters (which could cause
 	// unwanted extra memory usage/be considered a resource usage attack),
@@ -58,6 +79,8 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 	if len(filters) > 0 {
 		key = addr + ":" + strings.Join(filters, ",")
 	}
+
+	key += "," + lang
 
 	var result *AddrResult
 
@@ -98,7 +121,7 @@ func apiLookup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err = addrLookup(r.Context(), ip, filters)
+	result, err = addrLookup(r.Context(), ip, filters, lang)
 	if err != nil {
 		logger.Printf("error looking up address %q (%q): %s", addr, ip, err)
 		w.WriteHeader(http.StatusServiceUnavailable)

@@ -22,6 +22,42 @@ import (
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
 
+var supportedLanguages = []string{
+	"de", "en", "es", "fr", "ja", "pt-BR", "ru", "zh-CN",
+}
+
+func matchLanguage(lang string) string {
+	if lang == "" {
+		return ""
+	}
+
+	for i := 0; i < len(supportedLanguages); i++ {
+		if strings.EqualFold(lang, supportedLanguages[i]) {
+			return supportedLanguages[i]
+		}
+
+		if j := strings.Index(supportedLanguages[i], "-"); j > 0 {
+			if strings.EqualFold(lang, supportedLanguages[i][:j]) {
+				return supportedLanguages[i]
+			}
+
+			if k := strings.Index(lang, "-"); k > 0 {
+				if strings.EqualFold(lang[:k], supportedLanguages[i][:j]) {
+					return supportedLanguages[i]
+				}
+			}
+		}
+
+		if j := strings.Index(lang, "-"); j > 0 {
+			if strings.EqualFold(lang[:j], supportedLanguages[i]) {
+				return supportedLanguages[i]
+			}
+		}
+	}
+
+	return ""
+}
+
 type DB struct {
 	path string
 }
@@ -234,7 +270,7 @@ type AddrResult struct {
 // addrLookup does a geoip lookup of an IP address. filters is passed into
 // this function, in case there are any long running tasks which the user
 // may not even want (e.g. reverse dns lookups).
-func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult, error) {
+func addrLookup(ctx context.Context, addr net.IP, filters []string, lang string) (*AddrResult, error) {
 	var result *AddrResult
 	var err error
 
@@ -254,10 +290,10 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 
 	result = &AddrResult{
 		IP:            addr,
-		City:          query.City.Names["en"],
-		Country:       query.Country.Names["en"],
+		City:          query.City.Names[lang],
+		Country:       query.Country.Names[lang],
 		CountryCode:   query.Country.Code,
-		Continent:     query.Continent.Names["en"],
+		Continent:     query.Continent.Names[lang],
 		ContinentCode: query.Continent.Code,
 		Lat:           query.Location.Lat,
 		Long:          query.Location.Long,
@@ -268,7 +304,7 @@ func addrLookup(ctx context.Context, addr net.IP, filters []string) (*AddrResult
 
 	var subdiv []string
 	for i := 0; i < len(query.Subdivisions); i++ {
-		subdiv = append(subdiv, query.Subdivisions[i].Names["en"])
+		subdiv = append(subdiv, query.Subdivisions[i].Names[lang])
 	}
 	result.Subdivision = strings.Join(subdiv, ", ")
 

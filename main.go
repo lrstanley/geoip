@@ -29,13 +29,14 @@ var (
 )
 
 type Flags struct {
-	Debug          bool          `env:"DEBUG" short:"d" long:"debug" description:"enable exception display and pprof endpoints (warn: dangerous)"`
-	Quiet          bool          `env:"QUIET" short:"q" long:"quiet" description:"disable verbose output"`
-	DBPath         string        `env:"DB_PATH" long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
-	UpdateInterval time.Duration `env:"UPDATE_INTERVAL" long:"interval" description:"interval of time between database update checks" default:"12h"`
-	UpdateURL      string        `env:"MAXMIND_UPDATE_URL" long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"`
-	LicenseKey     string        `env:"MAXMIND_LICENSE_KEY" long:"license-key" description:"maxmind license key (must register for a maxmind account)" required:"true"`
-	Cache          struct {
+	Debug           bool          `env:"DEBUG" short:"d" long:"debug" description:"enable exception display and pprof endpoints (warn: dangerous)"`
+	Quiet           bool          `env:"QUIET" short:"q" long:"quiet" description:"disable verbose output"`
+	DBPath          string        `env:"DB_PATH" long:"db" description:"path to read/store Maxmind DB" default:"geoip.db"`
+	UpdateInterval  time.Duration `env:"UPDATE_INTERVAL" long:"interval" description:"interval of time between database update checks" default:"12h"`
+	UpdateURL       string        `env:"MAXMIND_UPDATE_URL" long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"`
+	LicenseKey      string        `env:"MAXMIND_LICENSE_KEY" long:"license-key" description:"maxmind license key (must register for a maxmind account)" required:"true"`
+	DefaultLanguage string        `env:"DEFAULT_LANGUAGE" long:"lang" description:"default language to use for geolocation" default:"en"`
+	Cache           struct {
 		Size   int           `env:"CACHE_SIZE" long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
 		Expire time.Duration `env:"CACHE_EXPIRE" long:"expire" description:"expiration time of cache" default:"20m"`
 	} `group:"Cache Options" namespace:"cache"`

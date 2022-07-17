@@ -1,30 +1,30 @@
-import { defineConfig } from 'vite'
-import { createVuePlugin } from 'vite-plugin-vue2'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import path from 'path'
+import { defineConfig } from "vite"
+import { createVuePlugin } from "vite-plugin-vue2"
+import Components from "unplugin-vue-components/vite"
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers"
+import path from "path"
 
 export default defineConfig({
     plugins: [
         createVuePlugin(),
         Components({
             // https://github.com/antfu/vite-plugin-components#configuration
-            dirs: ['./src/components'],
-            extensions: ['vue'],
+            dirs: ["./src/components"],
+            extensions: ["vue"],
             deep: true,
-            resolvers: [ElementPlusResolver()]
-        })
+            resolvers: [ElementPlusResolver()],
+        }),
     ],
     publicDir: "src/static",
     resolve: {
         alias: {
             // see also: jsconfig.json
-            '@': path.resolve(__dirname, './src')
+            "@": path.resolve(__dirname, "./src"),
         },
     },
     build: {
-        target: 'es2015',
-        sourcemap: true
+        target: "es2015",
+        sourcemap: true,
     },
     server: {
         port: 8081,
@@ -36,12 +36,12 @@ export default defineConfig({
             //     xfwd: true,
             //     rewrite: (path) => path.replace(/\/dist/, '')
             // },
-            '^/api/.*': {
-                target: 'http://localhost:8080',
+            "^/api/.*": {
+                target: "http://localhost:8080",
                 xfwd: true,
-            }
+            },
         },
-        force: true
+        force: true,
     },
-    sourcemap: true
-});
+    sourcemap: true,
+})

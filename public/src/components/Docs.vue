@@ -1,17 +1,17 @@
 <template>
   <div>
     <h2 class="ui header">
-      <i class="settings icon"></i>
+      <i class="settings icon" />
       <div class="content">
         API Documentation
         <div class="sub header">Query the GeoIP API through <strong>REST</strong> and <strong>JSON</strong></div>
       </div>
     </h2>
 
-    <div class="ui divider"></div>
+    <div class="ui divider" />
 
     <h3 class="ui dividing header">
-      <a href="#api-endpoint" id="api-endpoint">#</a> API Endpoint
+      <a id="api-endpoint" href="#api-endpoint">#</a> API Endpoint
       <div class="sub header">Where/how do I query the API?</div>
     </h3>
     <p>
@@ -20,7 +20,7 @@
     </p>
 
     <h3 class="ui dividing header">
-      <a href="#lookup-query" id="lookup-query">#</a> Lookup an IP address or hostname
+      <a id="lookup-query" href="#lookup-query">#</a> Lookup an IP address or hostname
       <div class="sub header">How do I obtain the geographical info for a hostname or IP?</div>
     </h3>
     <p>
@@ -33,7 +33,7 @@
 
       For example:
       <pre class="block"><code>$ curl https://geoip.pw/api/8.8.8.8
-{"ip":"8.8.8.8","summary":"United States, NA","city":"","subdivision":"","country":"United States","country_abbr":"US","continent":"North America","continent_abbr":"NA","latitude":37.751,"longitude":-97.822,"timezone":"","postal_code":"","proxy":false,"host":"google-public-dns-a.google.com"}</code></pre>
+{"ip":"8.8.8.8","summary":"United States, NA","city":"","subdivision":"","country":"United States","country_abbr":"US","continent":"North America","continent_abbr":"NA","latitude":37.751,"longitude":-97.822,"timezone":"America/Chicago","postal_code":"","proxy":false,"host":"dns.google"}</code></pre>
       <br>
 
       We can take that one step further, and prettify the JSON:
@@ -49,16 +49,38 @@
   "continent_abbr": "NA",
   "latitude": 37.751,
   "longitude": -97.822,
-  "timezone": "",
+  "timezone": "America/Chicago",
   "postal_code": "",
   "proxy": false,
-  "host": "google-public-dns-a.google.com"
+  "host": "dns.google"
+}
+</code></pre>
+      <br>
+      GeoIP also supports providing a <code class="inline">lang</code> query
+      parameter (or <code class="inline">Accept-Language</code> header) to
+      specify the language of the response:
+      <pre class="block"><code>$ curl "https://geoip.pw/api/8.8.8.8?pretty=1&lang=zh-CN"
+{
+  "ip": "8.8.8.8",
+  "summary": "美国, NA",
+  "city": "",
+  "subdivision": "",
+  "country": "美国",
+  "country_abbr": "US",
+  "continent": "北美洲",
+  "continent_abbr": "NA",
+  "latitude": 37.751,
+  "longitude": -97.822,
+  "timezone": "America/Chicago",
+  "postal_code": "",
+  "proxy": false,
+  "host": "dns.google"
 }
 </code></pre>
     </p>
 
     <h3 class="ui dividing header">
-      <a href="#filters" id="filters">#</a> Filtering output
+      <a id="filters" href="#filters">#</a> Filtering output
       <div class="sub header">What if I only want a specific field to reduce query time?</div>
     </h3>
     <p>
@@ -71,8 +93,7 @@
 
       The syntax is as follows:
       <pre class="block"><code>http[s]://geoip.pw/api/{query}/{comma-list-of-fields}</code></pre>
-
-      <div class="ui warning message">
+</p><div class="ui warning message">
         <strong>Warning:</strong> the <code class="inline">{comma-list-of-fields}</code>
         must be a set of valid field parameters, or the API will return an error.
         Errors returned by this endpoint will be plaintext (e.g.
@@ -94,7 +115,7 @@ United States, NA|United States|google-public-dns-a.google.com</code></pre>
     </p>
 
     <h3 class="ui dividing header">
-      <a href="#headers" id="headers">#</a> Additional headers
+      <a id="headers" href="#headers">#</a> Additional headers
       <div class="sub header">How much of a rate limit do I have? How old is the GeoIP data?</div>
     </h3>
     <p>
@@ -104,8 +125,7 @@ United States, NA|United States|google-public-dns-a.google.com</code></pre>
       simply use the below endpoint, which will not count towards your API
       limits:
       <pre class="block"><code>http[s]://geoip.pw/api/ping</code></pre>
-
-      <h4>Access-Control headers:</h4>
+</p><h4>Access-Control headers:</h4>
       GeoIP also has support to restrict connections based on the
       <code class="inline">Access-Control-Allow-Origin</code> header, as long
       as end browsers/clients support it. By default, this isn't enabled,
@@ -116,7 +136,7 @@ United States, NA|United States|google-public-dns-a.google.com</code></pre>
       <table class="ui small definition table">
         <thead>
           <tr>
-            <th class="collapsing"></th>
+            <th class="collapsing" />
             <th class="collapsing" data-tooltip="This indicates that the header will always be present in the given response">Always Present</th>
             <th>Description</th>
           </tr>
@@ -124,27 +144,27 @@ United States, NA|United States|google-public-dns-a.google.com</code></pre>
         <tbody>
           <tr>
             <td class="collapsing"><code class="inline">X-Maxmind-Build</code></td>
-            <td class="center aligned collapsing"><i class="large green checkmark icon"></i></td>
+            <td class="center aligned collapsing"><i class="large green checkmark icon" /></td>
             <td>The <a href="http://www.maxmind.com/" target="_blank">Maxmind</a> database version</td>
           </tr>
           <tr>
             <td class="collapsing"><code class="inline">X-Maxmind-Type</code></td>
-            <td class="center aligned collapsing"><i class="large green checkmark icon"></i></td>
+            <td class="center aligned collapsing"><i class="large green checkmark icon" /></td>
             <td>The <a href="http://www.maxmind.com/" target="_blank">Maxmind</a> db type -- see <a href="https://dev.maxmind.com/geoip/geoip2/geolite2/" target="_blank">this page</a> for more info</td>
           </tr>
           <tr>
             <td class="collapsing"><code class="inline">X-Ratelimit-Limit</code></td>
-            <td class="collapsing"></td>
+            <td class="collapsing" />
             <td>Number of queries allowed within <code class="inline">reset</code> period</td>
           </tr>
           <tr>
             <td class="collapsing"><code class="inline">X-Ratelimit-Remaining</code></td>
-            <td class="collapsing"></td>
+            <td class="collapsing" />
             <td>Number of queries remaining within <code class="inline">limit</code></td>
           </tr>
           <tr>
             <td class="collapsing"><code class="inline">X-Ratelimit-Reset</code></td>
-            <td class="collapsing"></td>
+            <td class="collapsing" />
             <td>Seconds until <code class="inline">remaining</code> is reset</td>
           </tr>
         </tbody>
