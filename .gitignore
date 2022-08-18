@@ -14,3 +14,9 @@ geoip
 geoip-*
 .cache
 node_modules
+**/.env
+public/**/**.d.ts
+public/**/.*.json
+/test-results/
+/playwright-report/
+/playwright/.cache/

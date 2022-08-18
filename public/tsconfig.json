@@ -1,0 +1,26 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.web.json",
+    "compilerOptions": {
+        "allowJs": true,
+        "paths": {
+            "@/*": [
+                "./src/*",
+                "./*"
+            ]
+        },
+        "removeComments": true,
+        "strict": false,
+        "types": [
+            "naive-ui/volar",
+            "vite/client",
+            "vite-plugin-pages/client",
+            "vite-plugin-vue-layouts/client"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        ".git",
+        "./src/*.config.js"
+    ]
+}

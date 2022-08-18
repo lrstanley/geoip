@@ -1,0 +1,12 @@
+{
+    "unocss.root": "./public/",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+    "typescript.tsdk": "public/node_modules/typescript/lib",
+    "[ignore]": {
+        "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+}

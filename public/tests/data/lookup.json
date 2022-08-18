@@ -1,0 +1,16 @@
+{
+    "city": "",
+    "continent": "North America",
+    "continent_abbr": "NA",
+    "country": "United States",
+    "country_abbr": "US",
+    "host": "dns.google",
+    "ip": "8.8.8.8",
+    "latitude": 37.751,
+    "longitude": -97.822,
+    "postal_code": "",
+    "proxy": false,
+    "subdivision": "",
+    "summary": "United States, NA",
+    "timezone": "America/Chicago"
+}

@@ -5,169 +5,102 @@
 package main
 
 import (
-	"crypto/tls"
+	"context"
 	"embed"
-	"encoding/json"
-	"fmt"
-	"io/fs"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-web/httprl"
-	"github.com/lrstanley/recoverer"
+	"github.com/go-chi/httprate"
+	"github.com/lrstanley/chix"
+	"github.com/lrstanley/geoip/internal/handlers/apihandler"
 )
 
-//go:generate touch public/dist/.gitkeep
+//go:generate touch public/dist/index.html
 //go:embed all:public/dist
-var publicDist embed.FS
+var staticFS embed.FS
 
-var apiPong = map[string]bool{
-	"pong": true,
-}
-
-var mapLimiter = NewMapLimiter(10)
-
-func initHTTP(closer chan struct{}) {
-	dist, err := fs.Sub(publicDist, "public/dist")
-	if err != nil {
-		panic(err)
-	}
-
+func httpServer(ctx context.Context) *http.Server {
 	r := chi.NewRouter()
-	if flags.HTTP.Proxy {
-		r.Use(middleware.RealIP)
+
+	if len(cli.Flags.HTTP.TrustedProxies) > 0 {
+		r.Use(chix.UseRealIP(cli.Flags.HTTP.TrustedProxies, chix.OptUseXForwardedFor))
 	}
 
-	r.Use(recoverer.New(recoverer.Options{Logger: os.Stderr, Show: flags.Debug, Simple: false}))
-	r.Use(middleware.Logger)
-	r.Use(middleware.StripSlashes)
-	r.Use(middleware.Compress(9))
-	r.Use(dbDetailsMiddleware)
+	// Core middeware.
+	r.Use(
+		chix.UseContextIP,
+		middleware.RequestID,
+		chix.UseStructuredLogger(logger),
+		chix.UseDebug(cli.Debug),
+		middleware.Recoverer,
+		middleware.Maybe(middleware.StripSlashes, func(r *http.Request) bool {
+			return !strings.HasPrefix(r.URL.Path, "/debug/")
+		}),
+		middleware.Compress(5),
+		lookupSvc.UseMetadataMiddleware,
+	)
 
-	if flags.HTTP.Throttle > 0 {
-		r.Use(middleware.ThrottleBacklog(flags.HTTP.Throttle, flags.HTTP.Throttle*2, 30*time.Second))
+	if cli.Flags.HTTP.MaxConcurrent > 0 {
+		r.Use(middleware.Throttle(cli.Flags.HTTP.MaxConcurrent))
 	}
 
-	if flags.Debug {
-		r.Mount("/debug", middleware.Profiler())
+	if cli.Flags.HTTP.CORS == nil || len(cli.Flags.HTTP.CORS) == 0 {
+		cli.Flags.HTTP.CORS = []string{"*"}
 	}
 
-	r.Mount("/dist", http.StripPrefix("/dist/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Vary", "Accept-Encoding")
-		w.Header().Set("Cache-Control", "public, max-age=7776000")
-		http.FileServer(http.FS(dist)).ServeHTTP(w, r)
-	})))
-
-	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api") {
-			http.NotFound(w, r)
-			return
-		}
-
-		b, err := publicDist.ReadFile("public/dist/index.html")
-		if err != nil {
-			panic(err)
-		}
-		w.Write(b)
-	})
-
-	if flags.HTTP.CORS == nil || len(flags.HTTP.CORS) == 0 {
-		flags.HTTP.CORS = []string{"*"}
+	// Security related.
+	if !cli.Debug && cli.Flags.HTTP.HSTS {
+		r.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000"))
 	}
-	corsh := cors.New(cors.Options{
-		AllowedOrigins: flags.HTTP.CORS,
-		AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
-		AllowedHeaders: []string{"Accept", "Content-Type"},
-		ExposedHeaders: []string{
-			"X-Maxmind-Type", "X-Maxmind-Version",
-			"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset",
-			"X-Cache",
+	r.Use(
+		cors.New(cors.Options{
+			AllowedOrigins: cli.Flags.HTTP.CORS,
+			AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
+			AllowedHeaders: []string{"Accept", "Content-Type"},
+			ExposedHeaders: []string{
+				"X-Maxmind-Type", "X-Maxmind-Version",
+				"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset",
+				"X-Cache",
+			},
+			MaxAge: 3600,
+		}).Handler,
+		// middleware.SetHeader(
+		// 	"Content-Security-Policy",
+		// 	"default-src 'self'; media-src * data:; style-src 'self' 'unsafe-inline'; object-src 'none'; child-src 'none'; frame-src 'none'; worker-src 'none'",
+		// ),
+		middleware.SetHeader("X-Frame-Options", "DENY"),
+		middleware.SetHeader("X-Content-Type-Options", "nosniff"),
+		middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"),
+		middleware.SetHeader("Permissions-Policy", "clipboard-write=(self)"),
+		httprate.LimitByIP(cli.Flags.HTTP.Limit, 1*time.Hour),
+	)
+
+	if cli.Debug {
+		r.With(chix.UsePrivateIP).Mount("/debug", middleware.Profiler())
+	}
+
+	r.Route("/api", apihandler.New(lookupSvc).Route)
+
+	r.NotFound(chix.UseStatic(ctx, &chix.Static{
+		FS:         staticFS,
+		CatchAll:   true,
+		AllowLocal: cli.Debug,
+		Path:       "public/dist",
+		SPA:        true,
+		Headers: map[string]string{
+			"Vary":          "Accept-Encoding",
+			"Cache-Control": "public, max-age=7776000",
 		},
-		MaxAge: 3600,
-	})
+	}).ServeHTTP)
 
-	limiter := &httprl.RateLimiter{
-		Backend:  mapLimiter,
-		Limit:    uint64(flags.HTTP.Limit),
-		Interval: 60 * 60, // 1h.
-		LimitExceededFunc: func(w http.ResponseWriter, r *http.Request) {
-			logger.Printf(
-				"connection %s has hit rate limit (limit: %s, reset: %s)",
-				r.RemoteAddr,
-				w.Header().Get("X-Ratelimit-Limit"),
-				w.Header().Get("X-Ratelimit-Reset"),
-			)
-		},
-		KeyMaker: httprl.DefaultKeyMaker, // This uses IP address by default.
-	}
-
-	mapLimiter.Start()
-	defer mapLimiter.Stop()
-
-	if flags.HTTP.Limit > 0 {
-		r.With(corsh.Handler, middleware.NoCache, limiter.Handle).Group(registerAPI)
-	} else {
-		r.With(corsh.Handler, middleware.NoCache).Group(registerAPI)
-	}
-
-	// Register the /api/ping route separately, as it shouldn't be counted
-	// towards API limits. This endpoint will both let users verify that the
-	// service is functional, but also let them use headers to check API
-	// limit information. This endpoint is the only one which has HTTP HEAD
-	// support.
-	r.With(corsh.Handler, middleware.NoCache, rateHeaderMiddleware).Get("/api/ping", pingHandler)
-	r.With(corsh.Handler, middleware.NoCache, rateHeaderMiddleware).Head("/api/ping", pingHandler)
-
-	srv := http.Server{
-		Addr:         flags.HTTP.Bind,
+	return &http.Server{
+		Addr:         cli.Flags.HTTP.BindAddr,
 		Handler:      r,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
 	}
-
-	if flags.HTTP.TLS.Use {
-		srv.TLSConfig = &tls.Config{PreferServerCipherSuites: true}
-
-		go func() {
-			logger.Println("starting https server")
-			err := srv.ListenAndServeTLS(flags.HTTP.TLS.Cert, flags.HTTP.TLS.Key)
-			if err != nil {
-				fmt.Printf("error in https server: %s\n", err)
-				os.Exit(1)
-			}
-		}()
-	} else {
-		go func() {
-			logger.Println("starting http server")
-			err := srv.ListenAndServe()
-			if err != nil {
-				fmt.Printf("error in http server: %s\n", err)
-				os.Exit(1)
-			}
-		}()
-	}
-
-	<-closer
-	fmt.Println("gracefully closing http connections")
-
-	if err := srv.Close(); err != nil {
-		logger.Printf("error while stopping http server: %s", err)
-	}
-}
-
-func pingHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodHead {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	enc := json.NewEncoder(w)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_ = enc.Encode(apiPong)
 }

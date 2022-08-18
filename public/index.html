@@ -1,30 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <link rel="icon" href="/static/img/favicon.ico" />
-        <title>GeoIP</title>
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css" crossorigin="anonymous" />
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-            crossorigin=""
-        />
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css" crossorigin="anonymous" />
-    </head>
-    <body>
-        <div id="vue"><app></app></div>
-        <script
-            src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-            crossorigin=""
-        ></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js" crossorigin="anonymous"></script>
-        <script type="module" src="/src/main.js"></script>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="identifier-url" content="https://geoip.pw" />
+    <meta name="title" content="IP Lookup Service - GeoIP" />
+    <meta name="description" content="GeoIP-based IP lookup service" />
+    <meta name="abstract" content="GeoIP-based IP lookup service" />
+    <meta
+      name="keywords"
+      content="Go, Golang, linux, developer, development, operations, programming, coding, open source, oss, geoip, ip, lookup, whois"
+    />
+    <meta name="author" content="Liam Stanley" />
+    <meta name="revisit-after" content="10" />
+    <meta name="language" content="en" />
+    <meta name="copyright" content="© Liam Stanley" />
+    <meta name="robots" content="index, follow" />
+    <meta name="rating" content="general" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>IP Lookup Service &middot; GeoIP</title>
+    <script type="application/ld+json">
+      {
+        "@context": "http://schema.org",
+        "@type": "WebSite",
+        "name": "GeoIP - IP Lookup Service",
+        "url": "https://geoip.pw",
+        "sameAs": ["https://github.com/lrstanley"],
+        "author": {
+          "@type": "Person",
+          "name": "Liam Stanley",
+          "url": "https://liam.sh"
+        }
+      }
+    </script>
+    <meta name="naive-ui-style" />
+    <meta name="vueuc-style" />
+  </head>
+  <body>
+    <noscript>
+      <h1
+        style="
+          margin: 40px;
+          font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+          font-size: 24px;
+          font-style: normal;
+          font-variant: normal;
+          font-weight: 700;
+          line-height: 26.4px;
+        "
+      >
+        This site requires Javascript to function properly. Please enable javascript, then reload the page.
+      </h1>
+    </noscript>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
