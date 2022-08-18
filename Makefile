@@ -19,13 +19,13 @@ docker-build:
 
 # frontend
 node-fetch:
-	cd public; npm install --no-fund --no-audit
+	cd public; pnpm install
 
 node-debug:
-	cd public; npm run server
+	cd public; pnpm run server
 
 node-build: node-fetch
-	cd public; npm run build
+	cd public; pnpm run build
 
 # backend
 go-prepare:
