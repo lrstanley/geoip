@@ -1,0 +1,83 @@
+[
+    {
+        "body": {
+            "city": "",
+            "continent": "North America",
+            "continent_abbr": "NA",
+            "country": "United States",
+            "country_abbr": "US",
+            "host": "example.com",
+            "ip": "8.8.8.8",
+            "latitude": 37.751,
+            "longitude": -97.822,
+            "postal_code": "",
+            "proxy": false,
+            "subdivision": "",
+            "summary": "United States, NA",
+            "timezone": "America/Chicago"
+        },
+        "headers": {
+            "Content-Type": "application/json",
+            "X-Cache": "MISS",
+            "X-Maxmind-Build": "6-1659368358",
+            "X-Maxmind-Type": "GeoLite2-City",
+            "X-Ratelimit-Limit": "100",
+            "X-Ratelimit-Remaining": "99",
+            "X-Ratelimit-Reset": "1659751200"
+        }
+    },
+    {
+        "body": {
+            "city": "Beauharnois",
+            "continent": "North America",
+            "continent_abbr": "NA",
+            "country": "Canada",
+            "country_abbr": "CA",
+            "host": "domain.com",
+            "ip": "1.2.3.4",
+            "latitude": 45.3161,
+            "longitude": -73.8736,
+            "postal_code": "J6N",
+            "proxy": false,
+            "subdivision": "Quebec",
+            "summary": "Beauharnois, Quebec, CA",
+            "timezone": "America/Toronto"
+        },
+        "headers": {
+            "Content-Type": "application/json",
+            "X-Cache": "MISS",
+            "X-Maxmind-Build": "6-1659368358",
+            "X-Maxmind-Type": "GeoLite2-City",
+            "X-Ratelimit-Limit": "100",
+            "X-Ratelimit-Remaining": "98",
+            "X-Ratelimit-Reset": "1659751200"
+        }
+    },
+    {
+        "body": {
+            "city": "Dublin",
+            "continent": "Europe",
+            "continent_abbr": "EU",
+            "country": "Ireland",
+            "country_abbr": "IE",
+            "host": "foobar.com",
+            "ip": "2.3.4.5",
+            "latitude": 53.3379,
+            "longitude": -6.2591,
+            "postal_code": "D02",
+            "proxy": false,
+            "subdivision": "Leinster",
+            "summary": "Dublin, Leinster, IE",
+            "timezone": "Europe/Dublin"
+        },
+        "headers": {
+            "Content-Type": "application/json",
+            "X-Cache": "MISS",
+            "X-Maxmind-Build": "6-1659368358",
+            "X-Maxmind-Type": "GeoLite2-City",
+            "X-Ratelimit-Limit": "100",
+            "X-Ratelimit-Remaining": "97",
+            "X-Ratelimit-Reset": "1659751200"
+        }
+    }
+]

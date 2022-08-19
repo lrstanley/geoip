@@ -27,6 +27,9 @@ node-debug:
 node-build: node-fetch
 	cd public; pnpm run build
 
+node-test: node-fetch
+	cd public; pnpm run test
+
 # backend
 go-prepare:
 	go generate -x ./...

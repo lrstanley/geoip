@@ -110,7 +110,7 @@
     "lint": "pnpm eslint --ignore-path ../.gitignore --ext .js,.ts,.vue .",
     "preview": "pnpm run build && pnpm vite preview",
     "server": "pnpm vite",
-    "test": "pnpm playwright test --repeat-each 3"
+    "test": "pnpm playwright test"
   },
   "version": "1.0.0"
 }

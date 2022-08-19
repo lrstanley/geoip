@@ -40,6 +40,7 @@ meta:
       </CoreTooltip>
       <n-button
         v-show="(results.length > 0 || errors.length > 0) && !loading"
+        id="bulk-clear"
         size="small"
         type="warning"
         @click="clearResults()"
@@ -49,6 +50,7 @@ meta:
       </n-button>
       <CoreTooltip v-if="results.length > 0 && !loading" label="Download results as JSON">
         <n-button
+          id="bulk-results-download"
           size="small"
           type="info"
           tag="a"
@@ -61,6 +63,7 @@ meta:
       </CoreTooltip>
       <CoreTooltip v-if="results.length > 0 && !loading" label="Open JSON in new tab">
         <n-button
+          id="bulk-results-open"
           size="small"
           type="info"
           tag="a"
@@ -85,7 +88,7 @@ meta:
 
     <n-divider v-show="loading || percent > 0" class="m-0!" />
     <AnimateFade v-show="loading || percent > 0">
-      <div class="p-4">
+      <div id="bulk-progress" class="p-4">
         <n-progress
           type="line"
           :status="loading ? 'info' : 'success'"
@@ -103,6 +106,7 @@ meta:
     <n-divider v-show="results.length > 0" class="m-0!" />
     <GeoAggregate
       v-show="results.length > 0"
+      id="aggregate-country"
       class="p-4"
       :value="results"
       :truncate="{ percent: 5, label: 'Other' }"
@@ -114,6 +118,7 @@ meta:
     <n-divider v-show="results.length > 0" class="m-0!" />
     <GeoAggregate
       v-show="results.length > 0"
+      id="aggregate-continent"
       class="p-4"
       :value="results"
       field="continent_abbr"

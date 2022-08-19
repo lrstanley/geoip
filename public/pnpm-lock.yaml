@@ -56,7 +56,6 @@ dependencies:
   naive-ui: 2.32.1_vue@3.2.37
   p-limit: 4.0.0
   pinia: 2.0.18_j6bzmzd4ujpabbp5objtwxyjp4
-  playwright: 1.25.0
   unocss: 0.45.7_vite@3.0.8
   vue: 3.2.37
   vue-router: 4.1.3_vue@3.2.37
@@ -77,6 +76,7 @@ devDependencies:
   eslint-config-prettier: 8.5.0_eslint@8.22.0
   eslint-plugin-prettier: 4.2.1_i2cojdczqdiurzgttlwdgf764e
   eslint-plugin-vue: 9.3.0_eslint@8.22.0
+  playwright: 1.25.0
   postcss: 8.4.16
   prettier: 2.7.1
   rollup: 2.78.0
@@ -2550,6 +2550,7 @@ packages:
     resolution: {integrity: sha512-kZ3Jwaf3wlu0GgU0nB8UMQ+mXFTqBIFz9h1svTlNduNKjnbPXFxw7mJanLVjqxHJRn62uBfmgBj93YHidk2N5Q==}
     engines: {node: '>=14'}
     hasBin: true
+    dev: true
 
   /playwright/1.25.0:
     resolution: {integrity: sha512-Z+pQNWI17Qx/tHhnmgMmPsptsisXpKgAnUvYv98kctlHUJaqMt2400P8kTw9vEPoC0xdxqu0JhxO7pDTmaaIKw==}
@@ -2558,7 +2559,7 @@ packages:
     requiresBuild: true
     dependencies:
       playwright-core: 1.25.0
-    dev: false
+    dev: true
 
   /popmotion/11.0.5:
     resolution: {integrity: sha512-la8gPM1WYeFznb/JqF4GiTkRRPZsfaj2+kCxqQgr2MJylMmIKUwBfWW8Wa5fml/8gmtlD5yI01MP1QCZPWmppA==}
