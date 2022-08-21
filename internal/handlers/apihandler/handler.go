@@ -25,7 +25,6 @@ func New(lookupSvc *lookup.Service) *handler {
 
 func (h *handler) Route(r chi.Router) {
 	r.Get("/{addr}", h.getLookup)
-	r.Get("/{addr}/{filters}", h.getLookup)
 	r.With(middleware.NoCache, middleware.GetHead).Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		chix.JSON(w, r, http.StatusOK, chix.M{"pong": true})
 	})

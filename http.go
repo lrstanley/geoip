@@ -17,6 +17,7 @@ import (
 	"github.com/go-chi/httprate"
 	"github.com/lrstanley/chix"
 	"github.com/lrstanley/geoip/internal/handlers/apihandler"
+	"github.com/lrstanley/geoip/internal/httpware"
 )
 
 //go:generate touch public/dist/index.html
@@ -41,7 +42,8 @@ func httpServer(ctx context.Context) *http.Server {
 			return !strings.HasPrefix(r.URL.Path, "/debug/")
 		}),
 		middleware.Compress(5),
-		lookupSvc.UseMetadataMiddleware,
+		httpware.UseMetadata(lookupSvc),
+		httpware.UseLanguage(lookupSvc),
 	)
 
 	if cli.Flags.HTTP.MaxConcurrent > 0 {

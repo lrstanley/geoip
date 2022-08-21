@@ -27,13 +27,16 @@ type ConfigDB struct {
 	UpdateURL      string        `env:"UPDATE_URL"      long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"`
 	LicenseKey     string        `env:"LICENSE_KEY"     long:"license-key" description:"maxmind license key (must register for a maxmind account)" required:"true"`
 
-	CacheSize   int           `env:"CACHE_SIZE"   long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
-	CacheExpire time.Duration `env:"CACHE_EXPIRE" long:"expire" description:"expiration time of cache" default:"20m"`
+	CacheSize   int           `env:"CACHE_SIZE"   long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"1000"`
+	CacheExpire time.Duration `env:"CACHE_EXPIRE" long:"expire" description:"expiration time of cache" default:"1h"`
 
 	DefaultLanguage string `env:"DEFAULT_LANGUAGE" long:"lang" description:"default language to use for geolocation" default:"en"`
 }
 
 type ConfigDNS struct {
-	Resolvers []string `env:"RESOLVERS" long:"resolver" description:"resolver (in host:port form) to use for dns lookups (doesn't work with windows and plan9) (can be used multiple times)"`
-	Local     bool     `env:"LOCAL"     long:"uselocal" description:"adds local (system) resolvers to the list of resolvers to use"`
+	Resolvers   []string      `env:"RESOLVERS"    long:"resolver" description:"resolver (in host:port form) to use for dns lookups (doesn't work with windows and plan9) (can be used multiple times)"`
+	Local       bool          `env:"LOCAL"        long:"uselocal" description:"adds local (system) resolvers to the list of resolvers to use"`
+	CacheSize   int           `env:"CACHE_SIZE"   long:"size"     description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
+	CacheExpire time.Duration `env:"CACHE_EXPIRE" long:"expire"   description:"expiration time of cache" default:"1h"`
+	Timeout     time.Duration `env:"TIMEOUT" long:"timeout" description:"timeout for dns lookups (longer = better results but longer request duration)" default:"2s"`
 }

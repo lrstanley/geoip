@@ -4,7 +4,19 @@
 
 package models
 
-import "net"
+import (
+	"net"
+)
+
+// LookupRequest is the request object for the lookup service.
+type LookupRequest struct {
+	Address  string
+	Language string
+}
+
+func (r *LookupRequest) CacheID() string {
+	return r.Address + ":" + r.Language
+}
 
 // GeoQuery is the struct->tag search query to search through the Maxmind DB.
 type GeoQuery struct {

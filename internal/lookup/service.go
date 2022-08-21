@@ -8,12 +8,11 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"net/http"
 	"strings"
-	"time"
+	"sync/atomic"
 
 	"github.com/apex/log"
-	"github.com/bluele/gcache"
+	"github.com/lrstanley/geoip/internal/cache"
 	"github.com/lrstanley/geoip/internal/dns"
 	"github.com/lrstanley/geoip/internal/models"
 	"github.com/lrstanley/go-bogon"
@@ -25,11 +24,13 @@ type Service struct {
 	logger log.Interface
 	config models.ConfigDB
 
-	cache    gcache.Cache
-	metadata models.Atomic[*maxminddb.Metadata]
+	cache    *cache.Cache[string, *models.GeoResult]
+	metadata atomic.Pointer[maxminddb.Metadata]
+
+	rslv *dns.Resolver
 }
 
-func NewService(ctx context.Context, logger log.Interface, config models.ConfigDB) *Service {
+func NewService(ctx context.Context, logger log.Interface, config models.ConfigDB, rslv *dns.Resolver) *Service {
 	return &Service{
 		ctx: ctx,
 		logger: logger.WithFields(log.Fields{
@@ -37,39 +38,33 @@ func NewService(ctx context.Context, logger log.Interface, config models.ConfigD
 			"path": config.Path,
 		}),
 		config: config,
-		cache:  gcache.New(config.CacheSize).ARC().Expiration(config.CacheExpire).Build(),
+		cache:  cache.New[string, *models.GeoResult](config.CacheSize, config.CacheExpire),
+		rslv:   rslv,
 	}
 }
 
-// IP does a geoip lookup of an IP address. filters is passed into
-// this function, in case there are any long running tasks which the user
-// may not even want (e.g. reverse dns lookups).
-func (s *Service) IP(ctx context.Context, addr string, filters []string, lang string) (*models.GeoResult, error) {
+// Lookup does a geoip lookup of an address.
+func (s *Service) Lookup(ctx context.Context, r *models.LookupRequest) (*models.GeoResult, error) {
 	var result *models.GeoResult
 	var err error
 
-	if lang == "" {
-		lang = s.config.DefaultLanguage
+	if r.Language == "" {
+		r.Language = s.config.DefaultLanguage
 	}
 
-	cacheKey := addr + ":" + lang + ":" + strings.Join(filters, ":")
-	if val, _ := s.cache.GetIFPresent(cacheKey); val != nil {
-		result = val.(*models.GeoResult)
-		result.Cached = true
-		return result, nil
+	if val := s.cache.Get(r.CacheID()); val != nil {
+		val.Cached = true
+		return val, nil
 	}
 
-	ip := net.ParseIP(addr)
+	ip := net.ParseIP(r.Address)
 	if ip == nil {
-		var ips []string
-		ips, err = net.LookupHost(addr)
-		if err != nil || len(ips) == 0 {
-			s.logger.WithError(err).Error("error looking up addr as hostname")
+		ip, err = s.rslv.GetIP(ctx, r.Address)
+		if err != nil || ip == nil {
+			s.logger.WithError(err).WithField("addr", r.Address).Debug("error looking up addr as hostname")
 
-			return &models.GeoResult{Error: fmt.Sprintf("invalid ip/host specified: %s", addr)}, nil
+			return &models.GeoResult{Error: fmt.Sprintf("invalid ip/host specified: %s", r.Address)}, nil
 		}
-
-		ip = net.ParseIP(ips[0])
 	}
 
 	if is, _ := bogon.Is(ip.String()); is {
@@ -78,6 +73,7 @@ func (s *Service) IP(ctx context.Context, addr string, filters []string, lang st
 
 	db, err := maxminddb.Open(s.config.Path)
 	if err != nil {
+		s.logger.WithError(err).Error("error opening db")
 		return nil, err
 	}
 
@@ -92,10 +88,10 @@ func (s *Service) IP(ctx context.Context, addr string, filters []string, lang st
 
 	result = &models.GeoResult{
 		IP:            ip,
-		City:          query.City.Names[lang],
-		Country:       query.Country.Names[lang],
+		City:          query.City.Names[r.Language],
+		Country:       query.Country.Names[r.Language],
 		CountryCode:   query.Country.Code,
-		Continent:     query.Continent.Names[lang],
+		Continent:     query.Continent.Names[r.Language],
 		ContinentCode: query.Continent.Code,
 		Lat:           query.Location.Lat,
 		Long:          query.Location.Long,
@@ -106,7 +102,7 @@ func (s *Service) IP(ctx context.Context, addr string, filters []string, lang st
 
 	var subdiv []string
 	for i := 0; i < len(query.Subdivisions); i++ {
-		subdiv = append(subdiv, query.Subdivisions[i].Names[lang])
+		subdiv = append(subdiv, query.Subdivisions[i].Names[r.Language])
 	}
 	result.Subdivision = strings.Join(subdiv, ", ")
 
@@ -137,52 +133,15 @@ func (s *Service) IP(ctx context.Context, addr string, filters []string, lang st
 		result.Error = "no results found"
 	}
 
-	wantsHosts := len(filters) == 0
-	if !wantsHosts {
-		for i := 0; i < len(filters); i++ {
-			if filters[i] == "host" {
-				wantsHosts = true
-				break
-			}
-		}
+	result.Host, err = s.rslv.GetReverse(ctx, ip)
+	if err != nil {
+		s.logger.WithError(err).WithField("ip", ip.String()).Debug("error looking up reverse dns for ip")
 	}
 
-	if wantsHosts {
-		result.Host, _ = s.Reverse(ctx, ip)
-	}
-
-	if err = s.cache.Set(cacheKey, result); err != nil {
-		s.logger.WithError(err).Error("error setting cache key for result")
-	}
-
+	s.cache.Set(r.CacheID(), result)
 	return result, nil
 }
 
-func (s *Service) Reverse(ctx context.Context, addr net.IP) (string, error) {
-	dnsCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
-
-	var names []string
-	var err error
-
-	if names, err = dns.Resolver.LookupAddr(dnsCtx, addr.String()); err == nil && len(names) > 0 {
-		return strings.TrimSuffix(names[0], "."), nil
-	}
-
-	return "", err
-}
-
-func (s *Service) UseMetadataMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m := s.metadata.Load()
-		if m == nil {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		w.Header().Set("X-Maxmind-Build", fmt.Sprintf("%d-%d", m.IPVersion, m.BuildEpoch))
-		w.Header().Set("X-Maxmind-Type", m.DatabaseType)
-
-		next.ServeHTTP(w, r)
-	})
+func (s *Service) Metadata() *maxminddb.Metadata {
+	return s.metadata.Load()
 }

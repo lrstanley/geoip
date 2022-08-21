@@ -35,13 +35,9 @@ func main() {
 	cli.Parse()
 	logger = cli.Logger
 
-	if len(cli.Flags.DNS.Resolvers) > 0 {
-		dns.UseCustom(cli.Flags.DNS)
-	}
-
 	ctx := log.NewContext(context.Background(), logger)
-
-	lookupSvc = lookup.NewService(ctx, logger, cli.Flags.DB)
+	resolver := dns.NewResolver(cli.Flags.DNS)
+	lookupSvc = lookup.NewService(ctx, logger, cli.Flags.DB, resolver)
 
 	if err := chix.RunCtx(
 		ctx,

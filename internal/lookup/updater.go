@@ -74,6 +74,7 @@ func (s *Service) checkForUpdates() (needsUpdate bool, err error) {
 	if err != nil {
 		return true, err
 	}
+	defer db.Close()
 
 	s.metadata.Store(&db.Metadata)
 
