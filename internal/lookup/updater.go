@@ -18,22 +18,66 @@ import (
 	"time"
 
 	"github.com/apex/log"
+	"github.com/lrstanley/geoip/internal/models"
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
 
-func (s *Service) Updater(ctx context.Context) error {
-	var needsUpdate bool
-	var err error
+type DBType string
 
-	s.logger.Info("checking for database updates")
-	needsUpdate, err = s.checkForUpdates()
+const (
+	DatabaseGeoIP DBType = "geoip"
+	DatabaseASN   DBType = "asn"
+)
+
+// NewUpdater returns a new service for monitoring database updates. If an update
+// is needed, it will be downloaded, decompressed, verified, and installed.
+func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service, dbType DBType) *Updater {
+	updater := &Updater{
+		config:    config,
+		logger:    logger.WithField("src", fmt.Sprintf("updater-%s", dbType)),
+		dbType:    dbType,
+		lookupSvc: lookupSvc,
+	}
+
+	switch updater.dbType {
+	case DatabaseGeoIP:
+		updater.updateURL = fmt.Sprintf(config.GeoIPURL, config.LicenseKey)
+		updater.path = config.GeoIPPath
+	case DatabaseASN:
+		updater.updateURL = fmt.Sprintf(config.ASNURL, config.LicenseKey)
+		updater.path = config.ASNPath
+	default:
+		updater.logger.Fatal("unknown database type")
+	}
+
+	return updater
+}
+
+// Updater is a service for monitoring database updates.
+type Updater struct {
+	config    models.ConfigDB
+	logger    log.Interface
+	dbType    DBType
+	updateURL string
+	path      string
+
+	lookupSvc *Service
+}
+
+// Start initiates checks for updates, and if an update is needed, it starts the
+// update process.
+func (u *Updater) Start(ctx context.Context) (err error) {
+	var needsUpdate bool
+
+	u.logger.Info("checking for database updates")
+	needsUpdate, err = u.check()
 	if err != nil {
-		s.logger.WithError(err).Error("error checking current database status")
+		u.logger.WithError(err).Error("error checking current database status")
 	}
 
 	if needsUpdate {
-		if err = s.doUpdate(); err != nil {
-			s.logger.WithError(err).Error("unable to update database")
+		if err = u.update(); err != nil {
+			u.logger.WithError(err).Error("unable to update database")
 		}
 	}
 
@@ -41,25 +85,48 @@ func (s *Service) Updater(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(s.config.UpdateInterval):
-			s.logger.Info("checking for database updates")
-			needsUpdate, err = s.checkForUpdates()
+		case <-time.After(u.config.UpdateInterval):
+			u.logger.Info("checking for database updates")
+
+			needsUpdate, err = u.check()
 			if err != nil {
-				s.logger.WithError(err).Error("error checking current database status")
+				u.logger.WithError(err).Error("error checking current database status")
 			}
 
 			if needsUpdate {
-				if err = s.doUpdate(); err != nil {
-					s.logger.WithError(err).Error("unable to update database")
+				if err = u.update(); err != nil {
+					u.logger.WithError(err).Error("unable to update database")
 				}
 			}
 		}
 	}
 }
 
-func (s *Service) checkForUpdates() (needsUpdate bool, err error) {
+// updateMetadata updates the metadata information in the lookup service.
+func (u *Updater) updateMetadata() error {
+	if u.dbType != DatabaseGeoIP {
+		return nil
+	}
+
+	var err error
+	var db *maxminddb.Reader
+	var metadata maxminddb.Metadata
+
+	db, err = maxminddb.Open(u.path)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	metadata = db.Metadata
+	u.lookupSvc.metadata.Store(&metadata)
+	return nil
+}
+
+// check checks the current database status, and last modify date.
+func (u *Updater) check() (needsUpdate bool, err error) {
 	curSeconds := time.Now().UnixNano() / int64(time.Second)
-	stat, err := os.Stat(s.config.Path)
+	stat, err := os.Stat(u.path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return true, nil
@@ -68,15 +135,10 @@ func (s *Service) checkForUpdates() (needsUpdate bool, err error) {
 		return true, err
 	}
 
-	var db *maxminddb.Reader
-
-	db, err = maxminddb.Open(s.config.Path)
+	err = u.updateMetadata()
 	if err != nil {
-		return true, err
+		return false, err
 	}
-	defer db.Close()
-
-	s.metadata.Store(&db.Metadata)
 
 	if curSeconds-(stat.ModTime().UnixNano()/int64(time.Second)) < 604800 {
 		return false, nil
@@ -85,11 +147,11 @@ func (s *Service) checkForUpdates() (needsUpdate bool, err error) {
 	return true, nil
 }
 
-func (s *Service) doUpdate() error {
+// update downloads and verifies the database, then installs it.
+func (u *Updater) update() error {
 	started := time.Now()
-	url := fmt.Sprintf(s.config.UpdateURL, s.config.LicenseKey)
 
-	s.logger.Info("fetching new geoip data")
+	u.logger.Info("fetching new geoip data")
 
 	archiveTempFile, err := ioutil.TempFile("", "geoip-archive-")
 	if err != nil {
@@ -98,11 +160,11 @@ func (s *Service) doUpdate() error {
 
 	defer func() {
 		if err = archiveTempFile.Close(); err != nil {
-			s.logger.WithError(err).WithField("fn", archiveTempFile.Name()).Error("error while closing file")
+			u.logger.WithError(err).WithField("fn", archiveTempFile.Name()).Error("error while closing file")
 		}
-		s.logger.WithField("fn", archiveTempFile.Name()).Info("deleting temp file")
+		u.logger.WithField("fn", archiveTempFile.Name()).Info("deleting temp file")
 		if err = os.Remove(archiveTempFile.Name()); err != nil {
-			s.logger.WithError(err).WithField("fn", archiveTempFile.Name()).Error("error while removing temp file")
+			u.logger.WithError(err).WithField("fn", archiveTempFile.Name()).Error("error while removing temp file")
 		}
 	}()
 
@@ -112,16 +174,16 @@ func (s *Service) doUpdate() error {
 	}
 	defer func() {
 		if err = dbTempFile.Close(); err != nil {
-			s.logger.WithError(err).WithField("fn", dbTempFile.Name()).Error("error while closing db temp file")
+			u.logger.WithError(err).WithField("fn", dbTempFile.Name()).Error("error while closing db temp file")
 		}
-		s.logger.WithField("fn", dbTempFile.Name()).Info("deleting db temp file")
+		u.logger.WithField("fn", dbTempFile.Name()).Info("deleting db temp file")
 		if err = os.Remove(dbTempFile.Name()); err != nil {
-			s.logger.WithError(err).WithField("fn", dbTempFile.Name()).Error("error while removing db temp file")
+			u.logger.WithError(err).WithField("fn", dbTempFile.Name()).Error("error while removing db temp file")
 		}
 	}()
 
-	s.logger.WithField("fn", dbTempFile.Name()).Info("streaming new database archive")
-	resp, err := http.Get(url)
+	u.logger.WithField("fn", dbTempFile.Name()).Info("streaming new database archive")
+	resp, err := http.Get(u.updateURL)
 	if err != nil {
 		return err
 	}
@@ -150,7 +212,7 @@ func (s *Service) doUpdate() error {
 		}
 
 		if header.Typeflag == tar.TypeReg && strings.HasSuffix(header.Name, ".mmdb") {
-			s.logger.WithField("fn", dbTempFile.Name()).Info("found database in tar archive, extracting and writing")
+			u.logger.WithField("fn", dbTempFile.Name()).Info("found database in tar archive, extracting and writing")
 			if _, err := io.Copy(dbTempFile, tarReader); err != nil {
 				return fmt.Errorf("error extracting database from tar archive: %w", err)
 			}
@@ -166,7 +228,7 @@ func (s *Service) doUpdate() error {
 		return err
 	}
 
-	s.logger.WithField("fn", dbTempFile.Name()).Info("successfully downloaded and decompressed new database, verifying")
+	u.logger.WithField("fn", dbTempFile.Name()).Info("successfully downloaded and decompressed new database, verifying")
 	if _, err = dbTempFile.Seek(0, 0); err != nil {
 		return err
 	}
@@ -180,13 +242,16 @@ func (s *Service) doUpdate() error {
 		db.Close()
 		return fmt.Errorf("error while attempting to verify geoip data: %s", err)
 	}
-
-	s.metadata.Store(&db.Metadata)
 	db.Close()
 
-	s.logger.Info("verification complete, updating active database")
+	err = u.updateMetadata()
+	if err != nil {
+		return err
+	}
 
-	file, err := os.Create(s.config.Path)
+	u.logger.Info("verification complete, updating active database")
+
+	file, err := os.Create(u.path)
 	if err != nil {
 		return err
 	}
@@ -197,7 +262,7 @@ func (s *Service) doUpdate() error {
 		return err
 	}
 
-	s.logger.WithFields(log.Fields{
+	u.logger.WithFields(log.Fields{
 		"fn":       file.Name(),
 		"bytes":    written,
 		"duration": time.Since(started),

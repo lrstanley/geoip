@@ -59,8 +59,7 @@ go-debug: go-prepare
 		--http.max-concurrent 0 \
 		--dns.resolver "8.8.8.8" \
 		--dns.resolver "1.1.1.1" \
-		--log.quiet
-		# --debug
+		--debug
 
 go-build: go-prepare go-fetch
 	CGO_ENABLED=0 \

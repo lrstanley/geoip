@@ -39,10 +39,14 @@ func main() {
 	resolver := dns.NewResolver(cli.Flags.DNS)
 	lookupSvc = lookup.NewService(ctx, logger, cli.Flags.DB, resolver)
 
+	geoIPUpdater := lookup.NewUpdater(cli.Flags.DB, logger, lookupSvc, lookup.DatabaseGeoIP)
+	asnUpdater := lookup.NewUpdater(cli.Flags.DB, logger, lookupSvc, lookup.DatabaseASN)
+
 	if err := chix.RunCtx(
 		ctx,
 		httpServer(ctx),
-		lookupSvc.Updater,
+		geoIPUpdater.Start,
+		asnUpdater.Start,
 	); err != nil {
 		logger.WithError(err).Fatal("shutting down")
 	}

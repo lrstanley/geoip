@@ -22,15 +22,17 @@ type ConfigHTTP struct {
 }
 
 type ConfigDB struct {
-	Path           string        `env:"PATH"            long:"path" description:"path to read/store Maxmind DB" default:"geoip.db"`
-	UpdateInterval time.Duration `env:"UPDATE_INTERVAL" long:"update-interval" description:"interval of time between database update checks" default:"12h"`
-	UpdateURL      string        `env:"UPDATE_URL"      long:"update-url" description:"maxmind database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"`
-	LicenseKey     string        `env:"LICENSE_KEY"     long:"license-key" description:"maxmind license key (must register for a maxmind account)" required:"true"`
+	GeoIPPath string `env:"GEOIP_PATH"            long:"geoip-path" description:"path to read/store GeoIP Maxmind DB" default:"geoip.db"`
+	GeoIPURL  string `env:"GEOIP_UPDATE_URL"      long:"geoip-update-url" description:"GeoIP database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=%s&suffix=tar.gz"`
 
-	CacheSize   int           `env:"CACHE_SIZE"   long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"1000"`
-	CacheExpire time.Duration `env:"CACHE_EXPIRE" long:"expire" description:"expiration time of cache" default:"1h"`
+	ASNPath string `env:"ASN_PATH"            long:"asn-path" description:"path to read/store ASN Maxmind DB" default:"asn.db"`
+	ASNURL  string `env:"ASN_UPDATE_URL"      long:"asn-update-url" description:"ASN database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=%s&suffix=tar.gz"`
 
-	DefaultLanguage string `env:"DEFAULT_LANGUAGE" long:"lang" description:"default language to use for geolocation" default:"en"`
+	LicenseKey      string        `env:"LICENSE_KEY"     long:"license-key" description:"maxmind license key (must register for a maxmind account)" required:"true"`
+	UpdateInterval  time.Duration `env:"UPDATE_INTERVAL" long:"update-interval" description:"interval of time between database update checks" default:"12h"`
+	CacheSize       int           `env:"CACHE_SIZE"   long:"size" description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"1000"`
+	CacheExpire     time.Duration `env:"CACHE_EXPIRE" long:"expire" description:"expiration time of cache" default:"1h"`
+	DefaultLanguage string        `env:"DEFAULT_LANGUAGE" long:"lang" description:"default language to use for geolocation" default:"en"`
 }
 
 type ConfigDNS struct {
@@ -38,5 +40,5 @@ type ConfigDNS struct {
 	Local       bool          `env:"LOCAL"        long:"uselocal" description:"adds local (system) resolvers to the list of resolvers to use"`
 	CacheSize   int           `env:"CACHE_SIZE"   long:"size"     description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
 	CacheExpire time.Duration `env:"CACHE_EXPIRE" long:"expire"   description:"expiration time of cache" default:"1h"`
-	Timeout     time.Duration `env:"TIMEOUT" long:"timeout" description:"timeout for dns lookups (longer = better results but longer request duration)" default:"2s"`
+	Timeout     time.Duration `env:"TIMEOUT" long:"timeout" description:"timeout for dns lookups (longer = better results but longer request duration)" default:"4s"`
 }
