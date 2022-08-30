@@ -14,7 +14,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/httprate"
 	"github.com/lrstanley/chix"
 	"github.com/lrstanley/geoip/internal/handlers/apihandler"
 	"github.com/lrstanley/geoip/internal/httpware"
@@ -27,6 +26,8 @@ var staticFS embed.FS
 func httpServer(ctx context.Context) *http.Server {
 	r := chi.NewRouter()
 
+	limiter := httpware.NewLimiter(cli.Flags.HTTP, 1*time.Hour)
+
 	if len(cli.Flags.HTTP.TrustedProxies) > 0 {
 		r.Use(chix.UseRealIP(cli.Flags.HTTP.TrustedProxies, chix.OptUseXForwardedFor))
 	}
@@ -37,13 +38,11 @@ func httpServer(ctx context.Context) *http.Server {
 		middleware.RequestID,
 		chix.UseStructuredLogger(logger),
 		chix.UseDebug(cli.Debug),
-		middleware.Recoverer,
+		chix.Recoverer,
 		middleware.Maybe(middleware.StripSlashes, func(r *http.Request) bool {
 			return !strings.HasPrefix(r.URL.Path, "/debug/")
 		}),
 		middleware.Compress(5),
-		httpware.UseMetadata(lookupSvc),
-		httpware.UseLanguage(lookupSvc),
 	)
 
 	if cli.Flags.HTTP.MaxConcurrent > 0 {
@@ -74,18 +73,19 @@ func httpServer(ctx context.Context) *http.Server {
 		// 	"Content-Security-Policy",
 		// 	"default-src 'self'; media-src * data:; style-src 'self' 'unsafe-inline'; object-src 'none'; child-src 'none'; frame-src 'none'; worker-src 'none'",
 		// ),
-		middleware.SetHeader("X-Frame-Options", "DENY"),
-		middleware.SetHeader("X-Content-Type-Options", "nosniff"),
-		middleware.SetHeader("Referrer-Policy", "no-referrer-when-downgrade"),
-		middleware.SetHeader("Permissions-Policy", "clipboard-write=(self)"),
-		httprate.LimitByIP(cli.Flags.HTTP.Limit, 1*time.Hour),
+		chix.UseHeaders(map[string]string{
+			"X-Frame-Options":        "DENY",
+			"X-Content-Type-Options": "nosniff",
+			"Referrer-Policy":        "no-referrer-when-downgrade",
+			"Permissions-Policy":     "clipboard-write=(self)",
+		}),
 	)
 
 	if cli.Debug {
 		r.With(chix.UsePrivateIP).Mount("/debug", middleware.Profiler())
 	}
 
-	r.Route("/api", apihandler.New(lookupSvc).Route)
+	r.Route("/api", apihandler.New(lookupSvc, limiter).Route)
 
 	r.NotFound(chix.UseStatic(ctx, &chix.Static{
 		FS:         staticFS,

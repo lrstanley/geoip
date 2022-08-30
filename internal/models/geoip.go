@@ -4,14 +4,12 @@
 
 package models
 
-// LookupRequest is the request object for the lookup service.
-type LookupRequest struct {
-	Address  string
-	Language string
-}
+import "net"
 
-func (r *LookupRequest) CacheID() string {
-	return r.Address + ":" + r.Language
+// LookupOptions are the options for the lookup service.
+type LookupOptions struct {
+	Languages         []string `form:"languages,omitempty" json:"languages" validate:"omitempty,dive,bcp47_language_tag|alpha,min=2,max=5"`
+	DisableHostLookup bool     `form:"disable_host_lookup,omitempty" json:"disable_host_lookup"`
 }
 
 // GeoQuery is the struct->tag search query to search through the GeoIP Maxmind DB.
@@ -47,14 +45,16 @@ type GeoQuery struct {
 type ASNQuery struct {
 	AutonomousSystemNumber int    `maxminddb:"autonomous_system_number"`
 	AutonomousSystemOrg    string `maxminddb:"autonomous_system_organization"`
+
+	Network *net.IPNet
 }
 
 // Response contains the geolocation and host information for an IP/host.
 type Response struct {
-	Cached bool   `json:"-"`
-	Error  string `json:"error,omitempty"`
+	Query string `json:"query"`
+	Error string `json:"error,omitempty"`
 
-	Host string `json:"host"`
+	Host string `json:"host,omitempty"`
 
 	// GeoIP information.
 	IP               string  `json:"ip"`

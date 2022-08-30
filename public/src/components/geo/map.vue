@@ -7,10 +7,10 @@ import "leaflet/dist/leaflet.css"
 import markerIcon from "leaflet/dist/images/marker-icon-2x.png"
 import markerIconShadow from "leaflet/dist/images/marker-shadow.png"
 import { Icon, Map, TileLayer, Marker } from "leaflet"
-import type { GeoIPData } from "@/lib/api"
+import type { GeoResult } from "@/lib/api"
 
 const props = defineProps<{
-  value: GeoIPData
+  value: GeoResult
   zoom?: number
   scrollWheel?: boolean
 }>()

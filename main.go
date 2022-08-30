@@ -39,8 +39,8 @@ func main() {
 	resolver := dns.NewResolver(cli.Flags.DNS)
 	lookupSvc = lookup.NewService(ctx, logger, cli.Flags.DB, resolver)
 
-	geoIPUpdater := lookup.NewUpdater(cli.Flags.DB, logger, lookupSvc, lookup.DatabaseGeoIP)
-	asnUpdater := lookup.NewUpdater(cli.Flags.DB, logger, lookupSvc, lookup.DatabaseASN)
+	geoIPUpdater := lookup.NewUpdater(cli.Flags.DB, logger, lookupSvc, models.DatabaseGeoIP)
+	asnUpdater := lookup.NewUpdater(cli.Flags.DB, logger, lookupSvc, models.DatabaseASN)
 
 	if err := chix.RunCtx(
 		ctx,

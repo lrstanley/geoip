@@ -16,28 +16,19 @@ import (
 )
 
 // Lookup does a geoip lookup of an address.
-func (s *Service) Lookup(ctx context.Context, r *models.LookupRequest) (result *models.Response, err error) {
-	if r.Language == "" {
-		r.Language = s.config.DefaultLanguage
-	}
+func (s *Service) Lookup(ctx context.Context, addr string, r *models.LookupOptions) (result *models.Response, err error) {
+	langGeo := s.MatchLanguage(models.DatabaseGeoIP, r.Languages)
 
-	if val := s.cache.Get(r.CacheID()); val != nil {
-		val.Cached = true
-		return val, nil
-	}
-
-	ip := net.ParseIP(r.Address)
+	ip := net.ParseIP(addr)
 	if ip == nil {
-		ip, err = s.rslv.GetIP(ctx, r.Address)
+		ip, err = s.rslv.GetIP(ctx, addr)
 		if err != nil || ip == nil {
-			s.logger.WithError(err).WithField("addr", r.Address).Debug("error looking up addr as hostname")
-
-			return &models.Response{Error: fmt.Sprintf("invalid ip/host specified (or timed out): %s", r.Address)}, nil
+			return nil, &models.ErrHostResolve{Address: addr, Err: err}
 		}
 	}
 
 	if is, _ := bogon.Is(ip.String()); is {
-		return &models.Response{Error: "internal address"}, nil
+		return nil, &models.ErrInternalAddress{Address: addr}
 	}
 
 	geo, err := s.lookupGeo(ctx, ip)
@@ -45,26 +36,33 @@ func (s *Service) Lookup(ctx context.Context, r *models.LookupRequest) (result *
 		return nil, err
 	}
 
-	network, asn, err := s.lookupASN(ctx, ip)
+	asn, err := s.lookupASN(ctx, ip)
 	if err != nil {
 		return nil, err
 	}
 
 	result = &models.Response{
+		Query:            addr,
 		IP:               ip.String(),
-		City:             geo.City.Names[r.Language],
-		Country:          geo.Country.Names[r.Language],
+		City:             geo.City.Names[langGeo],
+		Country:          geo.Country.Names[langGeo],
 		CountryCode:      geo.Country.Code,
-		Continent:        geo.Continent.Names[r.Language],
+		Continent:        geo.Continent.Names[langGeo],
 		ContinentCode:    geo.Continent.Code,
 		Lat:              geo.Location.Lat,
 		Long:             geo.Location.Long,
 		Timezone:         geo.Location.TimeZone,
 		AccuracyRadiusKM: geo.Location.AccuracyRadiusKM,
 		PostalCode:       geo.Postal.Code,
-		ASN:              fmt.Sprintf("ASN%d", asn.AutonomousSystemNumber),
-		ASNOrg:           asn.AutonomousSystemOrg,
-		Network:          network.String(),
+	}
+
+	if asn.AutonomousSystemNumber > 0 {
+		result.ASN = fmt.Sprintf("AS%d", asn.AutonomousSystemNumber)
+		result.ASNOrg = asn.AutonomousSystemOrg
+	}
+
+	if asn.Network != nil {
+		result.Network = asn.Network.String()
 	}
 
 	if v4 := ip.To4(); v4 != nil {
@@ -75,7 +73,7 @@ func (s *Service) Lookup(ctx context.Context, r *models.LookupRequest) (result *
 
 	var subdiv []string
 	for i := 0; i < len(geo.Subdivisions); i++ {
-		subdiv = append(subdiv, geo.Subdivisions[i].Names[r.Language])
+		subdiv = append(subdiv, geo.Subdivisions[i].Names[langGeo])
 	}
 	result.Subdivision = strings.Join(subdiv, ", ")
 
@@ -103,38 +101,48 @@ func (s *Service) Lookup(ctx context.Context, r *models.LookupRequest) (result *
 	result.Summary = strings.Join(summary, ", ")
 
 	if result.Summary == "" {
-		result.Error = "no results found"
+		return nil, &models.ErrNotFound{Address: addr}
 	}
 
-	result.Host, err = s.rslv.GetReverse(ctx, ip)
-	if err != nil {
-		s.logger.WithError(err).WithField("ip", ip.String()).Debug("error looking up reverse dns for ip")
+	if !r.DisableHostLookup {
+		result.Host, err = s.rslv.GetReverse(ctx, ip)
+		if err != nil {
+			s.logger.WithError(err).WithField("ip", ip.String()).Debug("error looking up reverse dns for ip")
+		}
 	}
 
-	s.cache.Set(r.CacheID(), result)
 	return result, nil
 }
 
-func (s *Service) lookupASN(ctx context.Context, ip net.IP) (network *net.IPNet, query *models.ASNQuery, err error) {
+func (s *Service) lookupASN(ctx context.Context, ip net.IP) (query *models.ASNQuery, err error) {
+	if val := s.asnCache.Get(ip.String()); val != nil {
+		return val, nil
+	}
+
 	var db *maxminddb.Reader
 
 	db, err = maxminddb.Open(s.config.ASNPath)
 	if err != nil {
 		s.logger.WithError(err).Error("error opening asn db")
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close()
 
 	query = &models.ASNQuery{}
-	if network, _, err = db.LookupNetwork(ip, &query); err != nil {
+	if query.Network, _, err = db.LookupNetwork(ip, &query); err != nil {
 		s.logger.WithError(err).WithField("ip", ip.String()).Error("error looking up ip asn info")
-		return nil, nil, err
+		return nil, err
 	}
 
-	return network, query, nil
+	s.asnCache.Set(ip.String(), query)
+	return query, nil
 }
 
 func (s *Service) lookupGeo(ctx context.Context, ip net.IP) (query *models.GeoQuery, err error) {
+	if val := s.geoCache.Get(ip.String()); val != nil {
+		return val, nil
+	}
+
 	var db *maxminddb.Reader
 
 	db, err = maxminddb.Open(s.config.GeoIPPath)
@@ -150,5 +158,6 @@ func (s *Service) lookupGeo(ctx context.Context, ip net.IP) (query *models.GeoQu
 		return nil, err
 	}
 
+	s.geoCache.Set(ip.String(), query)
 	return query, nil
 }

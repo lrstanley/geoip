@@ -1,6 +1,6 @@
 <template>
   <aside aria-label="Navigation">
-    <div class="overflow-y-auto py-4 px-3 rounded-md">
+    <div class="overflow-y-auto rounded-md" :class="{ 'py-4 px-3': !props.slim }" v-bind="$attrs">
       <span class="flex items-center pl-2">
         <n-icon>
           <i-mdi-map-search-outline class="text-3xl" />
@@ -32,25 +32,32 @@
         </li>
       </ul>
 
-      <n-divider class="my-2!" />
+      <template v-if="!props.hideSource">
+        <n-divider class="my-2!" />
 
-      <ul class="space-y-2 list-none p-0 m-0">
-        <li>
-          <a href="https://github.com/lrstanley/geoip" class="route" target="_blank">
-            <n-icon>
-              <i-mdi-github />
-            </n-icon>
+        <ul class="space-y-2 list-none p-0 m-0">
+          <li>
+            <a href="https://github.com/lrstanley/geoip" class="route" target="_blank">
+              <n-icon>
+                <i-mdi-github />
+              </n-icon>
 
-            <span class="ml-3 text-gradient bg-gradient-to-r from-emerald-500 to-lightblue-500">
-              Github Project
-            </span>
-          </a>
-        </li>
-      </ul>
+              <span class="ml-3 text-gradient bg-gradient-to-r from-emerald-500 to-lightblue-500">
+                Github Project
+              </span>
+            </a>
+          </li>
+        </ul>
+      </template>
     </div>
   </aside>
 </template>
 <script setup lang="ts">
+const props = defineProps<{
+  slim?: boolean
+  hideSource?: boolean
+}>()
+
 interface MenuOption {
   attrs: { [key: string]: any }
   label: string

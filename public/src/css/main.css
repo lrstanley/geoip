@@ -42,55 +42,6 @@ a {
   @apply text-emerald-600 dark:text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-600 font-bold;
 }
 
-@media (prefers-color-scheme: light) {
-  .shiki-dark {
-    display: none;
-  }
-}
-
-@media (prefers-color-scheme: dark), (prefers-color-scheme: no-preference) {
-  .shiki-light {
-    display: none;
-  }
-}
-
-.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::before,
-.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *))::after {
-  content: "";
-}
-
-.prose :where(:not(pre) > code):not(:where(.not-prose, .not-prose *)) {
-  @apply font-mono bg-emerald-600 dark:bg-emerald-800 text-white py-1 px-1.5 rounded-sm whitespace-pre-wrap;
-}
-
-.prose :where(pre):not(:where(.not-prose, .not-prose *)) {
-  padding: 0.8rem 1.1rem;
-}
-
-.prose table {
-  @apply w-full text-xs text-left text-gray-700 dark:text-gray-400 rounded-md;
-}
-
-.prose table thead {
-  @apply text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400;
-}
-
-.prose table thead th {
-  @apply py-2 px-3;
-}
-
-.prose table tbody tr {
-  @apply bg-white border-b dark:bg-gray-800 dark:border-gray-700;
-}
-
-.prose table tbody tr th {
-  @apply py-2 px-3 font-medium text-gray-900 whitespace-nowrap dark:text-white;
-}
-
-.prose table tbody tr td {
-  @apply py-2 px-3;
-}
-
 *::-webkit-scrollbar {
   background-color: transparent;
   width: 12px;

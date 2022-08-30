@@ -1,7 +1,7 @@
 import { setupLayouts } from "virtual:generated-layouts"
 import { createRouter, createWebHistory } from "vue-router"
 import generatedRoutes from "~pages"
-import { lookup } from "@/lib/api"
+import { api, saveResult } from "@/lib/api"
 import { loadingBar } from "@/lib/core/status"
 
 const routes = setupLayouts(generatedRoutes)
@@ -19,7 +19,12 @@ router.beforeEach(async (to, from, next) => {
   const state = useState()
   if (!state.hasSelf) {
     // Kickoff the request for /api/self to lookup the user, in the background.
-    lookup("self", true).catch(() => null)
+    api.lookup
+      .getAddress({ address: "self" })
+      .then((result) => {
+        saveResult(result)
+      })
+      .catch(() => null)
   }
 
   next()
@@ -31,7 +36,7 @@ router.afterEach((to) => {
   nextTick(() => {
     loadingBar.finish()
 
-    if (location.hash) {
+    if (location.hash && !to.meta.disableAnchor) {
       const el = document.getElementById(location.hash.slice(1))
       if (el) {
         el.scrollIntoView()

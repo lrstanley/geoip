@@ -1,47 +1,9 @@
-/**
- * Config are baseline configurations for the HTTP API client.
- *
- * @export
- * @interface Config
- * @typedef {Config}
- */
-export interface Config {
-  headers: Headers
-  baseUrl: string
-}
+import type { GeoResult } from "@/lib/api/openapi"
 
 /**
- * GeoIPData is the geoip results of a given lookup from the API.
- *
- * @export
- * @interface GeoIPData
- * @typedef {GeoIPData}
- */
-export interface GeoIPData {
-  ip: string
-  summary: string
-  city: string
-  subdivision: string
-  country: string
-  country_abbr: string
-  continent: string
-  continent_abbr: string
-  latitude: number
-  longitude: number
-  timezone: string
-  postal_code: string
-  proxy: boolean
-  host: string
-}
-
-/**
- * ClientState is the state of the client, including rate limit and geoip database
- * information.
+ * ClientState is the state of the client, including rate limit.
  *
  * Marshalled from header data:
- *   X-Cache: MISS
- *   X-Maxmind-Build: 6-1659368358
- *   X-Maxmind-Type: GeoLite2-City
  *   X-Ratelimit-Limit: 1000000
  *   X-Ratelimit-Remaining: 999999
  *   X-Ratelimit-Reset: 1659751200
@@ -51,26 +13,9 @@ export interface GeoIPData {
  * @typedef {ClientState}
  */
 export interface ClientState {
-  cached: boolean
-  maxmind_build: string
-  maxmind_type: string
   ratelimit_limit: number
   ratelimit_remaining: number
   ratelimit_reset: number
-}
-
-/**
- * APIResponse wrapper object for the API.
- *
- * @export
- * @interface APIResponse
- * @typedef {APIResponse}
- */
-export interface APIResponse {
-  query: string
-  data: GeoIPData
-  state: ClientState
-  error: Error
 }
 
 /**
@@ -105,7 +50,7 @@ export interface ByField<Field, Label> {
  * @export
  * @typedef {FieldGroup}
  */
-export type FieldGroup = ByField<ValueOf<GeoIPData>, ValueOf<GeoIPData>>
+export type FieldGroup = ByField<ValueOf<GeoResult>, ValueOf<GeoResult>>
 
 /**
  * TruncateOptions is used by grouping functions to configure how (if at all)

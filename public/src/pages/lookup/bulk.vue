@@ -126,20 +126,32 @@ meta:
       :truncate="{ percent: 5, label: 'Other' }"
       status="success"
     />
+
+    <n-divider v-show="results.length > 0" class="m-0!" />
+    <GeoAggregate
+      v-show="results.length > 0"
+      id="aggregate-asn"
+      class="p-4"
+      :value="results"
+      field="asn_org"
+      label="asn_org"
+      :truncate="{ percent: 5, label: 'Other' }"
+      status="success"
+    />
   </div>
 </template>
 
 <script setup async lang="ts">
 import sampleData from "@/lib/data/sample-bulk.txt?raw"
-import { lookupMany } from "@/lib/api"
+import { api } from "@/lib/api"
 import { matchAddresses } from "@/lib/util/match"
 import { createJSONObjectURL } from "@/lib/util/object-url"
 import vFocus from "@/lib/directives/focus"
-import type { APIResponse } from "@/lib/api"
+import type { GeoResult, BulkError } from "@/lib/api"
 
 const input = ref("")
-const results = ref<APIResponse[]>([]) // Aggregate of all results (not just the current input).
-const errors = ref<APIResponse[]>([]) // Aggregate of all failed results.
+const results = ref<GeoResult[]>([]) // Aggregate of all results (not just the current input).
+const errors = ref<BulkError[]>([]) // Aggregate of all failed results.
 const loading = ref(false)
 const completed = ref(0) // Completed requests.
 const total = ref(0) // Total addresses to lookup.
@@ -147,7 +159,7 @@ const percent = computed(() => Math.round((completed.value / total.value) * 100)
 
 const jsonUrl = createJSONObjectURL(
   computed(() => {
-    return { data: results.value.map(({ data }) => data) }
+    return { data: results.value }
   })
 )
 
@@ -161,17 +173,34 @@ async function search() {
   completed.value = 0
   errors.value = []
 
-  await lookupMany(addresses, false, (result) => {
-    nextTick(() => {
-      completed.value++
+  // Chunk the addresses into groups of 25, the maximum allowed by the API.
+  const chunks = []
+  while (addresses.length > 0) {
+    chunks.push(addresses.splice(0, 25))
+  }
 
-      if (result.error) {
-        errors.value.push(result)
-      } else {
-        results.value.push(result)
-      }
-    })
-  })
+  for (const chunk of chunks) {
+    try {
+      const resp = await api.lookup.getManyAddresses({
+        requestBody: {
+          addresses: chunk,
+          options: {
+            disable_host_lookup: true,
+          },
+        },
+      })
+
+      results.value.push(...resp.results)
+      errors.value.push(...resp.errors)
+    } catch (error) {
+      errors.value.push({
+        error: error,
+        query: "-",
+      })
+    } finally {
+      completed.value += chunk.length
+    }
+  }
 
   loading.value = false
 }

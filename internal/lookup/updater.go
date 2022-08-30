@@ -22,16 +22,9 @@ import (
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
 
-type DBType string
-
-const (
-	DatabaseGeoIP DBType = "geoip"
-	DatabaseASN   DBType = "asn"
-)
-
 // NewUpdater returns a new service for monitoring database updates. If an update
 // is needed, it will be downloaded, decompressed, verified, and installed.
-func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service, dbType DBType) *Updater {
+func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service, dbType string) *Updater {
 	updater := &Updater{
 		config:    config,
 		logger:    logger.WithField("src", fmt.Sprintf("updater-%s", dbType)),
@@ -40,14 +33,14 @@ func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service
 	}
 
 	switch updater.dbType {
-	case DatabaseGeoIP:
+	case models.DatabaseGeoIP:
 		updater.updateURL = fmt.Sprintf(config.GeoIPURL, config.LicenseKey)
 		updater.path = config.GeoIPPath
-	case DatabaseASN:
+	case models.DatabaseASN:
 		updater.updateURL = fmt.Sprintf(config.ASNURL, config.LicenseKey)
 		updater.path = config.ASNPath
 	default:
-		updater.logger.Fatal("unknown database type")
+		panic("unknown database type")
 	}
 
 	return updater
@@ -57,7 +50,7 @@ func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service
 type Updater struct {
 	config    models.ConfigDB
 	logger    log.Interface
-	dbType    DBType
+	dbType    string
 	updateURL string
 	path      string
 
@@ -104,10 +97,6 @@ func (u *Updater) Start(ctx context.Context) (err error) {
 
 // updateMetadata updates the metadata information in the lookup service.
 func (u *Updater) updateMetadata() error {
-	if u.dbType != DatabaseGeoIP {
-		return nil
-	}
-
 	var err error
 	var db *maxminddb.Reader
 	var metadata maxminddb.Metadata
@@ -119,7 +108,7 @@ func (u *Updater) updateMetadata() error {
 	defer db.Close()
 
 	metadata = db.Metadata
-	u.lookupSvc.metadata.Store(&metadata)
+	u.lookupSvc.Metadata.Store(u.dbType, &metadata)
 	return nil
 }
 

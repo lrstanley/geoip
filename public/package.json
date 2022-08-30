@@ -13,10 +13,9 @@
     "core-js": "^3.24.1",
     "ip-regex": "^5.0.0",
     "leaflet": "^1.8.0",
-    "markdown-it-shiki": "^0.5.1",
     "naive-ui": "^2.32.1",
-    "p-limit": "^4.0.0",
     "pinia": "^2.0.18",
+    "rapidoc": "9.3.2",
     "unocss": "^0.45.7",
     "vue": "^3.2.37",
     "vue-router": "^4.1.3"
@@ -37,6 +36,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.3.0",
+    "openapi-typescript-codegen": "^0.23.0",
     "playwright": "^1.25.0",
     "postcss": "^8.4.16",
     "prettier": "^2.7.1",
@@ -48,8 +48,7 @@
     "unplugin-vue-components": "^0.22.4",
     "vite": "^3.0.8",
     "vite-plugin-pages": "^0.25.0",
-    "vite-plugin-vue-layouts": "^0.7.0",
-    "vite-plugin-vue-markdown": "^0.21.1"
+    "vite-plugin-vue-layouts": "^0.7.0"
   },
   "eslintConfig": {
     "env": {
@@ -83,6 +82,7 @@
       "vue/html-indent": "off",
       "vue/max-attributes-per-line": "off",
       "vue/multi-word-component-names": "off",
+      "vue/no-deprecated-slot-attribute": "off",
       "vue/no-v-html": "off",
       "vue/singleline-html-element-content-newline": "off"
     }
@@ -108,6 +108,7 @@
   "scripts": {
     "build": "pnpm vite build",
     "lint": "pnpm eslint --ignore-path ../.gitignore --ext .js,.ts,.vue .",
+    "openapi": "pnpm exec openapi --input ../internal/handlers/apihandler/openapi_v2.yaml --output src/lib/api/openapi/ --client fetch --useOptions --indent 2 --name HTTPClient",
     "preview": "pnpm run build && pnpm vite preview",
     "server": "pnpm vite",
     "test": "pnpm playwright test"

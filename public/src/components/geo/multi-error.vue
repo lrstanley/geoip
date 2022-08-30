@@ -20,7 +20,7 @@
           class="alert-small mb-2 last:mb-0"
         >
           <n-tag size="small"> Q: {{ result.query }} </n-tag>
-          error: {{ result.error.message }}
+          error: {{ result.error }}
         </n-alert>
       </AnimateListGroup>
     </div>
@@ -28,10 +28,9 @@
 </template>
 
 <script setup lang="ts">
-import type { APIResponse } from "@/lib/api"
-
+import type { BulkError } from "@/lib/api"
 const props = defineProps<{
-  value: APIResponse[]
+  value: BulkError[]
 }>()
 
 watch(props, () => {

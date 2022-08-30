@@ -15,9 +15,19 @@ import (
 	"github.com/lrstanley/geoip/internal/models"
 )
 
-func (h *handler) getLookup(w http.ResponseWriter, r *http.Request) {
+func (h *handler) getLookupV2(w http.ResponseWriter, r *http.Request) {
 	addr := strings.TrimSpace(chi.URLParam(r, "addr"))
 	logger := chix.Log(r).WithField("lookup_addr", addr)
+
+	opts := &models.LookupOptions{}
+	if err := chix.Bind(r, opts); err != nil {
+		chix.Error(w, r, err)
+		return
+	}
+
+	if len(opts.Languages) == 0 {
+		opts.Languages = httpware.GetLanguage(r)
+	}
 
 	// Allow users to query themselves without having to have them specify
 	// their own IP address. Note that this will not work if you are querying
@@ -30,22 +40,16 @@ func (h *handler) getLookup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	req := &models.LookupRequest{
-		Address:  addr,
-		Language: httpware.GetLanguage(r),
-	}
-
-	result, err := h.lookupSvc.Lookup(r.Context(), req)
+	result, err := h.lookupSvc.Lookup(r.Context(), addr, opts)
 	if err != nil {
-		logger.WithError(err).Error("error looking up addr")
-		w.WriteHeader(http.StatusServiceUnavailable)
-		return
-	}
+		if models.IsClientError(err) {
+			chix.ErrorCode(w, r, 400, err)
+			return
+		}
 
-	if result.Cached {
-		w.Header().Set("X-Cache", "HIT")
-	} else {
-		w.Header().Set("X-Cache", "MISS")
+		logger.WithError(err).Error("error looking up addr")
+		chix.Error(w, r, chix.WrapCode(500))
+		return
 	}
 
 	chix.JSON(w, r, http.StatusOK, result)

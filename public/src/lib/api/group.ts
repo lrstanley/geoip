@@ -1,31 +1,30 @@
-import type { APIResponse, GeoIPData, FieldGroup, TruncateOptions, GroupWidth } from "@/lib/api/types"
+import type { GeoResult } from "@/lib/api/openapi"
+import type { FieldGroup, TruncateOptions, GroupWidth } from "@/lib/api/types"
 
 /**
- * groupByField groups GeoIPData by a given field and label on the GeoIPData object,
+ * groupByField groups GeoResult by a given field and label on the GeoResult object,
  * allowing truncating low-grouped values into a "other" group. Returned results are
  * sorted by the count per group, descending, and the "other" group (if configured)
  * is last.
  *
  * @export
- * @param {APIResponse[]} results
- * @param {keyof GeoIPData} field
- * @param {keyof GeoIPData} label
+ * @param {GeoResult[]} results
+ * @param {keyof GeoResult} field
+ * @param {keyof GeoResult} label
  * @param {?TruncateOptions} [truncate]
  * @returns {FieldGroup[]}
  */
 export function groupByField(
-  results: APIResponse[],
-  field: keyof GeoIPData,
-  label: keyof GeoIPData,
+  results: GeoResult[],
+  field: keyof GeoResult,
+  label: keyof GeoResult,
   truncate?: TruncateOptions
 ): FieldGroup[] {
   const calc: { [key: string]: FieldGroup } = {}
 
   for (const result of results) {
-    if (result.error) continue
-
-    const fieldVal = result.data[field]
-    const labelVal = result.data[label]
+    const fieldVal = result[field]
+    const labelVal = result[label]
     const key = fieldVal.toString()
 
     if (!calc[key]) {
@@ -89,13 +88,13 @@ export function groupByField(
  * @param {FieldGroup[]} stats
  * @returns {GroupWidth}
  */
-export function calculateGroupWidth(stats: FieldGroup[]): GroupWidth {
+export function calculateGroupWidth(stats: FieldGroup[], maxLabelWidth = 30): GroupWidth {
   const label = stats.reduce((max, stat) => Math.max(max, stat.label.toString().length), 0)
   const count = stats.reduce((max, stat) => Math.max(max, stat.count.toString().length), 0)
   const percent = stats.reduce((max, stat) => Math.max(max, stat.percent.toString().length), 0)
 
   return {
-    labelWidth: label,
+    labelWidth: Math.min(label, maxLabelWidth),
     countWidth: count,
     percentWidth: percent,
   }

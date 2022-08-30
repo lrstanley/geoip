@@ -1,0 +1,376 @@
+openapi: 3.0.2
+info:
+  title: GeoIP API
+  version: 2.0.0
+servers:
+  - description: Development API
+    url: http://localhost:8080/api/v2
+  - description: Production v2 API
+    url: https://geoip.pw/api/v2
+components:
+  headers:
+    X-RateLimit-Limit:
+      description: Request limit.
+      schema:
+        type: integer
+    X-RateLimit-Remaining:
+      description: The number of requests left for the time window.
+      schema:
+        type: integer
+    X-RateLimit-Reset:
+      description: The UTC date/time at which the current rate limit window resets.
+      schema:
+        format: date-time
+        type: string
+  parameters:
+    address:
+      examples:
+        hostname:
+          summary: Example of a hostname
+          value: google.com
+        ipv4:
+          summary: Example of an IPv4 address
+          value: 8.8.8.8
+        ipv6:
+          summary: Example of an IPv6 address
+          value: 2001:4860:4860::8888
+      in: path
+      name: address
+      required: true
+      schema:
+        $ref: "#/components/schemas/Address"
+    disable_host_lookup:
+      examples:
+        "false":
+          summary: Do a reverse lookup of the resolved IP.
+          value: "false"
+        "true":
+          summary: Don't do a reverse lookup of the resolved IP.
+          value: "true"
+      in: query
+      name: disable_host_lookup
+      schema:
+        default: false
+        type: boolean
+    lang:
+      examples:
+        en:
+          summary: Standard language code
+          value: en
+        en-US:
+          summary: BCP47 language code
+          value: en-US
+      in: query
+      name: lang
+      schema:
+        type: string
+    pretty:
+      examples:
+        "false":
+          summary: Don't pretty print the JSON response.
+          value: "false"
+        "true":
+          summary: Pretty print the JSON response.
+          value: "true"
+      in: query
+      name: pretty
+      schema:
+        default: false
+        type: boolean
+  responses:
+    Error:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Non-2XX status code response object.
+      headers:
+        $ref: "#/components/headers"
+  schemas:
+    Address:
+      oneOf:
+        - example: 8.8.8.8
+          format: ipv4
+          type: string
+        - example: 2001:4860:4860::8888
+          format: ipv6
+          type: string
+        - example: store.steampowered.com
+          format: hostname
+          type: string
+    BulkError:
+      properties:
+        error:
+          type: string
+        query:
+          type: string
+      required:
+        - error
+        - query
+      type: object
+    BulkGeoResult:
+      properties:
+        errors:
+          items:
+            $ref: "#/components/schemas/BulkError"
+          type: array
+        results:
+          items:
+            $ref: "#/components/schemas/GeoResult"
+          type: array
+      required:
+        - results
+        - errors
+      type: object
+    Error:
+      properties:
+        code:
+          example: 404
+          type: integer
+        error:
+          example: Not Found
+          type: string
+        request_id:
+          example: origin/1RMH8atZ25-000017
+          type: string
+        timestamp:
+          example: "2022-08-25T02:14:31Z"
+          type: string
+        type:
+          example: Not Found
+          type: string
+      required:
+        - code
+        - error
+        - request_id
+        - timestamp
+        - type
+      type: object
+    GeoResult:
+      properties:
+        accuracy_radius_km:
+          example: 100
+          type: integer
+        asn:
+          example: AS15169
+          type: string
+        asn_org:
+          example: Google LLC
+          type: string
+        city:
+          example: Mountain View
+          type: string
+        continent:
+          example: North America
+          type: string
+        continent_abbr:
+          example: NA
+          type: string
+        country:
+          example: United States
+          type: string
+        country_abbr:
+          example: US
+          type: string
+        host:
+          example: dns.google
+          type: string
+        ip:
+          example: 8.8.8.8
+          type: string
+        ip_type:
+          example: 4
+          type: integer
+        latitude:
+          example: 37.751
+          type: number
+        longitude:
+          example: -97.822
+          type: number
+        network:
+          example: 8.8.8.0/24
+          type: string
+        postal_code:
+          example: "94035"
+          type: string
+        query:
+          example: 8.8.8.8
+          type: string
+        subdivision:
+          example: California
+          type: string
+        summary:
+          example: Mountain View, CA, United States
+          type: string
+        timezone:
+          example: America/Los_Angeles
+          type: string
+      required:
+        - accuracy_radius_km
+        - asn
+        - asn_org
+        - city
+        - continent
+        - continent_abbr
+        - country
+        - country_abbr
+        - ip
+        - ip_type
+        - latitude
+        - longitude
+        - network
+        - postal_code
+        - query
+        - subdivision
+        - summary
+        - timezone
+      type: object
+    LookupOptions:
+      properties:
+        disable_host_lookup:
+          description: Disable doing a reverse lookup of the resolved IP (much faster).
+          example: true
+          type: boolean
+        lang:
+          description: BCP47 or standard 2-character language code.
+          example: en-US
+          type: string
+        pretty:
+          description: Pretty print the JSON response.
+          example: true
+          type: boolean
+      type: object
+paths:
+  /bulk:
+    post:
+      description: >-
+        Lookup addresses (hostnames/domains/ipv4/ipv6/etc) in bulk.
+
+        **NOTE: A maximum of 25 addresses can be looked up at once, anything
+        above will return a `400`**.
+      operationId: getManyAddresses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                addresses:
+                  description: Array of addresses to lookup.
+                  items:
+                    $ref: "#/components/schemas/Address"
+                  maxItems: 25
+                  minItems: 1
+                  type: array
+                  uniqueItems: true
+                options:
+                  $ref: "#/components/schemas/LookupOptions"
+              required:
+                - addresses
+              type: object
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkGeoResult"
+          description: Bulk lookup response, including successful and failed lookups.
+          headers:
+            $ref: "#/components/headers"
+        4XX:
+          $ref: "#/components/responses/Error"
+        5XX:
+          $ref: "#/components/responses/Error"
+      summary: Bulk lookup addresses
+      tags:
+        - Lookup
+  /lookup/{address}:
+    get:
+      description: >-
+        Lookup an address (hostname/domain/ipv4/ipv6/etc), returning the GeoIP
+        information if available.
+      operationId: getAddress
+      parameters:
+        - $ref: "#/components/parameters/address"
+        - $ref: "#/components/parameters/pretty"
+        - $ref: "#/components/parameters/disable_host_lookup"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeoResult"
+          description: Response was successful.
+          headers:
+            $ref: "#/components/headers"
+        4XX:
+          $ref: "#/components/responses/Error"
+        5XX:
+          $ref: "#/components/responses/Error"
+      summary: Lookup address
+      tags:
+        - Lookup
+  /metadata:
+    get:
+      description: >-
+        Query the actively used GeoIP database info for all enabled database
+        types.
+      operationId: getDatabaseMetadata
+      parameters:
+        - $ref: "#/components/parameters/pretty"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+          description: OK
+          headers:
+            $ref: "#/components/headers"
+      summary: GeoIP database info
+      tags:
+        - Info
+  /openapi.yaml:
+    get:
+      description: >-
+        Returns the currently setup OpenAPI spec for this version of GeoIP. Note
+        that some legacy/deprecated API endpoints are not included in this spec.
+      operationId: getOpenAPISpec
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/yaml: {}
+          description: OK
+        4XX:
+          $ref: "#/components/responses/Error"
+        5XX:
+          $ref: "#/components/responses/Error"
+      summary: Get OpenAPI spec
+      tags:
+        - Info
+  /ping:
+    get:
+      description: >-
+        Health check. Can also be used to check the rate-limit status without
+        incrementing the rate-limit counters.
+      operationId: checkHealth
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  pong:
+                    type: boolean
+                required:
+                  - pong
+                type: object
+          description: OK
+          headers:
+            $ref: "#/components/headers"
+      summary: Health check
+      tags:
+        - Info

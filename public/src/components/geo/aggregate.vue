@@ -45,13 +45,13 @@
 
 <script setup lang="ts">
 import { groupByField, calculateGroupWidth } from "@/lib/api"
-import type { APIResponse, GeoIPData, TruncateOptions } from "@/lib/api"
+import type { GeoResult, TruncateOptions } from "@/lib/api"
 import type { Status as ProgressStatus } from "naive-ui/es/progress/src/interface"
 
 const props = defineProps<{
-  value: APIResponse[]
-  field: keyof GeoIPData
-  label: keyof GeoIPData
+  value: GeoResult[]
+  field: keyof GeoResult
+  label: keyof GeoResult
   truncate?: TruncateOptions
   flag?: boolean
   status?: ProgressStatus
@@ -60,6 +60,6 @@ const props = defineProps<{
 const group = computed(() => {
   const stats = groupByField(props.value, props.field, props.label, props.truncate)
 
-  return { stats: stats, ...calculateGroupWidth(stats) }
+  return { stats: stats, ...calculateGroupWidth(stats, 20) }
 })
 </script>

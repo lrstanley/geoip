@@ -1,6 +1,3 @@
-/**
- * @type {import('vite').UserConfig}
- */
 import { defineConfig } from "vite"
 
 import path from "path"
@@ -11,8 +8,6 @@ import { NaiveUiResolver, VueUseComponentsResolver } from "unplugin-vue-componen
 import Pages from "vite-plugin-pages"
 import Icons from "unplugin-icons/vite"
 import IconsResolver from "unplugin-icons/resolver"
-import Markdown from "vite-plugin-vue-markdown"
-import Shiki from "markdown-it-shiki"
 import Unocss from "unocss/vite"
 import Layouts from "vite-plugin-vue-layouts"
 import { visualizer } from "rollup-plugin-visualizer"
@@ -36,6 +31,11 @@ export default defineConfig({
     Layouts(),
     Vue({
       include: [/\.vue$/, /\.md$/],
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => ["rapi-doc"].includes(tag),
+        },
+      },
     }),
     Components({
       extensions: ["vue", "md"],
@@ -68,19 +68,6 @@ export default defineConfig({
     Icons({
       autoInstall: true,
       defaultClass: "icon",
-    }),
-    Markdown({
-      wrapperClasses:
-        "prose dark:prose-invert max-w-full mx-auto text-left text-dark-900 dark:text-white/82 p-4",
-      markdownItOptions: {
-        html: true,
-        linkify: true,
-      },
-      markdownItSetup(md) {
-        md.use(Shiki, {
-          theme: "dracula",
-        })
-      },
     }),
   ],
   base: "/",

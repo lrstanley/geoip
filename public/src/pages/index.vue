@@ -47,13 +47,13 @@ meta:
 </template>
 
 <script setup async lang="ts">
-import { lookup } from "@/lib/api"
+import { api, saveResult } from "@/lib/api"
 import vFocus from "@/lib/directives/focus"
 
 const state = useState()
-const address = ref<string>()
-const loading = ref<boolean>()
-const resultError = ref<Error | null>()
+const address = ref<string>("")
+const loading = ref<boolean>(false)
+const resultError = ref<string | null>()
 
 function search() {
   if (!address.value) {
@@ -63,16 +63,19 @@ function search() {
   loading.value = true
   resultError.value = null
 
-  lookup(address.value, true).then(({ error }) => {
-    loading.value = false
-
-    if (error) {
+  api.lookup
+    .getAddress({ address: address.value })
+    .then((result) => {
+      loading.value = false
+      saveResult(result)
+      address.value = ""
+    })
+    .catch((error) => {
       resultError.value = error
-      return
-    }
-
-    address.value = ""
-  })
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 const history = computed(() => {
@@ -82,4 +85,15 @@ const history = computed(() => {
 function clearHistory() {
   state.history = []
 }
+
+onMounted(async () => {
+  // const result = await APIClient.getLookup({ address: "host1.ca.liam.sh" })
+  // api.getLookup({ address: "" }).then((result) => {
+  //   // if (error) {
+  //   //   console.error("error", error)
+  //   //   return
+  //   // }
+  //   console.log("result", result)
+  // })
+})
 </script>
