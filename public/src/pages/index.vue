@@ -85,15 +85,4 @@ const history = computed(() => {
 function clearHistory() {
   state.history = []
 }
-
-onMounted(async () => {
-  // const result = await APIClient.getLookup({ address: "host1.ca.liam.sh" })
-  // api.getLookup({ address: "" }).then((result) => {
-  //   // if (error) {
-  //   //   console.error("error", error)
-  //   //   return
-  //   // }
-  //   console.log("result", result)
-  // })
-})
 </script>
