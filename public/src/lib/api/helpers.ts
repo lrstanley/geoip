@@ -1,6 +1,6 @@
 import { useState } from "@/lib/core/state"
 
-import type { GeoResult } from "@/lib/api/openapi"
+import type { ApiError, GeoResult, Error } from "@/lib/api/openapi"
 import type { ClientState } from "@/lib/api/types"
 
 export function saveResult(result: GeoResult) {
@@ -28,4 +28,16 @@ export function getClientState(resp: globalThis.Response): ClientState {
     ratelimit_remaining: parseInt(resp.headers.get("X-Ratelimit-Remaining") || "0"),
     ratelimit_reset: parseInt(resp.headers.get("X-Ratelimit-Reset") || "0"),
   }
+}
+
+/**
+ * getError is a wrapper around an API response to convert it into a GeoIP Error
+ * object.
+ *
+ * @export
+ * @param {ApiError} e
+ * @returns {Error}
+ */
+export function getError(e: ApiError): Error {
+  return e.body
 }

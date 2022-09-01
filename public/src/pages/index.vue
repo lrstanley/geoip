@@ -23,7 +23,7 @@ meta:
 
       <AnimateFade v-if="resultError">
         <n-alert type="error" class="mt-2 alert-small" :show-icon="false">
-          {{ resultError }}
+          error: {{ resultError }}
         </n-alert>
       </AnimateFade>
     </div>
@@ -47,7 +47,7 @@ meta:
 </template>
 
 <script setup async lang="ts">
-import { api, saveResult } from "@/lib/api"
+import { api, saveResult, getError } from "@/lib/api"
 import vFocus from "@/lib/directives/focus"
 
 const router = useRouter()
@@ -58,7 +58,7 @@ const address = ref<string>("")
 const loading = ref<boolean>(false)
 const resultError = ref<string | null>()
 
-function search() {
+async function search() {
   if (!address.value) {
     return
   }
@@ -69,19 +69,16 @@ function search() {
   // Update the route query param.
   router.push({ query: { q: address.value } })
 
-  api.lookup
-    .getAddress({ address: address.value })
-    .then((result) => {
-      loading.value = false
-      saveResult(result)
-      address.value = ""
-    })
-    .catch((error) => {
-      resultError.value = error
-    })
-    .finally(() => {
-      loading.value = false
-    })
+  try {
+    const result = await api.lookup.getAddress({ address: address.value })
+
+    saveResult(result)
+    address.value = ""
+  } catch (resp) {
+    resultError.value = getError(resp).error
+  } finally {
+    loading.value = false
+  }
 }
 
 const history = computed(() => {
