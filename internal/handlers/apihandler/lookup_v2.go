@@ -17,7 +17,6 @@ import (
 
 func (h *handler) getLookupV2(w http.ResponseWriter, r *http.Request) {
 	addr := strings.TrimSpace(chi.URLParam(r, "addr"))
-	logger := chix.Log(r).WithField("lookup_addr", addr)
 
 	opts := &models.LookupOptions{}
 	if err := chix.Bind(r, opts); err != nil {
@@ -42,13 +41,7 @@ func (h *handler) getLookupV2(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.lookupSvc.Lookup(r.Context(), addr, opts)
 	if err != nil {
-		if models.IsClientError(err) {
-			chix.ErrorCode(w, r, 400, err)
-			return
-		}
-
-		logger.WithError(err).Error("error looking up addr")
-		chix.Error(w, r, chix.WrapCode(500))
+		chix.Error(w, r, err)
 		return
 	}
 

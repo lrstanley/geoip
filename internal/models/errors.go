@@ -4,7 +4,10 @@
 
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 // ErrHostResolve is an error that is returned when the address didn't match an IP,
 // and thus a hostname lookup was attempted, but failed.
@@ -63,4 +66,21 @@ func IsClientError(err error) bool {
 	}
 
 	return false
+}
+
+// ErrorResolver is used to map internally defined errors to HTTP status codes for
+// chix.
+func ErrorResolver(err error) (status int) {
+	switch err.(type) {
+	case *ErrRateLimitExceeded:
+		return http.StatusTooManyRequests
+	case *ErrNotFound, *ErrHostResolve:
+		return http.StatusNotFound
+	}
+
+	if IsClientError(err) {
+		return http.StatusBadRequest
+	}
+
+	return 0
 }

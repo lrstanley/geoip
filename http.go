@@ -17,6 +17,7 @@ import (
 	"github.com/lrstanley/chix"
 	"github.com/lrstanley/geoip/internal/handlers/apihandler"
 	"github.com/lrstanley/geoip/internal/httpware"
+	"github.com/lrstanley/geoip/internal/models"
 )
 
 //go:generate touch public/dist/index.html
@@ -24,6 +25,8 @@ import (
 var staticFS embed.FS
 
 func httpServer(ctx context.Context) *http.Server {
+	chix.AddErrorResolver(models.ErrorResolver)
+
 	r := chi.NewRouter()
 
 	limiter := httpware.NewLimiter(cli.Flags.HTTP, 1*time.Hour)
