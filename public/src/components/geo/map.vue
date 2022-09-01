@@ -6,7 +6,7 @@
 import "leaflet/dist/leaflet.css"
 import markerIcon from "leaflet/dist/images/marker-icon-2x.png"
 import markerIconShadow from "leaflet/dist/images/marker-shadow.png"
-import { Icon, Map, TileLayer, Marker, Circle } from "leaflet"
+import { Icon, Map, TileLayer, Marker, Circle, Control } from "leaflet"
 import type { GeoResult } from "@/lib/api"
 
 const props = defineProps<{
@@ -32,6 +32,7 @@ const map = ref<Map | null>()
 function setupMap() {
   const tiles = new TileLayer(TILE_URL, { attribution: ATTRIBUTION, maxZoom: 18 })
   const marker = new Marker([props.value.latitude, props.value.longitude])
+  const scale = new Control.Scale()
 
   let zoom = 5
 
@@ -66,6 +67,7 @@ function setupMap() {
   }).setView([props.value.latitude, props.value.longitude], zoom)
 
   tiles.addTo(map.value)
+  scale.addTo(map.value)
 
   if (circle) {
     circle.addTo(map.value)
