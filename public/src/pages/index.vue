@@ -50,6 +50,9 @@ meta:
 import { api, saveResult } from "@/lib/api"
 import vFocus from "@/lib/directives/focus"
 
+const router = useRouter()
+const route = useRoute()
+
 const state = useState()
 const address = ref<string>("")
 const loading = ref<boolean>(false)
@@ -62,6 +65,9 @@ function search() {
 
   loading.value = true
   resultError.value = null
+
+  // Update the route query param.
+  router.push({ query: { q: address.value } })
 
   api.lookup
     .getAddress({ address: address.value })
@@ -85,4 +91,11 @@ const history = computed(() => {
 function clearHistory() {
   state.history = []
 }
+
+onMounted(() => {
+  if (route.query.q && route.query.q.length > 0) {
+    address.value = typeof route.query.q === "string" ? route.query.q : route.query.q[0]
+    search()
+  }
+})
 </script>
