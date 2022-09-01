@@ -5,7 +5,7 @@ test("bulk lookup returns all results", async ({ page, requests }) => {
   await page.locator("textarea").click()
 
   // Fill in all sample data, and search.
-  await page.locator("textarea").fill(requests.map((r) => r.body.ip).join("\n"))
+  await page.locator("textarea").fill(requests.map((r) => r.body.query).join("\n"))
   await expect(page.locator(`text=${requests.length} addresses`)).toBeVisible()
   await page.locator('button:has-text("search")').click()
 
@@ -16,6 +16,7 @@ test("bulk lookup returns all results", async ({ page, requests }) => {
   for (const request of requests) {
     await expect(page.locator("#aggregate-country")).toContainText(request.body.country)
     await expect(page.locator("#aggregate-continent")).toContainText(request.body.continent)
+    await expect(page.locator("#aggregate-asn")).toContainText(request.body.asn_org)
   }
 
   // Rate limit counter was updated.
@@ -33,6 +34,7 @@ test("bulk lookup returns all results", async ({ page, requests }) => {
   await page.locator("#bulk-clear").click()
   await expect(page.locator("#aggregate-country")).not.toBeVisible()
   await expect(page.locator("#aggregate-continent")).not.toBeVisible()
+  await expect(page.locator("#aggregate-asn")).not.toBeVisible()
 
   // Confirm hitting reset on the textarea clears the input.
   await page.locator("text=reset").click()

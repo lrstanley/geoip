@@ -7,18 +7,18 @@ test("validate home lookup IP", async ({ page, requests }) => {
 
   for (const request of requests) {
     await input.focus()
-    await input.fill(request.body.ip)
+    await input.fill(request.body.query)
     await input.press("Enter")
 
     const result = page.locator("div.geo-result", {
-      has: page.locator(`button:has-text("${request.body.ip}")`),
+      has: page.locator(`button:has-text("${request.body.query}")`),
     })
     await expect(result).toBeVisible()
 
     // Validate we can click the query and copy to clipboard.
-    await result.locator(`button:has-text("${request.body.ip}")`).click()
+    await result.locator(`button:has-text("${request.body.query}") >> nth=0`).click()
     await expect(
-      page.locator("div.n-notification", { hasText: `copied "${request.body.ip}"` })
+      page.locator("div.n-notification", { hasText: `copied "${request.body.query}"` })
     ).toBeVisible()
 
     await expect(result.locator('img[alt="Marker"]')).toBeVisible()

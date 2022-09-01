@@ -18,7 +18,7 @@ export type GeoResult = {
   longitude: number;
   network: string;
   postal_code: string;
-  query?: string;
+  query: string;
   subdivision: string;
   summary: string;
   timezone: string;
