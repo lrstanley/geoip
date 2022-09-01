@@ -11,20 +11,25 @@ const router = createRouter({
   routes,
 })
 
+// Only try and fetch self once.
+const gotSelf = ref(false)
+
 router.beforeEach(async (to, from, next) => {
   if (from.name != to.name || JSON.stringify(from.params) != JSON.stringify(to.params)) {
     loadingBar.start()
   }
 
   const state = useState()
-  if (!state.hasSelf) {
+  if (!state.hasSelf && !gotSelf.value) {
     // Kickoff the request for /api/self to lookup the user, in the background.
     api.lookup
       .getAddress({ address: "self" })
       .then((result) => {
         saveResult(result)
       })
-      .catch(() => null)
+      .catch(() => (gotSelf.value = true))
+  } else {
+    gotSelf.value = true
   }
 
   next()
