@@ -1,39 +1,72 @@
-.DEFAULT_GOAL := build
-BINARY=geoip
+.DEFAULT_GOAL := build-all
 
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
+export PROJECT := "geoip"
+export PACKAGE := "github.com/lrstanley/geoip"
 
-fetch-go: ## Fetches the necessary Go dependencies to build.
+license:
+	curl -sL https://liam.sh/-/gh/g/license-header.sh | bash -s
+
+build-all: clean node-fetch go-fetch node-build go-build
+	@echo
+
+clean:
+	/bin/rm -rfv "public/dist/*" ${PROJECT}
+
+docker-build:
+	docker build \
+		--tag ${PROJECT} \
+		--force-rm .
+
+# frontend
+node-fetch:
+	cd public; pnpm install
+
+node-debug:
+	cd public; pnpm run server
+
+node-build: node-fetch
+	cd public; pnpm run build
+
+node-test: node-fetch
+	cd public; pnpm run test
+
+# backend
+go-prepare:
+	go generate -x ./...
+
+go-fetch:
 	go mod download
 	go mod tidy
 
-fetch-node: ## Fetches the necessary NodeJS dependencies to build.
-	test -d public/node_modules || (cd public && npm run run-install)
-
-upgrade-deps: ## Upgrade all dependencies to the latest version.
+go-upgrade-deps:
 	go get -u ./...
+	go mod tidy
 
-upgrade-deps-patch: ## Upgrade all dependencies to the latest patch release.
+go-upgrade-deps-patch:
 	go get -u=patch ./...
+	go mod tidy
 
-clean: ## Cleans up generated files/folders from the build.
-	/bin/rm -rfv "public/dist/*" "${BINARY}"
-	touch public/dist/.gitkeep
+go-dlv: go-prepare
+	dlv debug \
+		--headless --listen=:2345 \
+		--api-version=2 --log \
+		--allow-non-terminal-interactive \
+		${PACKAGE} -- --debug
 
-generate-node: ## Generate public html/css/js files for use in production (slower, smaller/minified files.)
-	cd public && npm run build
-	ls -lah public/dist/
+go-debug: go-prepare
+	go run ${PACKAGE} \
+		--http.limit 1000000 \
+		--http.max-concurrent 0 \
+		--dns.resolver "8.8.8.8" \
+		--dns.resolver "1.1.1.1" \
+		--debug
 
-frontend-watch: ## Use this to spin up vite, and proxy calls to the backend.
-	cd public && npm run server
-
-debug: fetch-go fetch-node clean ## Runs the application in debug mode (with generate-dev.)
-	go run *.go -d --http.limit 200000 --http.proxy
-
-prepare: fetch-go fetch-node clean generate-node ## Prepare the dependencies needed for a build.
-	go generate ./...
-	@echo
-
-build: ## Builds the application (with generate.)
-	CGO_ENABLED=0 go build -ldflags '-d -s -w -extldflags=-static' -tags=netgo,osusergo,static_build -installsuffix netgo -buildvcs=false -trimpath -o "${BINARY}"
+go-build: go-prepare go-fetch
+	CGO_ENABLED=0 \
+	go build \
+		-ldflags '-d -s -w -extldflags=-static' \
+		-tags=netgo,osusergo,static_build \
+		-installsuffix netgo \
+		-trimpath \
+		-o ${PROJECT} \
+		${PACKAGE}
