@@ -20,7 +20,7 @@ import (
 	"github.com/lrstanley/geoip/internal/models"
 )
 
-//go:generate touch public/dist/index.html
+//go:generate sh -c "mkdir -vp public/dist;touch public/dist/index.html"
 //go:embed all:public/dist
 var staticFS embed.FS
 
