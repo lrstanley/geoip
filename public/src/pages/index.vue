@@ -66,7 +66,6 @@ async function search() {
   loading.value = true
   resultError.value = null
 
-  // Update the route query param.
   router.push({ query: { q: address.value } })
 
   try {
@@ -87,6 +86,7 @@ const history = computed(() => {
 
 function clearHistory() {
   state.history = []
+  router.push({ query: {} })
 }
 
 onMounted(() => {
