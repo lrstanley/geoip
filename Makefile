@@ -20,7 +20,7 @@ docker-build:
 # frontend
 node-fetch:
 	npm install --no-audit --no-fund --global pnpm
-	cd public; pnpm install
+	cd public; pnpm install --frozen-lockfile
 
 node-debug:
 	cd public; pnpm run server
