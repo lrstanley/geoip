@@ -1,5 +1,5 @@
 # build-node image
-FROM node:17 as build-node
+FROM node:18 as build-node
 
 # for cache reasons, copy these separately.
 COPY public/package.json /build/public/package.json
