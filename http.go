@@ -72,15 +72,12 @@ func httpServer(ctx context.Context) *http.Server {
 			},
 			MaxAge: 3600,
 		}).Handler,
-		// middleware.SetHeader(
-		// 	"Content-Security-Policy",
-		// 	"default-src 'self'; media-src * data:; style-src 'self' 'unsafe-inline'; object-src 'none'; child-src 'none'; frame-src 'none'; worker-src 'none'",
-		// ),
 		chix.UseHeaders(map[string]string{
-			"X-Frame-Options":        "DENY",
-			"X-Content-Type-Options": "nosniff",
-			"Referrer-Policy":        "no-referrer-when-downgrade",
-			"Permissions-Policy":     "clipboard-write=(self)",
+			"Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; child-src 'none'; frame-src 'none'; worker-src 'none'; img-src 'self' data: https://*.openstreetmap.org https://hatscripts.github.io;",
+			"X-Frame-Options":         "DENY",
+			"X-Content-Type-Options":  "nosniff",
+			"Referrer-Policy":         "no-referrer-when-downgrade",
+			"Permissions-Policy":      "clipboard-write=(self)",
 		}),
 	)
 

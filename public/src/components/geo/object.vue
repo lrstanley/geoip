@@ -88,7 +88,7 @@
         </n-button>
       </CoreTooltip>
 
-      <CoreTooltip label="Open in Google Maps">
+      <CoreTooltip label="open in Google Maps">
         <n-button
           size="tiny"
           tag="a"
