@@ -19,6 +19,7 @@ docker-build:
 
 # frontend
 node-fetch:
+	npm install --no-audit --no-fund --global pnpm
 	cd public; pnpm install
 
 node-debug:
