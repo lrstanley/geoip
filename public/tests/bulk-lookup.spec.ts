@@ -2,11 +2,14 @@ import { expect, test } from "./setup"
 
 test("bulk lookup returns all results", async ({ page, requests }) => {
   await page.goto("/lookup/bulk")
-  await page.locator("textarea").click()
+
+  const input = page.locator("textarea")
+  await expect(input).toBeVisible()
 
   // Fill in all sample data, and search.
-  await page.locator("textarea").fill(requests.map((r) => r.body.query).join("\n"))
+  await input.fill(requests.map((r) => r.body.query).join("\n"))
   await expect(page.locator(`text=${requests.length} addresses`)).toBeVisible()
+
   await page.locator('button:has-text("search")').click()
 
   // Progress bar works.

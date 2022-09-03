@@ -3,28 +3,28 @@ import { devices } from "@playwright/test"
 
 const config: PlaywrightTestConfig = {
   testDir: "./tests",
-  outputDir: "./tests/output/",
+  outputDir: "./tests/results/",
   webServer: {
-    command: "pnpm exec vite",
+    command: "cd .. && make node-preview",
     port: 8081,
     timeout: 30 * 1000,
     reuseExistingServer: !process.env.CI,
   },
   use: {
-    /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     baseURL: "http://localhost:8081",
     trace: "on-first-retry",
     bypassCSP: true,
+    screenshot: "only-on-failure",
   },
   timeout: 30 * 1000,
   expect: {
-    timeout: 5000,
+    timeout: 7000,
   },
   fullyParallel: true,
   // repeatEach: 3,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 3 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? "github" : "list",
   projects: [

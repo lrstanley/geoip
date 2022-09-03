@@ -1,5 +1,5 @@
 <template>
-  <CoreTooltip :label="label">
+  <CoreTooltip v-show="percent" :label="label">
     <n-tag type="info" v-bind="$attrs">
       <template #icon>
         <n-icon><i-mdi-timer-sync-outline /></n-icon>

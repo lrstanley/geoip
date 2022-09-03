@@ -3,6 +3,7 @@
 *.tmp
 *.txt
 public/dist/*
+public/tests/results
 !**/.gitkeep
 bin
 *.test

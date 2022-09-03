@@ -19,7 +19,7 @@ docker-build:
 
 # frontend
 node-fetch:
-	npm install \
+	command -v pnpm >/dev/null >&2 || npm install \
 		--no-audit \
 		--no-fund \
 		--quiet \
@@ -41,7 +41,8 @@ node-lint: node-build # needed to generate eslint auto-import ignores.
 		--ext .js,.ts,.vue .
 
 node-test: node-prepare
-	cd public; pnpm exec playwright install-deps
+	@echo "::set-output name=output::${PWD}/public/tests/results/"
+	cd public; if [ -n "${CI}" ];then pnpm exec playwright install-deps;fi
 	cd public; pnpm exec playwright test
 
 node-debug: node-prepare

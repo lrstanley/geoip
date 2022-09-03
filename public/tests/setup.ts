@@ -53,36 +53,39 @@ export const test = base.extend<TestOptions>({
   page: async ({ page }, use) => {
     // Register both IP and domain/host lookup methods.
     for (const request of requests) {
-      page.route(
+      await page.route(
         (url) => url.pathname == `/api/v2/lookup/${request.body.ip}`,
         (route) => route.fulfill(requestResponse(request))
       )
-      page.route(
+      await page.route(
         (url) => url.pathname == `/api/v2/lookup/${request.body.host}`,
         (route) => route.fulfill(requestResponse(request))
       )
     }
 
-    page.route("/api/v2/openapi.yaml", (route) =>
+    await page.route("/api/v2/openapi.yaml", (route) =>
       route.fulfill({
         status: 200,
         body: openapi,
-        headers: { "Content-Type": "application/yaml" },
+        contentType: "application/yaml",
       })
     )
 
     // /api/v2/lookup/self and others
-    page.route(
+    await page.route(
       (url) => url.pathname == "/api/v2/lookup/self",
       (route) => route.fulfill(requestResponse(requests[0]))
     )
 
-    page.route("/api/v2/bulk", (route) =>
-      route.fulfill({
-        status: 200,
-        headers: requests[requests.length - 1].headers,
-        body: JSON.stringify({ results: requests.map((r) => r.body), errors: [] }, null, 4),
-      })
+    await page.route(
+      (url) => url.pathname == "/api/v2/bulk",
+      (route) =>
+        route.fulfill({
+          status: 200,
+          headers: requests[requests.length - 1].headers,
+          contentType: "application/json",
+          body: JSON.stringify({ results: requests.map((r) => r.body), errors: [] }, null, 4),
+        })
     )
 
     await use(page)

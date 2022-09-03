@@ -9,6 +9,7 @@
             ]
         },
         "removeComments": true,
+        "resolveJsonModule": true,
         "strict": false,
         "types": [
             "naive-ui/volar",
