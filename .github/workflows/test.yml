@@ -16,9 +16,11 @@ jobs:
       go-version: latest
       node-version: "17.9.0"
       node-package-manager: "pnpm"
-      node-package-manager-lock: "**/pnpm-lock.yaml"
   go-lint:
     uses: lrstanley/.github/.github/workflows/lang-go-lint.yml@master
+    with:
+      node-version: "17.9.0"
+      node-package-manager: "pnpm"
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   go-build:
