@@ -85,14 +85,23 @@ const history = computed(() => {
 })
 
 function clearHistory() {
-  state.history = []
-  router.push({ query: {} })
+  router.push({ query: {} }).then(() => {
+    state.history = []
+  })
 }
 
 onMounted(() => {
   if (route.query.q && route.query.q.length > 0) {
     address.value = typeof route.query.q === "string" ? route.query.q : route.query.q[0]
     search()
+  } else if (state.history.length < 1) {
+    // Kickoff the request for /api/self to lookup the user, in the background.
+    api.lookup
+      .getAddress({ address: "self" })
+      .then((result) => {
+        saveResult(result)
+      })
+      .catch(() => null)
   }
 })
 </script>

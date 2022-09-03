@@ -5,7 +5,7 @@ const config: PlaywrightTestConfig = {
   testDir: "./tests",
   outputDir: "./tests/output/",
   webServer: {
-    command: "pnpm run server",
+    command: "pnpm exec vite",
     port: 8081,
     timeout: 30 * 1000,
     reuseExistingServer: !process.env.CI,

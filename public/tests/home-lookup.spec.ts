@@ -21,7 +21,6 @@ test("validate home lookup IP", async ({ page, requests }) => {
       page.locator("div.n-notification", { hasText: `copied "${request.body.query}"` })
     ).toBeVisible()
 
-    await expect(result.locator('img[alt="Marker"]')).toBeVisible()
     await result.locator('[aria-label="Zoom in"]').click()
     await result.locator('[aria-label="Zoom out"]').click()
 

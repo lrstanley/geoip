@@ -41,6 +41,7 @@ node-lint: node-build # needed to generate eslint auto-import ignores.
 		--ext .js,.ts,.vue .
 
 node-test: node-prepare
+	cd public; pnpm exec playwright install-deps
 	cd public; pnpm exec playwright test
 
 node-debug: node-prepare

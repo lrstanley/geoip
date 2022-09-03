@@ -1,7 +1,7 @@
 import { defineStore } from "pinia"
 import { useStorage } from "@vueuse/core"
 
-import type { APIResponse, ClientState } from "@/lib/api"
+import type { GeoResult, ClientState } from "@/lib/api"
 
 const version = 4
 
@@ -9,7 +9,7 @@ export const useState = defineStore("state", {
   state: () => {
     return useStorage(`state-${version}`, {
       clientState: {} as ClientState,
-      history: [] as APIResponse[],
+      history: [] as GeoResult[],
     })
   },
   getters: {
