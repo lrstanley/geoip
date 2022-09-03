@@ -18,9 +18,6 @@ jobs:
       node-package-manager: "pnpm"
   go-lint:
     uses: lrstanley/.github/.github/workflows/lang-go-lint.yml@master
-    with:
-      node-version: "17.9.0"
-      node-package-manager: "pnpm"
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   node-lint:
