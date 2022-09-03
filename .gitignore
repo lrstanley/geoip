@@ -15,6 +15,7 @@ geoip-*
 .cache
 node_modules
 **/.env
+!public/**/*-shims.d.ts
 public/**/**.d.ts
 public/**/.*.json
 /test-results/
