@@ -1,22 +1,13 @@
 # build-node image
 FROM node:17 as build-node
 
-# for cache reasons, copy these separately.
-COPY public/package.json /build/public/package.json
-COPY public/pnpm-lock.yaml /build/public/pnpm-lock.yaml
-COPY Makefile /build/
-
-COPY public/ /build/public/
+COPY . /build/
 WORKDIR /build
 ENV NODE_ENV=production
 RUN make node-build
 
 # build-go image
 FROM golang:alpine as build-go
-
-# for cache reasons, copy these separately.
-COPY go.mod /build/go.mod
-COPY go.sum /build/go.sum
 
 RUN apk add --no-cache g++ make
 COPY . /build/
