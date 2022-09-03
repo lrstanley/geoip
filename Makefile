@@ -22,19 +22,33 @@ node-fetch:
 	npm install --no-audit --no-fund --global pnpm
 	cd public; pnpm install --frozen-lockfile
 
-node-debug:
-	cd public; pnpm run server
+node-prepare: node-fetch
+	cd public; pnpm exec openapi \
+		--input ../internal/handlers/apihandler/openapi_v2.yaml \
+		--output src/lib/api/openapi/ \
+		--client fetch \
+		--useOptions \
+		--indent 2 \
+		--name HTTPClient
 
-node-build: node-fetch
-	cd public; pnpm run build
+node-lint: node-prepare
+	cd public; pnpm exec eslint \
+		--ignore-path ../.gitignore \
+		--ext .js,.ts,.vue .
 
-node-test: node-fetch
-	cd public; pnpm run test
+node-test: node-prepare
+	cd public; pnpm exec playwright test
+
+node-debug: node-prepare
+	cd public; pnpm exec vite
+
+node-build: node-prepare
+	cd public; pnpm exec vite build
+
+node-preview: node-build
+	cd public; pnpm exec vite preview
 
 # backend
-go-prepare:
-	go generate -x ./...
-
 go-fetch:
 	go mod download
 	go mod tidy
@@ -46,6 +60,9 @@ go-upgrade-deps:
 go-upgrade-deps-patch:
 	go get -u=patch ./...
 	go mod tidy
+
+go-prepare: go-fetch
+	go generate -x ./...
 
 go-dlv: go-prepare
 	dlv debug \
@@ -62,7 +79,7 @@ go-debug: go-prepare
 		--dns.resolver "1.1.1.1" \
 		--debug
 
-go-build: go-prepare go-fetch
+go-build: go-prepare
 	CGO_ENABLED=0 \
 	go build \
 		-ldflags '-d -s -w -extldflags=-static' \

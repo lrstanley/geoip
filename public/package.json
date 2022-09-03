@@ -105,13 +105,6 @@
     "vueIndentScriptAndStyle": false
   },
   "private": true,
-  "scripts": {
-    "build": "pnpm vite build",
-    "lint": "pnpm eslint --ignore-path ../.gitignore --ext .js,.ts,.vue .",
-    "openapi": "pnpm exec openapi --input ../internal/handlers/apihandler/openapi_v2.yaml --output src/lib/api/openapi/ --client fetch --useOptions --indent 2 --name HTTPClient",
-    "preview": "pnpm run build && pnpm vite preview",
-    "server": "pnpm vite",
-    "test": "pnpm playwright test"
-  },
+  "scripts": {},
   "version": "1.0.0"
 }

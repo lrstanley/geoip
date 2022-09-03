@@ -8,6 +8,7 @@ COPY Makefile /build/
 
 COPY public/ /build/public/
 WORKDIR /build
+ENV NODE_ENV=production
 RUN make node-build
 
 # build-go image
