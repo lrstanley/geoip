@@ -19,8 +19,12 @@ docker-build:
 
 # frontend
 node-fetch:
-	npm install --no-audit --no-fund --global pnpm
-	cd public; pnpm install --frozen-lockfile
+	npm install \
+		--no-audit \
+		--no-fund \
+		--quiet \
+		--global pnpm
+	cd public; pnpm install --frozen-lockfile --silent
 
 node-prepare: node-fetch
 	cd public; pnpm exec openapi \
@@ -31,7 +35,7 @@ node-prepare: node-fetch
 		--indent 2 \
 		--name HTTPClient
 
-node-lint: node-prepare
+node-lint: node-build # needed to generate eslint auto-import ignores.
 	cd public; pnpm exec eslint \
 		--ignore-path ../.gitignore \
 		--ext .js,.ts,.vue .
