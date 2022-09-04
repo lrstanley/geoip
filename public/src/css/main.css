@@ -3,11 +3,14 @@
   scrollbar-width: thin;
 }
 
-html,
-body {
+html {
   @apply flex flex-auto max-h-full max-w-full m-0 p-0;
   @apply bg-light-200 dark:bg-dark-900 text-dark-900 dark:text-white;
   font-family: Consolas, monaco, monospace;
+}
+
+body {
+  @apply flex flex-auto max-h-full max-w-full m-0 p-0;
 }
 
 #app {
