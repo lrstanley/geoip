@@ -12,18 +12,14 @@
       </AnimateFade>
 
       <n-card v-else class="shadow drop-shadow-xl rounded-md" content-style="padding: 0;">
-        <router-view v-slot="{ Component, route }">
-          <AnimateFade>
-            <Suspense>
-              <component :is="Component" :key="route" />
-              <template #fallback>
-                <n-spin class="flex flex-auto justify-center items-center p-20">
-                  <template #description> Loading... </template>
-                </n-spin>
-              </template>
-            </Suspense>
-          </AnimateFade>
-        </router-view>
+        <Suspense>
+          <slot />
+          <template #fallback>
+            <n-spin class="flex flex-auto justify-center items-center p-20">
+              <template #description> Loading... </template>
+            </n-spin>
+          </template>
+        </Suspense>
       </n-card>
 
       <div class="py-4 px-2 mb-3 text-right text-sm lg:mb-20">

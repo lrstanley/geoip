@@ -1,13 +1,10 @@
-import { setupLayouts } from "virtual:generated-layouts"
 import { createRouter, createWebHistory } from "vue-router"
 import generatedRoutes from "~pages"
 import { loadingBar } from "@/lib/core/status"
 
-const routes = setupLayouts(generatedRoutes)
-
 const router = createRouter({
   history: createWebHistory("/"),
-  routes,
+  routes: generatedRoutes,
 })
 
 router.beforeEach(async (to, from, next) => {

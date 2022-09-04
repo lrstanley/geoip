@@ -8,7 +8,6 @@ import { NaiveUiResolver, VueUseComponentsResolver } from "unplugin-vue-componen
 import Components from "unplugin-vue-components/vite"
 import { defineConfig } from "vite"
 import Pages from "vite-plugin-pages"
-import Layouts from "vite-plugin-vue-layouts"
 import Vue from "@vitejs/plugin-vue"
 
 export default defineConfig({
@@ -27,7 +26,6 @@ export default defineConfig({
       dirs: "src/pages",
       routeBlockLang: "yaml",
     }),
-    Layouts(),
     Vue({
       include: [/\.vue$/, /\.md$/],
       template: {

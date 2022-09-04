@@ -6,36 +6,38 @@ meta:
 </route>
 
 <template>
-  <rapi-doc
-    render-style="focused"
-    spec-url="/api/v2/openapi.yaml"
-    show-header="false"
-    show-info="false"
-    show-method-in-nav-bar="as-colored-text"
-    nav-item-spacing="relaxed"
-    allow-authentication="false"
-    allow-server-selection="false"
-    allow-spec-url-load="false"
-    allow-spec-file-load="false"
-    allow-spec-file-download="false"
-    allow-api-list-style-selection="false"
-    load-fonts="false"
-    regular-font="Consolas, monaco, monospace"
-    mono-font="Consolas, monaco, monospace"
-    font-size="large"
-    :server-url="origin + '/api/v2'"
-    :default-api-server="origin + '/api/v2'"
-    :nav-bg-color="theme.nav.bg"
-    :nav-hover-bg-color="theme.nav.hover"
-    :bg-color="theme.bg"
-    :text-color="theme.text"
-    :primary-color="theme.primary"
-    class="h-full w-full"
-  >
-    <div slot="nav-logo">
-      <CoreNavigation slim hide-source class="pb-2" />
-    </div>
-  </rapi-doc>
+  <LayoutBare>
+    <rapi-doc
+      render-style="focused"
+      spec-url="/api/v2/openapi.yaml"
+      show-header="false"
+      show-info="false"
+      show-method-in-nav-bar="as-colored-text"
+      nav-item-spacing="relaxed"
+      allow-authentication="false"
+      allow-server-selection="false"
+      allow-spec-url-load="false"
+      allow-spec-file-load="false"
+      allow-spec-file-download="false"
+      allow-api-list-style-selection="false"
+      load-fonts="false"
+      regular-font="Consolas, monaco, monospace"
+      mono-font="Consolas, monaco, monospace"
+      font-size="large"
+      :server-url="origin + '/api/v2'"
+      :default-api-server="origin + '/api/v2'"
+      :nav-bg-color="theme.nav.bg"
+      :nav-hover-bg-color="theme.nav.hover"
+      :bg-color="theme.bg"
+      :text-color="theme.text"
+      :primary-color="theme.primary"
+      class="h-full w-full"
+    >
+      <div slot="nav-logo">
+        <CoreNavigation slim hide-source class="pb-2" />
+      </div>
+    </rapi-doc>
+  </LayoutBare>
 </template>
 
 <script setup lang="ts">
