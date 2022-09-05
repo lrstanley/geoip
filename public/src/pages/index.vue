@@ -15,10 +15,10 @@ meta:
           placeholder="Search IP address (e.g 1.2.3.4) or host (e.g google.com)"
           :loading="loading || undefined"
           @blur="resultError = null"
-          @keyup.enter="search"
+          @keyup.enter="search(address)"
         >
           <template v-if="!loading" #suffix>
-            <n-icon @click="search"><i-mdi-search /></n-icon>
+            <n-icon @click="search(address)"><i-mdi-search /></n-icon>
           </template>
         </n-input>
 
@@ -59,18 +59,18 @@ const address = ref<string>("")
 const loading = ref<boolean>(false)
 const resultError = ref<string | null>()
 
-async function search() {
-  if (!address.value) {
+async function search(query: string) {
+  if (!query) {
     return
   }
 
   loading.value = true
   resultError.value = null
 
-  router.push({ query: { q: address.value } })
+  router.push({ query: { q: query } })
 
   try {
-    const result = await api.lookup.getAddress({ address: address.value })
+    const result = await api.lookup.getAddress({ address: query })
 
     saveResult(result)
     address.value = ""
@@ -93,8 +93,7 @@ function clearHistory() {
 
 onMounted(() => {
   if (route.query.q && route.query.q.length > 0) {
-    address.value = typeof route.query.q === "string" ? route.query.q : route.query.q[0]
-    search()
+    search(typeof route.query.q === "string" ? route.query.q : route.query.q[0])
   } else if (state.history.length < 1) {
     // Kickoff the request for /api/self to lookup the user, in the background.
     api.lookup
