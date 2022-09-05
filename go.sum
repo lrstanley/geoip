@@ -180,8 +180,8 @@ github.com/lestrrat-go/httpcc v1.0.0/go.mod h1:tGS/u00Vh5N6FHNkExqGGNId8e0Big+++
 github.com/lestrrat-go/iter v1.0.1/go.mod h1:zIdgO1mRKhn8l9vrZJZz9TUMMFbQbLeTsbqPDrJ/OJc=
 github.com/lestrrat-go/jwx v1.2.21/go.mod h1:9cfxnOH7G1gN75CaJP2hKGcxFEx5sPh1abRIA/ZJVh4=
 github.com/lestrrat-go/option v1.0.0/go.mod h1:5ZHFbivi4xwXxhxY9XHDe2FHo6/Z7WWmtT7T5nBBp3I=
-github.com/lrstanley/chix v0.0.0-20220903205755-022e8ac017bb h1:wxbYVMu1mg/4zlWJMhonvUf9I0CbbOtsFCWMad2D9Vc=
-github.com/lrstanley/chix v0.0.0-20220903205755-022e8ac017bb/go.mod h1:UxmCvkoFWQP+3c3bVEGmAwHz9d7MHBX1IwfQK3i9e7U=
+github.com/lrstanley/chix v0.0.0-20220905152744-9e3b5cbca59c h1:K0iKLicfYGAgcgtlvMabd5+lGWyUkTNJ+08OJz0H2qM=
+github.com/lrstanley/chix v0.0.0-20220905152744-9e3b5cbca59c/go.mod h1:UxmCvkoFWQP+3c3bVEGmAwHz9d7MHBX1IwfQK3i9e7U=
 github.com/lrstanley/clix v0.0.0-20220829163403-8f716406f9d5 h1:NFIBt6Wer+HmAw836W6NsKoef0pqw0YdBXm+rXSy7AA=
 github.com/lrstanley/clix v0.0.0-20220829163403-8f716406f9d5/go.mod h1:5srbSsLpTj3J7cjhs43rQ+PNDxPulrhjYuJh4uaJFp4=
 github.com/lrstanley/go-bogon v0.0.0-20220507183221-362a880cf97b h1:jFRbU7IgKGjXlo1ERztns+QOlVRExiP0syyVIsP1TqU=

@@ -14,7 +14,7 @@ type Flags struct {
 
 type ConfigHTTP struct {
 	BindAddr       string   `env:"BIND_ADDR"       long:"bind-addr"       default:":8080" required:"true" description:"ip:port pair to bind to"`
-	TrustedProxies []string `env:"TRUSTED_PROXIES" long:"trusted-proxies" description:"CIDR ranges that we trust the X-Forwarded-For header from"`
+	TrustedProxies []string `env:"TRUSTED_PROXIES" long:"trusted-proxies" description:"CIDR ranges that we trust the X-Forwarded-For header from (addl opts: local, *, cloudflare, and/or custom header to use)"`
 	MaxConcurrent  int      `env:"MAX_CONCURRENT"  long:"max-concurrent"  description:"limit total max concurrent requests across all connections (0 for no limit)"`
 	Limit          int      `env:"LIMIT"           long:"limit"           description:"number of requests/ip/hour" default:"2000"`
 	HSTS           bool     `env:"HSTS"            long:"hsts"            description:"enable HTTP Strict Transport Security"`

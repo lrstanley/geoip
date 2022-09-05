@@ -7,7 +7,7 @@ require (
 	github.com/bluele/gcache v0.0.2
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
-	github.com/lrstanley/chix v0.0.0-20220903205755-022e8ac017bb
+	github.com/lrstanley/chix v0.0.0-20220905152744-9e3b5cbca59c
 	github.com/lrstanley/clix v0.0.0-20220829163403-8f716406f9d5
 	github.com/lrstanley/go-bogon v0.0.0-20220507183221-362a880cf97b
 	github.com/lrstanley/go-sempool v0.0.0-20220507183223-1b08ce19f0b9

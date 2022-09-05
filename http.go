@@ -32,7 +32,7 @@ func httpServer(ctx context.Context) *http.Server {
 	limiter := httpware.NewLimiter(cli.Flags.HTTP, 1*time.Hour)
 
 	if len(cli.Flags.HTTP.TrustedProxies) > 0 {
-		r.Use(chix.UseRealIP(cli.Flags.HTTP.TrustedProxies, chix.OptUseXForwardedFor))
+		r.Use(chix.UseRealIPCLIOpts(cli.Flags.HTTP.TrustedProxies))
 	}
 
 	// Core middeware.

@@ -11,7 +11,7 @@
 | Environment vars | Flags | Type | Description |
 | --- | --- | --- | --- |
 | `HTTP_BIND_ADDR` | `--http.bind-addr` | string | ip:port pair to bind to [**required**] [**default: :8080**] |
-| `HTTP_TRUSTED_PROXIES` | `--http.trusted-proxies` | []string | CIDR ranges that we trust the X-Forwarded-For header from |
+| `HTTP_TRUSTED_PROXIES` | `--http.trusted-proxies` | []string | CIDR ranges that we trust the X-Forwarded-For header from (addl opts: local, *, cloudflare, and/or custom header to use) |
 | `HTTP_MAX_CONCURRENT` | `--http.max-concurrent` | int | limit total max concurrent requests across all connections (0 for no limit) |
 | `HTTP_LIMIT` | `--http.limit` | int | number of requests/ip/hour [**default: 2000**] |
 | `HTTP_HSTS` | `--http.hsts` | bool | enable HTTP Strict Transport Security |
