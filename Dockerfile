@@ -28,4 +28,4 @@ VOLUME /data
 EXPOSE 80
 WORKDIR /
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-CMD ["geoip", "--http.bind-addr", "0.0.0.0:80", "--http.max-concurrent", "100", "--db.geoip-path", "/data/geoip.db", "--db.asn-path", "/data/asn.db"]
+CMD ["geoip", "--http.bind-addr", "0.0.0.0:80", "--db.geoip-path", "/data/geoip.db", "--db.asn-path", "/data/asn.db"]

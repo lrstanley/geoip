@@ -96,12 +96,12 @@ func (u *Updater) Start(ctx context.Context) (err error) {
 }
 
 // updateMetadata updates the metadata information in the lookup service.
-func (u *Updater) updateMetadata() error {
+func (u *Updater) updateMetadata(path string) error {
 	var err error
 	var db *maxminddb.Reader
 	var metadata maxminddb.Metadata
 
-	db, err = maxminddb.Open(u.path)
+	db, err = maxminddb.Open(path)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func (u *Updater) check() (needsUpdate bool, err error) {
 		return true, err
 	}
 
-	err = u.updateMetadata()
+	err = u.updateMetadata(u.path)
 	if err != nil {
 		return false, err
 	}
@@ -233,7 +233,7 @@ func (u *Updater) update() error {
 	}
 	db.Close()
 
-	err = u.updateMetadata()
+	err = u.updateMetadata(dbTempFile.Name())
 	if err != nil {
 		return err
 	}
