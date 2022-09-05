@@ -69,7 +69,7 @@ go-upgrade-deps-patch:
 
 go-prepare: go-fetch
 	go generate -x ./...
-	{ echo '## :gear: Usage'; go run ${PACKAGE} --generate-markdown; } > USAGE.md
+	{ echo '## :gear: Usage'; go run ${PACKAGE} --generate-markdown --db.license-key ""; } > USAGE.md
 
 go-dlv: go-prepare
 	dlv debug \
