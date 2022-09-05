@@ -14,11 +14,11 @@ type Flags struct {
 
 type ConfigHTTP struct {
 	BindAddr       string   `env:"BIND_ADDR"       long:"bind-addr"       default:":8080" required:"true" description:"ip:port pair to bind to"`
-	TrustedProxies []string `env:"TRUSTED_PROXIES" long:"trusted-proxies" description:"CIDR ranges that we trust the X-Forwarded-For header from (addl opts: local, *, cloudflare, and/or custom header to use)"`
+	TrustedProxies []string `env:"TRUSTED_PROXIES" long:"trusted-proxies" env-delim:"," description:"CIDR ranges that we trust the X-Forwarded-For header from (addl opts: local, *, cloudflare, and/or custom header to use)"`
 	MaxConcurrent  int      `env:"MAX_CONCURRENT"  long:"max-concurrent"  description:"limit total max concurrent requests across all connections (0 for no limit)"`
 	Limit          int      `env:"LIMIT"           long:"limit"           description:"number of requests/ip/hour" default:"2000"`
 	HSTS           bool     `env:"HSTS"            long:"hsts"            description:"enable HTTP Strict Transport Security"`
-	CORS           []string `env:"CORS"            long:"cors"            default:"*" description:"CORS allowed origins"`
+	CORS           []string `env:"CORS"            long:"cors"            env-delim:"," default:"*" description:"CORS allowed origins"`
 }
 
 type ConfigDB struct {
@@ -36,7 +36,7 @@ type ConfigDB struct {
 }
 
 type ConfigDNS struct {
-	Resolvers   []string      `env:"RESOLVERS"    long:"resolver" description:"resolver (in host:port form) to use for dns lookups (doesn't work with windows and plan9) (can be used multiple times)"`
+	Resolvers   []string      `env:"RESOLVERS"    long:"resolver" env-delim:"," description:"resolver (in host:port form) to use for dns lookups (doesn't work with windows and plan9) (can be used multiple times)"`
 	Local       bool          `env:"LOCAL"        long:"uselocal" description:"adds local (system) resolvers to the list of resolvers to use"`
 	CacheSize   int           `env:"CACHE_SIZE"   long:"size"     description:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"500"`
 	CacheExpire time.Duration `env:"CACHE_EXPIRE" long:"expire"   description:"expiration time of cache" default:"1h"`
