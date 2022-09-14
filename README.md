@@ -3,7 +3,7 @@
   "nodescription": true
 }
 -->
-![logo](https://liam.sh/-/gh/svg/lrstanley/geoip?accent=terminal&layout=left)
+![logo](https://liam.sh/-/gh/svg/lrstanley/geoip?icon=fluent-emoji-flat%3Aglobe-showing-americas&icon.height=80&layout=left&bgcolor=rgba%282%2C+12%2C+18%2C+1%29)
 
 <!-- template:begin:header -->
 <!-- do not edit anything in this "template" block, its auto-generated -->
