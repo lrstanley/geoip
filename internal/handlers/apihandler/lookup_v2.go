@@ -5,6 +5,7 @@
 package apihandler
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -32,10 +33,11 @@ func (h *handler) getLookupV2(w http.ResponseWriter, r *http.Request) {
 	// their own IP address. Note that this will not work if you are querying
 	// the IP address locally.
 	if self := strings.ToLower(addr); self == "self" || self == "me" {
-		if strings.Contains(r.RemoteAddr, ":") {
-			addr, _, _ = net.SplitHostPort(r.RemoteAddr)
-		} else {
-			addr = r.RemoteAddr
+		var err error
+		addr, err = getIP(r)
+		if err != nil {
+			chix.Error(w, r, err)
+			return
 		}
 	}
 
@@ -46,4 +48,30 @@ func (h *handler) getLookupV2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	chix.JSON(w, r, http.StatusOK, result)
+}
+
+// Returns the first IP found in the X-FORWARDED-FOR HTTP header
+// when geoip is being reverse proxied, or Go http.Request RemoteAddr
+// otherwise, which is usually the client IP when not proxied.
+func getIP(r *http.Request) (string, error) {
+	ips := r.Header.Get("X-FORWARDED-FOR")
+	splitIps := strings.Split(ips, ",")
+	for _, ip := range splitIps {
+		netIP := net.ParseIP(ip)
+		if netIP != nil {
+			return ip, nil
+		}
+	}
+
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return "", err
+	}
+
+	netIP := net.ParseIP(ip)
+	if netIP != nil {
+		return ip, nil
+	}
+
+	return "", fmt.Errorf("no valid ip found")
 }
