@@ -14,6 +14,7 @@ clean:
 
 docker-build:
 	docker build \
+		--pull \
 		--tag ${PROJECT} \
 		--force-rm .
 
