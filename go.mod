@@ -12,7 +12,7 @@ require (
 	github.com/lrstanley/go-bogon v0.0.0-20220507183221-362a880cf97b
 	github.com/lrstanley/go-sempool v0.0.0-20220507183223-1b08ce19f0b9
 	github.com/oschwald/maxminddb-golang v1.10.0
-	github.com/puzpuzpuz/xsync v1.5.2
+	github.com/puzpuzpuz/xsync v1.4.3
 	github.com/sethvargo/go-limiter v0.7.2
 	golang.org/x/exp v0.0.0-20220827204233-334a2380cb91
 )
