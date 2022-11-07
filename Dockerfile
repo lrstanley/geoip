@@ -7,7 +7,7 @@ ENV NODE_ENV=production
 RUN make node-build
 
 # build-go image
-FROM golang:alpine as build-go
+FROM golang:1.19-alpine as build-go
 
 RUN apk add --no-cache g++ make
 COPY . /build/
