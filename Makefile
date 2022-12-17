@@ -27,6 +27,10 @@ node-fetch:
 		--global pnpm
 	cd public; pnpm install --frozen-lockfile --silent
 
+node-upgrade-deps:
+	cd public && \
+		pnpm up -i
+
 node-prepare: node-fetch
 	cd public; pnpm exec openapi \
 		--input ../internal/handlers/apihandler/openapi_v2.yaml \

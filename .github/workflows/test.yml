@@ -21,12 +21,12 @@ jobs:
   node-test:
     uses: lrstanley/.github/.github/workflows/lang-node-test.yml@master
     with:
-      node-version: "17.9.0"
+      node-version: "18.12.1"
       node-package-manager: "pnpm"
   node-lint:
     uses: lrstanley/.github/.github/workflows/lang-node-lint.yml@master
     with:
-      node-version: "17.9.0"
+      node-version: "18.12.1"
       node-package-manager: "pnpm"
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
