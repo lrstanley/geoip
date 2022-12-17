@@ -23,7 +23,7 @@ type Service struct {
 
 	geoCache *cache.Cache[string, *models.GeoQuery]
 	asnCache *cache.Cache[string, *models.ASNQuery]
-	Metadata *xsync.MapOf[*maxminddb.Metadata]
+	Metadata *xsync.MapOf[string, *maxminddb.Metadata]
 
 	rslv *dns.Resolver
 }
