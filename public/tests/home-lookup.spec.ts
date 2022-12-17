@@ -10,9 +10,7 @@ test("validate home lookup IP", async ({ page, requests }) => {
     await input.fill(request.body.query)
     await input.press("Enter")
 
-    const result = page.locator("div.geo-result", {
-      has: page.locator(`button:has-text("${request.body.query}")`),
-    })
+    const result = page.locator("div.geo-result", { hasText: request.body.query })
     await expect(result).toBeVisible()
 
     // Validate we can click the query and copy to clipboard.
@@ -21,7 +19,6 @@ test("validate home lookup IP", async ({ page, requests }) => {
       page.locator("div.n-notification", { hasText: `copied "${request.body.query}"` })
     ).toBeVisible()
 
-    await result.locator('[aria-label="Zoom in"]').click()
     await result.locator('[aria-label="Zoom out"]').click()
 
     // Validate the flag image is working properly.
