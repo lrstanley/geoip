@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/lrstanley/geoip/internal/cache"
+	"github.com/lrstanley/geoip/internal/metrics"
 	"github.com/lrstanley/geoip/internal/models"
 )
 
@@ -30,8 +31,8 @@ type Resolver struct {
 func NewResolver(config models.ConfigDNS) *Resolver {
 	r := &Resolver{
 		config:    config,
-		rdnsCache: cache.New[string, string](config.CacheSize, config.CacheExpire),
-		hostCache: cache.New[string, net.IP](config.CacheSize, config.CacheExpire),
+		rdnsCache: cache.New[string, string]("resolver_rdns", config.CacheSize, config.CacheExpire),
+		hostCache: cache.New[string, net.IP]("resolver_host", config.CacheSize, config.CacheExpire),
 	}
 
 	if len(config.Resolvers) > 0 {
@@ -45,6 +46,8 @@ func NewResolver(config models.ConfigDNS) *Resolver {
 
 // GetIP does a dns lookup of a hostname, caching if successful.
 func (r *Resolver) GetIP(ctx context.Context, host string) (ip net.IP, err error) {
+	metrics.LookupCount.WithLabelValues("resolver_ip").Inc()
+
 	ip = r.hostCache.Get(host)
 	if ip != nil {
 		return ip, nil
@@ -66,6 +69,8 @@ func (r *Resolver) GetIP(ctx context.Context, host string) (ip net.IP, err error
 
 // GetReverse does a reverse dns lookup of an IP address, caching if successful.
 func (r *Resolver) GetReverse(ctx context.Context, ip net.IP) (host string, err error) {
+	metrics.LookupCount.WithLabelValues("resolver_reverse").Inc()
+
 	if host = r.rdnsCache.Get(ip.String()); host != "" {
 		return host, nil
 	}

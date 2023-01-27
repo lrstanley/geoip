@@ -87,6 +87,7 @@ go-debug: go-prepare
 	go run ${PACKAGE} \
 		--http.limit 1000000 \
 		--http.max-concurrent 0 \
+		--http.metrics \
 		--dns.resolver "8.8.8.8" \
 		--dns.resolver "1.1.1.1" \
 		--debug

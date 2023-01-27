@@ -33,8 +33,8 @@ func NewService(ctx context.Context, logger log.Interface, config models.ConfigD
 		ctx:      ctx,
 		logger:   logger.WithFields(log.Fields{"src": "lookup"}),
 		config:   config,
-		geoCache: cache.New[string, *models.GeoQuery](config.CacheSize, config.CacheExpire),
-		asnCache: cache.New[string, *models.ASNQuery](config.CacheSize, config.CacheExpire),
+		geoCache: cache.New[string, *models.GeoQuery]("service_geo", config.CacheSize, config.CacheExpire),
+		asnCache: cache.New[string, *models.ASNQuery]("service_asn", config.CacheSize, config.CacheExpire),
 		Metadata: xsync.NewMapOf[*maxminddb.Metadata](),
 		rslv:     rslv,
 	}

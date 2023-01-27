@@ -19,6 +19,7 @@ type ConfigHTTP struct {
 	Limit          int      `env:"LIMIT"           long:"limit"           description:"number of requests/ip/hour" default:"2000"`
 	HSTS           bool     `env:"HSTS"            long:"hsts"            description:"enable HTTP Strict Transport Security"`
 	CORS           []string `env:"CORS"            long:"cors"            env-delim:"," default:"*" description:"CORS allowed origins"`
+	Metrics        bool     `env:"METRICS"         long:"metrics"         description:"enable prometheus metrics on /metrics to internal IPs"`
 }
 
 type ConfigDB struct {

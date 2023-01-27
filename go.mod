@@ -12,6 +12,7 @@ require (
 	github.com/lrstanley/go-bogon v0.0.0-20221222153830-9e4062e789ca
 	github.com/lrstanley/go-sempool v0.0.0-20230116155332-a03d0c109854
 	github.com/oschwald/maxminddb-golang v1.10.0
+	github.com/prometheus/client_golang v1.14.0
 	github.com/puzpuzpuz/xsync v1.5.2
 	github.com/sethvargo/go-limiter v0.7.2
 	golang.org/x/exp v0.0.0-20230116083435-1de6713980de
@@ -39,7 +40,6 @@ require (
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect

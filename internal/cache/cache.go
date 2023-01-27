@@ -8,30 +8,35 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
+	"github.com/lrstanley/geoip/internal/metrics"
 )
 
 // New returns a new ARC cache with the given size and expiration, with a custom key
 // and value type.
-func New[K comparable, V any](size int, expiration time.Duration) *Cache[K, V] {
+func New[K comparable, V any](name string, size int, expiration time.Duration) *Cache[K, V] {
 	c := &Cache[K, V]{
-		gc: gcache.New(size).ARC().Expiration(expiration).Build(),
+		name: name,
+		gc:   gcache.New(size).ARC().Expiration(expiration).Build(),
 	}
 
 	return c
 }
 
 type Cache[K comparable, V any] struct {
-	gc gcache.Cache
+	name string
+	gc   gcache.Cache
 }
 
 // Get returns the value for the given key, if it exists. Otherwise, it returns the
 // default value of the value type.
 func (c *Cache[K, V]) Get(key K) (val V) {
+	metrics.CacheRequestCount.WithLabelValues(c.name).Inc()
 	tmp, err := c.gc.GetIFPresent(key)
 	if err != nil {
 		return
 	}
 
+	metrics.CacheHitCount.WithLabelValues(c.name).Inc()
 	return tmp.(V)
 }
 

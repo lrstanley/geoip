@@ -10,6 +10,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/lrstanley/geoip/internal/metrics"
 	"github.com/lrstanley/geoip/internal/models"
 	"github.com/lrstanley/go-bogon"
 	maxminddb "github.com/oschwald/maxminddb-golang"
@@ -115,6 +116,8 @@ func (s *Service) Lookup(ctx context.Context, addr string, r *models.LookupOptio
 }
 
 func (s *Service) lookupASN(ctx context.Context, ip net.IP) (query *models.ASNQuery, err error) {
+	metrics.LookupCount.WithLabelValues("asn").Inc()
+
 	if val := s.asnCache.Get(ip.String()); val != nil {
 		return val, nil
 	}
@@ -139,6 +142,8 @@ func (s *Service) lookupASN(ctx context.Context, ip net.IP) (query *models.ASNQu
 }
 
 func (s *Service) lookupGeo(ctx context.Context, ip net.IP) (query *models.GeoQuery, err error) {
+	metrics.LookupCount.WithLabelValues("geo").Inc()
+
 	if val := s.geoCache.Get(ip.String()); val != nil {
 		return val, nil
 	}

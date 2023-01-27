@@ -18,6 +18,7 @@ import (
 	"github.com/lrstanley/geoip/internal/handlers/apihandler"
 	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 //go:generate sh -c "mkdir -vp public/dist;touch public/dist/index.html"
@@ -40,6 +41,7 @@ func httpServer(ctx context.Context) *http.Server {
 		chix.UseContextIP,
 		middleware.RequestID,
 		chix.UseStructuredLogger(logger),
+		chix.UseIf(cli.Flags.HTTP.Metrics, chix.UsePrometheus),
 		chix.UseDebug(cli.Debug),
 		chix.Recoverer,
 		middleware.Maybe(middleware.StripSlashes, func(r *http.Request) bool {
@@ -83,6 +85,10 @@ func httpServer(ctx context.Context) *http.Server {
 
 	if cli.Debug {
 		r.With(chix.UsePrivateIP).Mount("/debug", middleware.Profiler())
+	}
+
+	if cli.Flags.HTTP.Metrics {
+		r.With(chix.UsePrivateIP).Mount("/metrics", promhttp.Handler())
 	}
 
 	r.Route("/api", apihandler.New(lookupSvc, limiter).Route)

@@ -16,6 +16,7 @@
 | `HTTP_LIMIT` | `--http.limit` | int | number of requests/ip/hour [**default: 2000**] |
 | `HTTP_HSTS` | `--http.hsts` | bool | enable HTTP Strict Transport Security |
 | `HTTP_CORS` | `--http.cors` | []string | CORS allowed origins [**default: ***] |
+| `HTTP_METRICS` | `--http.metrics` | bool | enable prometheus metrics on /metrics to internal IPs |
 
 #### DB Options
 | Environment vars | Flags | Type | Description |
