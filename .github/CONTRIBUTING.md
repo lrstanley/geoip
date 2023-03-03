@@ -125,6 +125,6 @@ Below are a few guidelines if you would like to contribute:
 [discussions]: https://github.com/lrstanley/geoip/discussions
 [issues]: https://github.com/lrstanley/geoip/issues/new/choose
 [license]: https://github.com/lrstanley/geoip/blob/master/LICENSE
-[pull-requests]: https://github.com/lrstanley/geoip/issues/new/choose
+[pull-requests]: https://github.com/lrstanley/geoip/pulls?q=is%3Aopen+is%3Apr
 [security]: https://github.com/lrstanley/geoip/security/policy
 [support]: https://github.com/lrstanley/geoip/blob/master/.github/SUPPORT.md
