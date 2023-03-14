@@ -11,7 +11,7 @@ import (
 	"github.com/lrstanley/chix"
 	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
-	"github.com/lrstanley/go-sempool"
+	"github.com/sourcegraph/conc/pool"
 	"golang.org/x/exp/slices"
 )
 
@@ -75,30 +75,26 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Max 5 concurrent lookups from this request.
-	pool := sempool.New(5)
+	pool := pool.New().WithMaxGoroutines(5)
 
 	resp := &BulkResponse{
 		Results: make([]*models.Response, 0, len(opts.Addresses)),
 		Errors:  []*BulkError{},
 	}
 
-	for _, a := range opts.Addresses {
+	for _, addr := range opts.Addresses {
 		_, _, _, ok, err := h.limiter.Store.Take(r.Context(), h.limiter.Key(r))
 		if err != nil {
-			resp.AddError(a, err)
+			resp.AddError(addr, err)
 			continue
 		}
 
 		if !ok {
-			resp.AddError(a, &models.ErrRateLimitExceeded{Address: a})
+			resp.AddError(addr, &models.ErrRateLimitExceeded{Address: addr})
 			continue
 		}
 
-		pool.Slot()
-
-		go func(addr string) {
-			defer pool.Free()
-
+		pool.Go(func() {
 			result, err := h.lookupSvc.Lookup(r.Context(), addr, &opts.LookupOptions)
 			if err != nil {
 				resp.AddError(addr, err)
@@ -106,7 +102,7 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 			}
 
 			resp.AddResult(result)
-		}(a)
+		})
 	}
 
 	// Don't need to check ctx here, because we pass through the ctx to all goroutines

@@ -10,11 +10,11 @@ require (
 	github.com/lrstanley/chix v0.0.0-20230109173536-0f92327b5e72
 	github.com/lrstanley/clix v0.0.0-20221222153834-fd46ec9f5928
 	github.com/lrstanley/go-bogon v0.0.0-20221222153830-9e4062e789ca
-	github.com/lrstanley/go-sempool v0.0.0-20230116155332-a03d0c109854
 	github.com/oschwald/maxminddb-golang v1.10.0
 	github.com/prometheus/client_golang v1.14.0
 	github.com/puzpuzpuz/xsync v1.5.2
 	github.com/sethvargo/go-limiter v0.7.2
+	github.com/sourcegraph/conc v0.3.0
 	golang.org/x/exp v0.0.0-20230116083435-1de6713980de
 )
 
@@ -44,6 +44,8 @@ require (
 	github.com/prometheus/common v0.39.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect
