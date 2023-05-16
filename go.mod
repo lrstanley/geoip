@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/lrstanley/chix v0.0.0-20230303230253-03aa1b49614f
 	github.com/lrstanley/clix v1.0.0
-	github.com/lrstanley/go-bogon v0.0.0-20230303230239-e33fb462737f
+	github.com/lrstanley/go-bogon v1.0.0
 	github.com/oschwald/maxminddb-golang v1.10.0
 	github.com/prometheus/client_golang v1.15.1
 	github.com/puzpuzpuz/xsync v1.5.2

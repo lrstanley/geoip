@@ -184,8 +184,8 @@ github.com/lrstanley/chix v0.0.0-20230303230253-03aa1b49614f h1:vlf5m2gkdiJQ1tOs
 github.com/lrstanley/chix v0.0.0-20230303230253-03aa1b49614f/go.mod h1:zhZXAA76Hp/C1JTtjdDra3HzMR6DsLR9fe0a7tJMf/8=
 github.com/lrstanley/clix v1.0.0 h1:7M6MLy3OYGZuFdfbalqN/BzLYVYSy3EgtYjZSW/UY/M=
 github.com/lrstanley/clix v1.0.0/go.mod h1:WO7zpfZ9s5YR5iZVLFJFdGIxVXBMpydmQN/MwN/hoSk=
-github.com/lrstanley/go-bogon v0.0.0-20230303230239-e33fb462737f h1:WSJxaG/KB7uCOdKxO+bQQBGEcBbIP/La2BNAUSiatfM=
-github.com/lrstanley/go-bogon v0.0.0-20230303230239-e33fb462737f/go.mod h1:1H1sGTRZ05IO1sQHKLAQQ34v19KrQeYg2Ix9HgJuFXQ=
+github.com/lrstanley/go-bogon v1.0.0 h1:EhFN3Bu+59u9g8n+xWCzRlbSfNKqAbhsjzW8lcMrG0g=
+github.com/lrstanley/go-bogon v1.0.0/go.mod h1:1H1sGTRZ05IO1sQHKLAQQ34v19KrQeYg2Ix9HgJuFXQ=
 github.com/markbates/going v1.0.0/go.mod h1:I6mnB4BPnEeqo85ynXIx1ZFLLbtiLHNXVgWeFO9OGOA=
 github.com/markbates/goth v1.76.1 h1:Q2adw0e101v+DlBfxwP7OOjLGkU/pwpNMwu/RYym54w=
 github.com/markbates/goth v1.76.1/go.mod h1:X6xdNgpapSENS0O35iTBBcMHoJDQDfI9bJl+APCkYMc=
