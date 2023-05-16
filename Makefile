@@ -28,7 +28,7 @@ node-fetch:
 		--no-fund \
 		--quiet \
 		--global pnpm
-	cd public; pnpm install --frozen-lockfile
+	cd public; pnpm install
 
 node-upgrade-deps:
 	cd public && \
