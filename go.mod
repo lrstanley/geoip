@@ -11,7 +11,7 @@ require (
 	github.com/lrstanley/clix v1.0.0
 	github.com/lrstanley/go-bogon v0.0.0-20230303230239-e33fb462737f
 	github.com/oschwald/maxminddb-golang v1.10.0
-	github.com/prometheus/client_golang v1.14.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/puzpuzpuz/xsync v1.5.2
 	github.com/sethvargo/go-limiter v0.7.2
 	github.com/sourcegraph/conc v0.3.0
@@ -52,5 +52,5 @@ require (
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.29.1 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 )
