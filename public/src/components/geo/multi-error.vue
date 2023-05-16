@@ -7,7 +7,7 @@
             {{ props.value.length }} {{ props.value.length > 1 ? "errors" : "error" }} occurred
           </div>
           <div class="ml-auto">
-            <n-button size="tiny" @click="showErrors = true"> show </n-button>
+            <n-button size="tiny" @click="showErrors = true">show</n-button>
           </div>
         </div>
       </n-alert>
@@ -19,7 +19,7 @@
           type="error"
           class="alert-small mb-2 last:mb-0"
         >
-          <n-tag size="small"> Q: {{ result.query }} </n-tag>
+          <n-tag size="small">Q: {{ result.query }}</n-tag>
           error: {{ result.error }}
         </n-alert>
       </AnimateListGroup>

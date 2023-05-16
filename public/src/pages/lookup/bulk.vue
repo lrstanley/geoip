@@ -9,7 +9,7 @@ meta:
       <div class="p-4">
         <AnimateFade>
           <div class="absolute top-6 right-6 z-1000 flex gap-1">
-            <n-tag v-if="searchCount > 0"> {{ searchCount }} addresses </n-tag>
+            <n-tag v-if="searchCount > 0">{{ searchCount }} addresses</n-tag>
             <n-tag
               v-if="input.length > 0"
               class="cursor-pointer"
