@@ -49,7 +49,7 @@ node-lint: node-build # needed to generate eslint auto-import ignores.
 		--ext .js,.ts,.vue .
 
 node-test: node-prepare
-	@echo "::set-output name=output::${PWD}/public/tests/results/"
+	@echo "output=${PWD}/public/tests/results/" >> "${GITHUB_OUTPUT}"
 	cd public; if [ -n "${CI}" ];then pnpm exec playwright install-deps;fi
 	cd public; pnpm exec playwright test
 
