@@ -4,7 +4,8 @@
       <template #icon>
         <n-icon><i-mdi-timer-sync-outline /></n-icon>
       </template>
-      {{ percent }}% <span :class="{ 'hidden md:inline-flex': props.allowSmall }">calls left</span>
+      {{ percent }}%
+      <span :class="{ 'hidden md:inline-flex': props.allowSmall }">calls left</span>
     </n-tag>
   </CoreTooltip>
 </template>
