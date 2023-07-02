@@ -63,8 +63,8 @@
 ## :link: Table of Contents
 
   - [Installation](#computer-installation)
-    - [Container Images (ghcr)](#whale-container-images-ghcr)
-    - [Build From Source](#toolbox-build-from-source)
+    - [🐳 Container Images (ghcr)](#whale-container-images-ghcr)
+    - [🧰 Build From Source](#toolbox-build-from-source)
   - [Usage](#gear-usage)
     - [Example](#example)
   - [Support &amp; Assistance](#raising_hand_man-support--assistance)
