@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/apex/log v1.9.0
 	github.com/bluele/gcache v0.0.2
-	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/cors v1.2.1
 	github.com/lrstanley/chix v1.0.0
 	github.com/lrstanley/clix v1.0.0
