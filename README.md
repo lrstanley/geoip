@@ -62,14 +62,14 @@
 <!-- do not edit anything in this "template" block, its auto-generated -->
 ## :link: Table of Contents
 
-  - [Installation](#computer-installation)
-    - [Container Images (ghcr)](#whale-container-images-ghcr)
-    - [Build From Source](#toolbox-build-from-source)
-  - [⚙️ Usage](#gear-usage)
+  - [💻 Installation](#computer-installation)
+    - [🐳 Container Images (ghcr)](#whale-container-images-ghcr)
+    - [🧰 Build From Source](#toolbox-build-from-source)
+  - [Usage](#gear-usage)
     - [Example](#example)
-  - [🙋‍♂️ Support &amp; Assistance](#raising_hand_man-support--assistance)
-  - [Contributing](#handshake-contributing)
-  - [License](#balance_scale-license)
+  - [Support &amp; Assistance](#raising_hand_man-support--assistance)
+  - [🤝 Contributing](#handshake-contributing)
+  - [⚖️ License](#balance_scale-license)
 <!-- template:end:toc -->
 
 ## :computer: Installation
