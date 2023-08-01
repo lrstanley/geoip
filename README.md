@@ -67,7 +67,7 @@
     - [Build From Source](#toolbox-build-from-source)
   - [Usage](#gear-usage)
     - [Example](#example)
-  - [🙋‍♂️ Support &amp; Assistance](#raising_hand_man-support--assistance)
+  - [Support &amp; Assistance](#raising_hand_man-support--assistance)
   - [Contributing](#handshake-contributing)
   - [License](#balance_scale-license)
 <!-- template:end:toc -->
