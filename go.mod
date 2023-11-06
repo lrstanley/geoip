@@ -10,7 +10,7 @@ require (
 	github.com/lrstanley/chix v1.0.0
 	github.com/lrstanley/clix v1.0.0
 	github.com/lrstanley/go-bogon v1.0.0
-	github.com/oschwald/maxminddb-golang v1.10.0
+	github.com/oschwald/maxminddb-golang v1.12.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/puzpuzpuz/xsync v1.5.2
 	github.com/sethvargo/go-limiter v0.7.2
