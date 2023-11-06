@@ -21,7 +21,7 @@
     "naive-ui": "^2.34.3",
     "openapi-typescript-codegen": "^0.23.0",
     "pinia": "^2.0.36",
-    "postcss": "^8.4.23",
+    "postcss": "^8.4.31",
     "rapidoc": "9.3.2",
     "rollup": "^3.21.7",
     "rollup-plugin-visualizer": "^5.9.0",
