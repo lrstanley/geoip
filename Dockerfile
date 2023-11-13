@@ -1,5 +1,5 @@
 # build-node image
-FROM node:18 as build-node
+FROM node:21 as build-node
 
 COPY . /build/
 WORKDIR /build
