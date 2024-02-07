@@ -16,7 +16,7 @@ WORKDIR /build
 RUN make go-build
 
 # runtime image
-FROM alpine:3.18
+FROM alpine:3.19
 RUN apk add --no-cache ca-certificates
 # set up nsswitch.conf for Go's "netgo" implementation
 # - https://github.com/docker-library/golang/blob/1eb096131592bcbc90aa3b97471811c798a93573/1.14/alpine3.12/Dockerfile#L9
