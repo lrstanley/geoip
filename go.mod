@@ -10,7 +10,7 @@ require (
 	github.com/lrstanley/chix v1.0.0
 	github.com/lrstanley/clix v1.0.0
 	github.com/lrstanley/go-bogon v1.0.0
-	github.com/oschwald/maxminddb-golang v1.12.0
+	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/prometheus/client_golang v1.16.0
 	github.com/puzpuzpuz/xsync v1.5.2
 	github.com/sethvargo/go-limiter v0.7.2
@@ -49,7 +49,7 @@ require (
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.8.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
