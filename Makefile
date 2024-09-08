@@ -6,6 +6,9 @@ export PACKAGE := "github.com/lrstanley/geoip"
 license:
 	curl -sL https://liam.sh/-/gh/g/license-header.sh | bash -s
 
+up: prepare go-up node-up
+	@echo
+
 prepare: clean node-prepare node-build go-prepare
 	@echo
 
@@ -30,7 +33,7 @@ node-fetch:
 		--global pnpm
 	cd public; pnpm install
 
-node-upgrade-deps:
+node-up:
 	cd public && \
 		pnpm up -i
 
@@ -67,12 +70,8 @@ go-fetch:
 	go mod download
 	go mod tidy
 
-go-upgrade-deps:
+go-up:
 	go get -u ./...
-	go mod tidy
-
-go-upgrade-deps-patch:
-	go get -u=patch ./...
 	go mod tidy
 
 go-prepare: go-fetch

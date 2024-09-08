@@ -23,7 +23,7 @@
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
     },
     "editor.codeActionsOnSave": {
-        "source.fixAll": true
+        "source.fixAll": "explicit"
     },
     "typescript.tsdk": "public/node_modules/typescript/lib",
     "[ignore]": {

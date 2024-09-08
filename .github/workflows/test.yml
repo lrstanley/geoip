@@ -21,11 +21,11 @@ jobs:
   node-test:
     uses: lrstanley/.github/.github/workflows/lang-node-test.yml@master
     with:
-      node-version: "18.12.1"
+      node-version: "20.17.0"
   node-lint:
     uses: lrstanley/.github/.github/workflows/lang-node-lint.yml@master
     with:
-      node-version: "18.12.1"
+      node-version: "20.17.0"
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   go-build:

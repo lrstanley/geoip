@@ -16,4 +16,4 @@ jobs:
     with:
       has-ghcr: true
       upload-artifacts: true
-      node-version: "18.12.1"
+      node-version: "20.17.0"
