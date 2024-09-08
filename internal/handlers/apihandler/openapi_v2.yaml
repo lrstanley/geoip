@@ -85,7 +85,12 @@ components:
             $ref: "#/components/schemas/Error"
       description: Non-2XX status code response object.
       headers:
-        $ref: "#/components/headers"
+        X-RateLimit-Limit:
+          $ref: "#/components/headers/X-RateLimit-Limit"
+        X-RateLimit-Remaining:
+          $ref: "#/components/headers/X-RateLimit-Remaining"
+        X-RateLimit-Reset:
+          $ref: "#/components/headers/X-RateLimit-Reset"
   schemas:
     Address:
       oneOf:
@@ -276,7 +281,12 @@ paths:
                 $ref: "#/components/schemas/BulkGeoResult"
           description: Bulk lookup response, including successful and failed lookups.
           headers:
-            $ref: "#/components/headers"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/X-RateLimit-Reset"
         4XX:
           $ref: "#/components/responses/Error"
         5XX:
@@ -302,7 +312,12 @@ paths:
                 $ref: "#/components/schemas/GeoResult"
           description: Response was successful.
           headers:
-            $ref: "#/components/headers"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/X-RateLimit-Reset"
         4XX:
           $ref: "#/components/responses/Error"
         5XX:
@@ -327,7 +342,12 @@ paths:
                 type: object
           description: OK
           headers:
-            $ref: "#/components/headers"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/X-RateLimit-Reset"
       summary: GeoIP database info
       tags:
         - Info
@@ -370,7 +390,12 @@ paths:
                 type: object
           description: OK
           headers:
-            $ref: "#/components/headers"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Reset:
+              $ref: "#/components/headers/X-RateLimit-Reset"
       summary: Health check
       tags:
         - Info

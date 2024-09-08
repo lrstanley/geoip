@@ -26,6 +26,11 @@ var (
 	logger log.Interface
 	cli    = &clix.CLI[models.Flags]{
 		Links: clix.GithubLinks("github.com/lrstanley/geoip", "master", "https://liam.sh"),
+		VersionInfo: &clix.VersionInfo[models.Flags]{
+			Version: version,
+			Commit:  commit,
+			Date:    date,
+		},
 	}
 
 	lookupSvc *lookup.Service

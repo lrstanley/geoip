@@ -20,7 +20,7 @@ type handler struct {
 	limiter   *httpware.Limiter
 }
 
-func New(lookupSvc *lookup.Service, limiter *httpware.Limiter) *handler {
+func New(lookupSvc *lookup.Service, limiter *httpware.Limiter) *handler { //nolint:revive
 	return &handler{
 		lookupSvc: lookupSvc,
 		limiter:   limiter,

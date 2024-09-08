@@ -43,7 +43,7 @@ func httpServer(ctx context.Context) *http.Server {
 		chix.UseStructuredLogger(logger),
 		chix.UseIf(cli.Flags.HTTP.Metrics, chix.UsePrometheus),
 		chix.UseDebug(cli.Debug),
-		chix.Recoverer,
+		chix.UseRecoverer,
 		middleware.Maybe(middleware.StripSlashes, func(r *http.Request) bool {
 			return !strings.HasPrefix(r.URL.Path, "/debug/")
 		}),
@@ -54,7 +54,7 @@ func httpServer(ctx context.Context) *http.Server {
 		r.Use(middleware.Throttle(cli.Flags.HTTP.MaxConcurrent))
 	}
 
-	if cli.Flags.HTTP.CORS == nil || len(cli.Flags.HTTP.CORS) == 0 {
+	if len(cli.Flags.HTTP.CORS) == 0 {
 		cli.Flags.HTTP.CORS = []string{"*"}
 	}
 
