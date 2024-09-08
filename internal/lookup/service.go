@@ -53,7 +53,7 @@ func (s *Service) MatchLanguage(dbType string, languages []string) (match string
 	}
 
 	for _, lang := range languages {
-		for i := 0; i < len(supported); i++ {
+		for i := range supported {
 			if strings.EqualFold(lang, supported[i]) {
 				return supported[i]
 			}

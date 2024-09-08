@@ -73,7 +73,7 @@ func (s *Service) Lookup(ctx context.Context, addr string, r *models.LookupOptio
 	}
 
 	var subdiv []string
-	for i := 0; i < len(geo.Subdivisions); i++ {
+	for i := range geo.Subdivisions {
 		subdiv = append(subdiv, geo.Subdivisions[i].Names[langGeo])
 	}
 	result.Subdivision = strings.Join(subdiv, ", ")
@@ -115,7 +115,7 @@ func (s *Service) Lookup(ctx context.Context, addr string, r *models.LookupOptio
 	return result, nil
 }
 
-func (s *Service) lookupASN(ctx context.Context, ip net.IP) (query *models.ASNQuery, err error) {
+func (s *Service) lookupASN(_ context.Context, ip net.IP) (query *models.ASNQuery, err error) {
 	metrics.LookupCount.WithLabelValues("asn").Inc()
 
 	if val := s.asnCache.Get(ip.String()); val != nil {
@@ -141,7 +141,7 @@ func (s *Service) lookupASN(ctx context.Context, ip net.IP) (query *models.ASNQu
 	return query, nil
 }
 
-func (s *Service) lookupGeo(ctx context.Context, ip net.IP) (query *models.GeoQuery, err error) {
+func (s *Service) lookupGeo(_ context.Context, ip net.IP) (query *models.GeoQuery, err error) {
 	metrics.LookupCount.WithLabelValues("geo").Inc()
 
 	if val := s.geoCache.Get(ip.String()); val != nil {

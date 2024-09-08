@@ -6,6 +6,7 @@ package httpware
 
 import (
 	"context"
+	"math"
 	"net"
 	"net/http"
 	"strconv"
@@ -112,7 +113,11 @@ func (l *Limiter) Limit(next http.Handler) http.Handler {
 		w.Header().Set(HeaderRateLimitLimit, strconv.FormatUint(limit, 10))
 		w.Header().Set(HeaderRateLimitRemaining, strconv.FormatUint(remaining, 10))
 
-		resetTime := time.Unix(0, int64(reset)).UTC().Format(time.RFC1123)
+		if reset > math.MaxInt64 {
+			reset = math.MaxInt64
+		}
+
+		resetTime := time.Unix(0, int64(reset)).UTC().Format(time.RFC1123) //nolint:gosec
 		if !skip {
 			w.Header().Set(HeaderRateLimitReset, resetTime)
 		}

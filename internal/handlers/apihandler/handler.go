@@ -57,7 +57,7 @@ func (h *handler) ping(w http.ResponseWriter, r *http.Request) {
 //go:embed openapi_v2.yaml
 var openapiv2 string
 
-func (h *handler) getOpenAPI(w http.ResponseWriter, r *http.Request) {
+func (h *handler) getOpenAPI(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/yaml")
-	w.Write([]byte(openapiv2))
+	_, _ = w.Write([]byte(openapiv2))
 }

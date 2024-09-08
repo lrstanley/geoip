@@ -46,5 +46,6 @@
 | `LOG_QUIET` | `--log.quiet` | bool | disable logging to stdout (also: see levels) |
 | `LOG_LEVEL` | `--log.level` | string | logging level [**default: info**] [**choices: debug, info, warn, error, fatal**] |
 | `LOG_JSON` | `--log.json` | bool | output logs in JSON format |
+| `LOG_GITHUB` | `--log.github` | bool | output logs in GitHub Actions format |
 | `LOG_PRETTY` | `--log.pretty` | bool | output logs in a pretty colored format (cannot be easily parsed) |
 | `LOG_PATH` | `--log.path` | string | path to log file (disables stdout logging) |

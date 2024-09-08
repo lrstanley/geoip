@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -27,7 +26,7 @@ import (
 func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service, dbType string) *Updater {
 	updater := &Updater{
 		config:    config,
-		logger:    logger.WithField("src", fmt.Sprintf("updater-%s", dbType)),
+		logger:    logger.WithField("src", "updater-"+dbType),
 		dbType:    dbType,
 		lookupSvc: lookupSvc,
 	}
@@ -69,7 +68,7 @@ func (u *Updater) Start(ctx context.Context) (err error) {
 	}
 
 	if needsUpdate {
-		if err = u.update(); err != nil {
+		if err = u.update(ctx); err != nil {
 			u.logger.WithError(err).Error("unable to update database")
 		}
 	}
@@ -87,7 +86,7 @@ func (u *Updater) Start(ctx context.Context) (err error) {
 			}
 
 			if needsUpdate {
-				if err = u.update(); err != nil {
+				if err = u.update(ctx); err != nil {
 					u.logger.WithError(err).Error("unable to update database")
 				}
 			}
@@ -103,7 +102,7 @@ func (u *Updater) updateMetadata(path string) error {
 
 	db, err = maxminddb.Open(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to open database: %w", err)
 	}
 	defer db.Close()
 
@@ -121,12 +120,12 @@ func (u *Updater) check() (needsUpdate bool, err error) {
 			return true, nil
 		}
 
-		return true, err
+		return true, fmt.Errorf("unable to stat database file: %w", err)
 	}
 
 	err = u.updateMetadata(u.path)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("unable to update metadata: %w", err)
 	}
 
 	if curSeconds-(stat.ModTime().UnixNano()/int64(time.Second)) < 604800 {
@@ -137,12 +136,12 @@ func (u *Updater) check() (needsUpdate bool, err error) {
 }
 
 // update downloads and verifies the database, then installs it.
-func (u *Updater) update() error {
+func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 	started := time.Now()
 
 	u.logger.Info("fetching new geoip data")
 
-	archiveTempFile, err := ioutil.TempFile("", "geoip-archive-")
+	archiveTempFile, err := os.CreateTemp("", "geoip-archive-")
 	if err != nil {
 		return fmt.Errorf("unable to create temp file: %w", err)
 	}
@@ -157,7 +156,7 @@ func (u *Updater) update() error {
 		}
 	}()
 
-	dbTempFile, err := ioutil.TempFile("", "geoip-db-")
+	dbTempFile, err := os.CreateTemp("", "geoip-db-")
 	if err != nil {
 		return fmt.Errorf("unable to create temp file: %w", err)
 	}
@@ -172,12 +171,20 @@ func (u *Updater) update() error {
 	}()
 
 	u.logger.WithField("fn", dbTempFile.Name()).Info("streaming new database archive")
-	resp, err := http.Get(u.updateURL)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.updateURL, http.NoBody)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create request: %w", err)
 	}
-	if resp.Body != nil {
-		defer resp.Body.Close()
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("unable to fetch new database: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	gz, err := gzip.NewReader(resp.Body)
@@ -188,11 +195,12 @@ func (u *Updater) update() error {
 	tarReader := tar.NewReader(gz)
 	dbFound := false
 
-	// loop through the tar file and extract first .mmdb file we find in the
+	// Loop through the tar file and extract first .mmdb file we find in the
 	// archive.
 	for {
-		header, err := tarReader.Next()
-		if err == io.EOF {
+		var header *tar.Header
+		header, err = tarReader.Next()
+		if errors.Is(err, io.EOF) {
 			break
 		}
 
@@ -202,7 +210,8 @@ func (u *Updater) update() error {
 
 		if header.Typeflag == tar.TypeReg && strings.HasSuffix(header.Name, ".mmdb") {
 			u.logger.WithField("fn", dbTempFile.Name()).Info("found database in tar archive, extracting and writing")
-			if _, err := io.Copy(dbTempFile, tarReader); err != nil {
+			_, err = io.Copy(dbTempFile, tarReader) //nolint:gosec
+			if err != nil {
 				return fmt.Errorf("error extracting database from tar archive: %w", err)
 			}
 			dbFound = true
@@ -213,7 +222,8 @@ func (u *Updater) update() error {
 		return errors.New("no database file found in tar archive")
 	}
 
-	if err := gz.Close(); err != nil {
+	err = gz.Close()
+	if err != nil {
 		return err
 	}
 
@@ -224,12 +234,12 @@ func (u *Updater) update() error {
 
 	db, err := maxminddb.Open(dbTempFile.Name())
 	if err != nil {
-		return fmt.Errorf("error while attempting to verify geoip data: %s", err)
+		return fmt.Errorf("error while attempting to verify geoip data: %w", err)
 	}
 
 	if err = db.Verify(); err != nil {
 		db.Close()
-		return fmt.Errorf("error while attempting to verify geoip data: %s", err)
+		return fmt.Errorf("error while attempting to verify geoip data: %w", err)
 	}
 	db.Close()
 
@@ -242,13 +252,13 @@ func (u *Updater) update() error {
 
 	file, err := os.Create(u.path)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create database file: %w", err)
 	}
 
 	var written int64
 	written, err = io.Copy(file, dbTempFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to write database file: %w", err)
 	}
 
 	u.logger.WithFields(log.Fields{
@@ -256,6 +266,5 @@ func (u *Updater) update() error {
 		"bytes":    written,
 		"duration": time.Since(started),
 	}).Info("successfully wrote database update")
-
 	return nil
 }
