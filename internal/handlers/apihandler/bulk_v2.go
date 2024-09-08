@@ -6,13 +6,13 @@ package apihandler
 
 import (
 	"net/http"
+	"slices"
 	"sync"
 
 	"github.com/lrstanley/chix"
 	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
 	"github.com/sourcegraph/conc/pool"
-	"golang.org/x/exp/slices"
 )
 
 type BulkRequest struct {
@@ -75,7 +75,7 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Max 5 concurrent lookups from this request.
-	pool := pool.New().WithMaxGoroutines(5)
+	p := pool.New().WithMaxGoroutines(5)
 
 	resp := &BulkResponse{
 		Results: make([]*models.Response, 0, len(opts.Addresses)),
@@ -94,8 +94,9 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		pool.Go(func() {
-			result, err := h.lookupSvc.Lookup(r.Context(), addr, &opts.LookupOptions)
+		p.Go(func() {
+			var result *models.Response
+			result, err = h.lookupSvc.Lookup(r.Context(), addr, &opts.LookupOptions)
 			if err != nil {
 				resp.AddError(addr, err)
 				return
@@ -107,6 +108,6 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 
 	// Don't need to check ctx here, because we pass through the ctx to all goroutines
 	// and the ctx is cancelled when the request is cancelled.
-	pool.Wait()
+	p.Wait()
 	chix.JSON(w, r, http.StatusOK, resp)
 }
