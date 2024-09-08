@@ -3,8 +3,8 @@ module github.com/lrstanley/geoip
 go 1.23.0
 
 require (
+	github.com/Code-Hex/go-generics-cache v1.5.1
 	github.com/apex/log v1.9.0
-	github.com/bluele/gcache v0.0.2
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/cors v1.2.1
 	github.com/lrstanley/chix v1.0.4
