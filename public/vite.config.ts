@@ -77,7 +77,6 @@ export default defineConfig({
     open: false,
   },
   server: {
-    base: "/",
     port: 8081,
     open: false,
     strictPort: true,

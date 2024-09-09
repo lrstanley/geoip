@@ -1,7 +1,6 @@
-import type { PlaywrightTestConfig } from "@playwright/test"
-import { devices } from "@playwright/test"
+import { defineConfig, devices } from "@playwright/test"
 
-const config: PlaywrightTestConfig = {
+export default defineConfig({
   testDir: "./tests",
   outputDir: "./tests/results/",
   webServer: {
@@ -37,6 +36,4 @@ const config: PlaywrightTestConfig = {
       },
     },
   ],
-}
-
-export default config
+})
