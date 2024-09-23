@@ -11,7 +11,7 @@ require (
 	github.com/lrstanley/clix v1.0.2
 	github.com/lrstanley/go-bogon v1.0.0
 	github.com/oschwald/maxminddb-golang v1.13.1
-	github.com/prometheus/client_golang v1.20.3
+	github.com/prometheus/client_golang v1.20.4
 	github.com/puzpuzpuz/xsync v1.5.2
 	github.com/sethvargo/go-limiter v1.0.0
 	github.com/sourcegraph/conc v0.3.0
