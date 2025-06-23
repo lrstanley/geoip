@@ -12,30 +12,30 @@ on:
 jobs:
   go-test:
     uses: lrstanley/.github/.github/workflows/lang-go-test-matrix.yml@master
+    secrets: inherit
     with:
       go-version: latest
   go-lint:
     uses: lrstanley/.github/.github/workflows/lang-go-lint.yml@master
-    secrets:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    secrets: inherit
   node-test:
     uses: lrstanley/.github/.github/workflows/lang-node-test.yml@master
+    secrets: inherit
     with:
       node-version: "20.17.0"
   node-lint:
     uses: lrstanley/.github/.github/workflows/lang-node-lint.yml@master
+    secrets: inherit
     with:
       node-version: "20.17.0"
-    secrets:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   go-build:
     needs: [go-test, go-lint, node-lint, node-test]
     uses: lrstanley/.github/.github/workflows/lang-go-release.yml@master
+    secrets: inherit
     with:
       has-ghcr: true
       upload-artifacts: true
   docker-test:
     needs: [go-test, go-lint, node-lint, node-test]
     uses: lrstanley/.github/.github/workflows/docker-release.yml@master
-    secrets:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    secrets: inherit
