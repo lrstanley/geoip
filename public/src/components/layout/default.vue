@@ -23,8 +23,8 @@
       </n-card>
 
       <div class="py-4 px-2 mb-3 text-right text-sm lg:mb-20">
-        Geo data from
-        <a target="_blank" href="http://www.maxmind.com">Maxmind</a>
+        GeoLite data from
+        <a target="_blank" href="http://www.maxmind.com">MaxMind</a>
         &middot; GeoIP:
         <a target="_blank" href="https://github.com/lrstanley/geoip">FOSS</a>
         lookup service, made with
