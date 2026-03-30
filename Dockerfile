@@ -16,13 +16,13 @@ WORKDIR /build
 RUN make go-build
 
 # runtime image
-FROM alpine:3.22
+FROM alpine:3.23
 RUN apk add --no-cache ca-certificates
 COPY --from=build-go /build/geoip /usr/local/bin/geoip
 
 # runtime params
 VOLUME /data
-EXPOSE 80
+EXPOSE 8080
 WORKDIR /
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-CMD ["geoip", "--http.bind-addr", "0.0.0.0:80", "--db.geoip-path", "/data/geoip.db", "--db.asn-path", "/data/asn.db"]
+CMD ["geoip", "--http.bind-addr", "0.0.0.0:8080", "--db.geoip-path", "/data/geoip.db", "--db.asn-path", "/data/asn.db"]

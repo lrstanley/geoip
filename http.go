@@ -7,46 +7,48 @@ package main
 import (
 	"context"
 	"embed"
+	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
-	"github.com/lrstanley/chix"
+	"github.com/go-chi/httprate"
+	"github.com/lrstanley/chix/v2"
 	"github.com/lrstanley/geoip/internal/handlers/apihandler"
-	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 //go:generate sh -c "mkdir -vp public/dist;touch public/dist/index.html"
 //go:embed all:public/dist
 var staticFS embed.FS
 
-func httpServer(ctx context.Context) *http.Server {
-	chix.AddErrorResolver(models.ErrorResolver)
+func httpServer(_ context.Context, logger *slog.Logger) *http.Server {
+	cfg := chix.NewConfig().
+		SetLogger(logger).
+		SetAPIBasePath("/api").
+		AddErrorResolvers(models.ErrorResolver)
 
 	r := chi.NewRouter()
 
-	limiter := httpware.NewLimiter(cli.Flags.HTTP, 1*time.Hour)
+	rl := httprate.NewRateLimiter(
+		cli.Flags.HTTP.Limit,
+		time.Hour,
+		httprate.WithKeyByIP(),
+	)
 
 	if len(cli.Flags.HTTP.TrustedProxies) > 0 {
-		r.Use(chix.UseRealIPCLIOpts(cli.Flags.HTTP.TrustedProxies))
+		r.Use(chix.UseRealIPStringOpts(cli.Flags.HTTP.TrustedProxies))
 	}
 
-	// Core middeware.
+	// Core middleware.
 	r.Use(
-		chix.UseContextIP,
-		middleware.RequestID,
-		chix.UseStructuredLogger(logger),
-		chix.UseIf(cli.Flags.HTTP.Metrics, chix.UsePrometheus),
+		cfg.Use(),
+		chix.UseContextIP(),
+		chix.UseRequestID(),
+		chix.UseStructuredLogger(nil),
 		chix.UseDebug(cli.Debug),
-		chix.UseRecoverer,
-		middleware.Maybe(middleware.StripSlashes, func(r *http.Request) bool {
-			return !strings.HasPrefix(r.URL.Path, "/debug/")
-		}),
+		chix.UseStripSlashes(),
 		middleware.Compress(5),
 	)
 
@@ -63,17 +65,17 @@ func httpServer(ctx context.Context) *http.Server {
 		r.Use(middleware.SetHeader("Strict-Transport-Security", "max-age=31536000"))
 	}
 	r.Use(
-		cors.New(cors.Options{
+		chix.UseCrossOriginResourceSharing(&chix.CORSConfig{
 			AllowedOrigins: cli.Flags.HTTP.CORS,
-			AllowedMethods: []string{"GET", "HEAD", "OPTIONS"},
+			AllowedMethods: []string{http.MethodGet, http.MethodHead, http.MethodOptions},
 			AllowedHeaders: []string{"Accept", "Content-Type"},
 			ExposedHeaders: []string{
 				"X-Maxmind-Type", "X-Maxmind-Version",
 				"X-Ratelimit-Limit", "X-Ratelimit-Remaining", "X-Ratelimit-Reset",
 				"X-Cache",
 			},
-			MaxAge: 3600,
-		}).Handler,
+			MaxAge: time.Hour,
+		}),
 		chix.UseHeaders(map[string]string{
 			"Content-Security-Policy": "default-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; child-src 'none'; frame-src 'none'; worker-src 'none'; img-src 'self' data: https://*.openstreetmap.org https://hatscripts.github.io;",
 			"X-Frame-Options":         "DENY",
@@ -84,26 +86,22 @@ func httpServer(ctx context.Context) *http.Server {
 	)
 
 	if cli.Debug {
-		r.With(chix.UsePrivateIP).Mount("/debug", middleware.Profiler())
+		r.With(chix.UsePrivateIP()).Mount("/debug", middleware.Profiler())
 	}
 
-	if cli.Flags.HTTP.Metrics {
-		r.With(chix.UsePrivateIP).Mount("/metrics", promhttp.Handler())
-	}
+	r.Route("/api", apihandler.New(lookupSvc, rl).Route)
 
-	r.Route("/api", apihandler.New(lookupSvc, limiter).Route)
-
-	r.NotFound(chix.UseStatic(ctx, &chix.Static{
+	staticHandler := chix.UseStatic(&chix.StaticConfig{
 		FS:         staticFS,
 		CatchAll:   true,
 		AllowLocal: cli.Debug,
 		Path:       "public/dist",
 		SPA:        true,
-		Headers: map[string]string{
-			"Vary":          "Accept-Encoding",
-			"Cache-Control": "public, max-age=7776000",
-		},
-	}).ServeHTTP)
+	})
+	r.NotFound(chix.UseHeaders(map[string]string{
+		"Vary":          "Accept-Encoding",
+		"Cache-Control": "public, max-age=7776000",
+	})(staticHandler).ServeHTTP)
 
 	return &http.Server{
 		Addr:         cli.Flags.HTTP.BindAddr,

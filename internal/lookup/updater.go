@@ -11,22 +11,22 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/apex/log"
 	"github.com/lrstanley/geoip/internal/models"
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
 
 // NewUpdater returns a new service for monitoring database updates. If an update
 // is needed, it will be downloaded, decompressed, verified, and installed.
-func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service, dbType string) *Updater {
+func NewUpdater(config models.ConfigDB, logger *slog.Logger, lookupSvc *Service, dbType string) *Updater {
 	updater := &Updater{
 		config:    config,
-		logger:    logger.WithField("src", "updater-"+dbType),
+		logger:    logger.With("src", "updater-"+dbType),
 		dbType:    dbType,
 		lookupSvc: lookupSvc,
 	}
@@ -48,7 +48,7 @@ func NewUpdater(config models.ConfigDB, logger log.Interface, lookupSvc *Service
 // Updater is a service for monitoring database updates.
 type Updater struct {
 	config    models.ConfigDB
-	logger    log.Interface
+	logger    *slog.Logger
 	dbType    string
 	updateURL string
 	path      string
@@ -61,15 +61,21 @@ type Updater struct {
 func (u *Updater) Start(ctx context.Context) (err error) {
 	var needsUpdate bool
 
-	u.logger.Info("checking for database updates")
+	u.logger.InfoContext(ctx, "checking for database updates")
 	needsUpdate, err = u.check()
 	if err != nil {
-		u.logger.WithError(err).Error("error checking current database status")
+		u.logger.ErrorContext(
+			ctx, "error checking current database status",
+			slog.Any("error", err),
+		)
 	}
 
 	if needsUpdate {
 		if err = u.update(ctx); err != nil {
-			u.logger.WithError(err).Error("unable to update database")
+			u.logger.ErrorContext(
+				ctx, "unable to update database",
+				slog.Any("error", err),
+			)
 		}
 	}
 
@@ -78,16 +84,22 @@ func (u *Updater) Start(ctx context.Context) (err error) {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-time.After(u.config.UpdateInterval):
-			u.logger.Info("checking for database updates")
+			u.logger.InfoContext(ctx, "checking for database updates")
 
 			needsUpdate, err = u.check()
 			if err != nil {
-				u.logger.WithError(err).Error("error checking current database status")
+				u.logger.ErrorContext(
+					ctx, "error checking current database status",
+					slog.Any("error", err),
+				)
 			}
 
 			if needsUpdate {
 				if err = u.update(ctx); err != nil {
-					u.logger.WithError(err).Error("unable to update database")
+					u.logger.ErrorContext(
+						ctx, "unable to update database",
+						slog.Any("error", err),
+					)
 				}
 			}
 		}
@@ -139,7 +151,7 @@ func (u *Updater) check() (needsUpdate bool, err error) {
 func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 	started := time.Now()
 
-	u.logger.Info("fetching new geoip data")
+	u.logger.InfoContext(ctx, "fetching new geoip data")
 
 	archiveTempFile, err := os.CreateTemp("", "geoip-archive-")
 	if err != nil {
@@ -148,11 +160,22 @@ func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 
 	defer func() {
 		if err = archiveTempFile.Close(); err != nil {
-			u.logger.WithError(err).WithField("fn", archiveTempFile.Name()).Error("error while closing file")
+			u.logger.ErrorContext(
+				ctx, "error while closing file",
+				slog.Any("error", err),
+				slog.String("fn", archiveTempFile.Name()),
+			)
 		}
-		u.logger.WithField("fn", archiveTempFile.Name()).Info("deleting temp file")
+		u.logger.InfoContext(
+			ctx, "deleting temp file",
+			slog.String("fn", archiveTempFile.Name()),
+		)
 		if err = os.Remove(archiveTempFile.Name()); err != nil {
-			u.logger.WithError(err).WithField("fn", archiveTempFile.Name()).Error("error while removing temp file")
+			u.logger.ErrorContext(
+				ctx, "error while removing temp file",
+				slog.Any("error", err),
+				slog.String("fn", archiveTempFile.Name()),
+			)
 		}
 	}()
 
@@ -162,15 +185,29 @@ func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 	}
 	defer func() {
 		if err = dbTempFile.Close(); err != nil {
-			u.logger.WithError(err).WithField("fn", dbTempFile.Name()).Error("error while closing db temp file")
+			u.logger.ErrorContext(
+				ctx, "error while closing db temp file",
+				slog.Any("error", err),
+				slog.String("fn", dbTempFile.Name()),
+			)
 		}
-		u.logger.WithField("fn", dbTempFile.Name()).Info("deleting db temp file")
+		u.logger.InfoContext(
+			ctx, "deleting db temp file",
+			slog.String("fn", dbTempFile.Name()),
+		)
 		if err = os.Remove(dbTempFile.Name()); err != nil {
-			u.logger.WithError(err).WithField("fn", dbTempFile.Name()).Error("error while removing db temp file")
+			u.logger.ErrorContext(
+				ctx, "error while removing db temp file",
+				slog.Any("error", err),
+				slog.String("fn", dbTempFile.Name()),
+			)
 		}
 	}()
 
-	u.logger.WithField("fn", dbTempFile.Name()).Info("streaming new database archive")
+	u.logger.InfoContext(
+		ctx, "streaming new database archive",
+		slog.String("fn", dbTempFile.Name()),
+	)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.updateURL, http.NoBody)
 	if err != nil {
@@ -209,7 +246,10 @@ func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 		}
 
 		if header.Typeflag == tar.TypeReg && strings.HasSuffix(header.Name, ".mmdb") {
-			u.logger.WithField("fn", dbTempFile.Name()).Info("found database in tar archive, extracting and writing")
+			u.logger.InfoContext(
+				ctx, "found database in tar archive, extracting and writing",
+				slog.String("fn", dbTempFile.Name()),
+			)
 			_, err = io.Copy(dbTempFile, tarReader) //nolint:gosec
 			if err != nil {
 				return fmt.Errorf("error extracting database from tar archive: %w", err)
@@ -227,7 +267,10 @@ func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 		return err
 	}
 
-	u.logger.WithField("fn", dbTempFile.Name()).Info("successfully downloaded and decompressed new database, verifying")
+	u.logger.InfoContext(
+		ctx, "successfully downloaded and decompressed new database, verifying",
+		slog.String("fn", dbTempFile.Name()),
+	)
 	if _, err = dbTempFile.Seek(0, 0); err != nil {
 		return err
 	}
@@ -238,17 +281,17 @@ func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 	}
 
 	if err = db.Verify(); err != nil {
-		db.Close()
+		_ = db.Close()
 		return fmt.Errorf("error while attempting to verify geoip data: %w", err)
 	}
-	db.Close()
+	_ = db.Close()
 
 	err = u.updateMetadata(dbTempFile.Name())
 	if err != nil {
 		return err
 	}
 
-	u.logger.Info("verification complete, updating active database")
+	u.logger.InfoContext(ctx, "verification complete, updating active database")
 
 	file, err := os.Create(u.path)
 	if err != nil {
@@ -261,10 +304,11 @@ func (u *Updater) update(ctx context.Context) error { //nolint:funlen
 		return fmt.Errorf("unable to write database file: %w", err)
 	}
 
-	u.logger.WithFields(log.Fields{
-		"fn":       file.Name(),
-		"bytes":    written,
-		"duration": time.Since(started),
-	}).Info("successfully wrote database update")
+	u.logger.InfoContext(
+		ctx, "successfully wrote database update",
+		slog.String("fn", file.Name()),
+		slog.Int64("bytes", written),
+		"duration", time.Since(started),
+	)
 	return nil
 }

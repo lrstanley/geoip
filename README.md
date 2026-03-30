@@ -82,7 +82,7 @@ page for prebuilt versions.
 ### :whale: Container Images (ghcr)
 
 ```console
-$ docker run -it --rm -p 8080:80 --env-file .env -v $PWD/:/data ghcr.io/lrstanley/geoip:latest
+$ docker run -it --rm -p 8080:8080 --env-file .env -v $PWD/:/data ghcr.io/lrstanley/geoip:latest
 $ curl -I http://localhost:8080
 HTTP/1.1 200 OK
 Content-Type: text/html

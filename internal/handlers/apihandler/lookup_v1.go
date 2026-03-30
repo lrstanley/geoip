@@ -5,19 +5,19 @@
 package apihandler
 
 import (
+	"log/slog"
 	"net"
 	"net/http"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lrstanley/chix"
+	"github.com/lrstanley/chix/v2"
 	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
 )
 
 func (h *handler) getLookupV1(w http.ResponseWriter, r *http.Request) {
 	addr := strings.TrimSpace(chi.URLParam(r, "addr"))
-	logger := chix.Log(r).WithField("lookup_addr", addr)
 
 	opts := &models.LookupOptions{}
 	if err := chix.Bind(r, opts); err != nil {
@@ -49,7 +49,7 @@ func (h *handler) getLookupV1(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if models.IsClientError(err) {
 			result = &models.Response{
-				Query: result.Query,
+				Query: addr,
 				Error: err.Error(),
 			}
 
@@ -57,7 +57,11 @@ func (h *handler) getLookupV1(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		logger.WithError(err).Error("error looking up addr")
+		chix.LogError(
+			r.Context(), "error looking up addr",
+			slog.String("lookup_addr", addr),
+			slog.Any("error", err),
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

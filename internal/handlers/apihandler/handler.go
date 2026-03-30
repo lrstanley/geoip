@@ -10,17 +10,17 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/lrstanley/chix"
-	"github.com/lrstanley/geoip/internal/httpware"
+	"github.com/go-chi/httprate"
+	"github.com/lrstanley/chix/v2"
 	"github.com/lrstanley/geoip/internal/lookup"
 )
 
 type handler struct {
 	lookupSvc *lookup.Service
-	limiter   *httpware.Limiter
+	limiter   *httprate.RateLimiter
 }
 
-func New(lookupSvc *lookup.Service, limiter *httpware.Limiter) *handler { //nolint:revive
+func New(lookupSvc *lookup.Service, limiter *httprate.RateLimiter) *handler { //nolint:revive
 	return &handler{
 		lookupSvc: lookupSvc,
 		limiter:   limiter,
@@ -34,20 +34,20 @@ func (h *handler) Route(r chi.Router) {
 	)
 
 	// v1 API.
-	r.With(h.limiter.Limit).Get("/{addr}", h.getLookupV1)
-	r.With(h.limiter.Skip, h.limiter.Limit).Get("/ping", h.ping)
+	r.With(h.limiter.Handler).Get("/{addr}", h.getLookupV1)
+	r.With(httprate.Skip, h.limiter.Handler).Get("/ping", h.ping)
 
 	// v2 API.
 	r.Get("/v2/openapi.yaml", h.getOpenAPI)
-	r.With(h.limiter.Limit).Get("/v2/lookup/{addr}", h.getLookupV2)
-	r.With(h.limiter.Limit).Post("/v2/bulk", h.postBulkV2)
-	r.With(h.limiter.Limit).Get("/v2/metadata", h.getMetadataV2)
-	r.With(h.limiter.Skip, h.limiter.Limit).Get("/v2/ping", h.ping)
+	r.With(h.limiter.Handler).Get("/v2/lookup/{addr}", h.getLookupV2)
+	r.With(h.limiter.Handler).Post("/v2/bulk", h.postBulkV2)
+	r.With(h.limiter.Handler).Get("/v2/metadata", h.getMetadataV2)
+	r.With(httprate.Skip, h.limiter.Handler).Get("/v2/ping", h.ping)
 	r.NotFound(h.notFound)
 }
 
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
-	chix.Error(w, r, chix.WrapCode(http.StatusNotFound))
+	chix.ErrorWithCode(w, r, http.StatusNotFound)
 }
 
 func (h *handler) ping(w http.ResponseWriter, r *http.Request) {

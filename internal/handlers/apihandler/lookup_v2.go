@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/lrstanley/chix"
+	"github.com/lrstanley/chix/v2"
 	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
 )

@@ -9,10 +9,11 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/lrstanley/chix"
+	"github.com/go-chi/httprate"
+	"github.com/lrstanley/chix/v2"
 	"github.com/lrstanley/geoip/internal/httpware"
 	"github.com/lrstanley/geoip/internal/models"
-	"github.com/sourcegraph/conc/pool"
+	"github.com/lrstanley/x/sync/conc"
 )
 
 type BulkRequest struct {
@@ -74,8 +75,13 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 		opts.Languages = httpware.GetLanguage(r)
 	}
 
-	// Max 5 concurrent lookups from this request.
-	p := pool.New().WithMaxGoroutines(5)
+	key, err := httprate.KeyByIP(r)
+	if err != nil {
+		chix.Error(w, r, err)
+		return
+	}
+
+	g := conc.NewGroup().WithMaxGoroutines(5)
 
 	resp := &BulkResponse{
 		Results: make([]*models.Response, 0, len(opts.Addresses)),
@@ -83,22 +89,15 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, addr := range opts.Addresses {
-		_, _, _, ok, err := h.limiter.Store.Take(r.Context(), h.limiter.Key(r))
-		if err != nil {
-			resp.AddError(addr, err)
-			continue
-		}
-
-		if !ok {
+		if h.limiter.OnLimit(w, r, key) {
 			resp.AddError(addr, &models.ErrRateLimitExceeded{Address: addr})
 			continue
 		}
 
-		p.Go(func() {
-			var result *models.Response
-			result, err = h.lookupSvc.Lookup(r.Context(), addr, &opts.LookupOptions)
-			if err != nil {
-				resp.AddError(addr, err)
+		g.Go(func() {
+			result, lerr := h.lookupSvc.Lookup(r.Context(), addr, &opts.LookupOptions)
+			if lerr != nil {
+				resp.AddError(addr, lerr)
 				return
 			}
 
@@ -106,8 +105,6 @@ func (h *handler) postBulkV2(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	// Don't need to check ctx here, because we pass through the ctx to all goroutines
-	// and the ctx is cancelled when the request is cancelled.
-	p.Wait()
+	g.Wait()
 	chix.JSON(w, r, http.StatusOK, resp)
 }

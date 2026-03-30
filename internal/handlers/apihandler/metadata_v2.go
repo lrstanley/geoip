@@ -7,7 +7,7 @@ package apihandler
 import (
 	"net/http"
 
-	"github.com/lrstanley/chix"
+	"github.com/lrstanley/chix/v2"
 	"github.com/lrstanley/geoip/internal/models"
 )
 

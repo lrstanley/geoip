@@ -287,9 +287,7 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Reset:
               $ref: "#/components/headers/X-RateLimit-Reset"
-        4XX:
-          $ref: "#/components/responses/Error"
-        5XX:
+        default:
           $ref: "#/components/responses/Error"
       summary: Bulk lookup addresses
       tags:
@@ -318,9 +316,7 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Reset:
               $ref: "#/components/headers/X-RateLimit-Reset"
-        4XX:
-          $ref: "#/components/responses/Error"
-        5XX:
+        default:
           $ref: "#/components/responses/Error"
       summary: Lookup address
       tags:
@@ -363,9 +359,7 @@ paths:
           content:
             application/yaml: {}
           description: OK
-        4XX:
-          $ref: "#/components/responses/Error"
-        5XX:
+        default:
           $ref: "#/components/responses/Error"
       summary: Get OpenAPI spec
       tags:

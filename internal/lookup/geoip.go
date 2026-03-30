@@ -7,10 +7,10 @@ package lookup
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"strings"
 
-	"github.com/lrstanley/geoip/internal/metrics"
 	"github.com/lrstanley/geoip/internal/models"
 	"github.com/lrstanley/go-bogon"
 	maxminddb "github.com/oschwald/maxminddb-golang"
@@ -19,6 +19,8 @@ import (
 // Lookup does a geoip lookup of an address.
 func (s *Service) Lookup(ctx context.Context, addr string, r *models.LookupOptions) (result *models.Response, err error) {
 	langGeo := s.MatchLanguage(models.DatabaseGeoIP, r.Languages)
+
+	logger := s.logger.With("addr", addr)
 
 	ip := net.ParseIP(addr)
 	if ip == nil {
@@ -108,32 +110,41 @@ func (s *Service) Lookup(ctx context.Context, addr string, r *models.LookupOptio
 	if !r.DisableHostLookup {
 		result.Host, err = s.rslv.GetReverse(ctx, ip)
 		if err != nil {
-			s.logger.WithError(err).WithField("ip", ip.String()).Debug("error looking up reverse dns for ip")
+			logger.DebugContext(
+				ctx, "error looking up reverse dns for ip",
+				slog.Any("error", err),
+			)
 		}
 	}
 
 	return result, nil
 }
 
-func (s *Service) lookupASN(_ context.Context, ip net.IP) (query *models.ASNQuery, err error) {
-	metrics.LookupCount.WithLabelValues("asn").Inc()
-
-	if val := s.asnCache.Get(ip.String()); val != nil {
+func (s *Service) lookupASN(ctx context.Context, ip net.IP) (query *models.ASNQuery, err error) {
+	if val, ok := s.asnCache.Get(ip.String()); ok {
 		return val, nil
 	}
+
+	logger := s.logger.With("ip", ip.String())
 
 	var db *maxminddb.Reader
 
 	db, err = maxminddb.Open(s.config.ASNPath)
 	if err != nil {
-		s.logger.WithError(err).Error("error opening asn db")
+		logger.ErrorContext(
+			ctx, "error opening asn db",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	defer db.Close()
 
 	query = &models.ASNQuery{}
 	if query.Network, _, err = db.LookupNetwork(ip, &query); err != nil {
-		s.logger.WithError(err).WithField("ip", ip.String()).Error("error looking up ip asn info")
+		logger.ErrorContext(
+			ctx, "error looking up ip asn info",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -141,25 +152,31 @@ func (s *Service) lookupASN(_ context.Context, ip net.IP) (query *models.ASNQuer
 	return query, nil
 }
 
-func (s *Service) lookupGeo(_ context.Context, ip net.IP) (query *models.GeoQuery, err error) {
-	metrics.LookupCount.WithLabelValues("geo").Inc()
-
-	if val := s.geoCache.Get(ip.String()); val != nil {
+func (s *Service) lookupGeo(ctx context.Context, ip net.IP) (query *models.GeoQuery, err error) {
+	if val, ok := s.geoCache.Get(ip.String()); ok {
 		return val, nil
 	}
+
+	logger := s.logger.With("ip", ip.String())
 
 	var db *maxminddb.Reader
 
 	db, err = maxminddb.Open(s.config.GeoIPPath)
 	if err != nil {
-		s.logger.WithError(err).Error("error opening geoip db")
+		logger.ErrorContext(
+			ctx, "error opening geoip db",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	defer db.Close()
 
 	query = &models.GeoQuery{}
 	if err = db.Lookup(ip, query); err != nil {
-		s.logger.WithError(err).WithField("ip", ip.String()).Error("error looking up ip geoip info")
+		logger.ErrorContext(
+			ctx, "error looking up ip geoip info",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 

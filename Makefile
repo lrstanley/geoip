@@ -67,7 +67,6 @@ node-preview: node-build
 
 # backend
 go-fetch:
-	go mod download
 	go mod tidy
 
 go-up:
@@ -76,7 +75,7 @@ go-up:
 
 go-prepare: go-fetch
 	go generate -x ./...
-	{ echo '## :gear: Usage'; go run ${PACKAGE} --generate-markdown --db.license-key ""; } > USAGE.md
+	go run ${PACKAGE} generate-markdown > USAGE.md
 
 go-dlv: go-prepare
 	dlv debug \
@@ -89,7 +88,6 @@ go-debug: go-prepare
 	go run ${PACKAGE} \
 		--http.limit 1000000 \
 		--http.max-concurrent 0 \
-		--http.metrics \
 		--dns.resolver "8.8.8.8" \
 		--dns.resolver "1.1.1.1" \
 		--debug

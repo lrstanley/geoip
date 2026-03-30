@@ -6,36 +6,48 @@ package lookup
 
 import (
 	"context"
+	"log/slog"
 	"strings"
+	"time"
 
-	"github.com/apex/log"
-	"github.com/lrstanley/geoip/internal/cache"
 	"github.com/lrstanley/geoip/internal/dns"
 	"github.com/lrstanley/geoip/internal/models"
+	"github.com/lrstanley/x/sync/cache"
+	"github.com/lrstanley/x/sync/cache/policy/lfu"
+	"github.com/lrstanley/x/sync/conc"
 	maxminddb "github.com/oschwald/maxminddb-golang"
-	"github.com/puzpuzpuz/xsync"
 )
 
 type Service struct {
 	ctx    context.Context
-	logger log.Interface
+	logger *slog.Logger
 	config models.ConfigDB
 
 	geoCache *cache.Cache[string, *models.GeoQuery]
 	asnCache *cache.Cache[string, *models.ASNQuery]
-	Metadata *xsync.MapOf[string, *maxminddb.Metadata]
+	Metadata *conc.Map[string, *maxminddb.Metadata]
 
 	rslv *dns.Resolver
 }
 
-func NewService(ctx context.Context, logger log.Interface, config models.ConfigDB, rslv *dns.Resolver) *Service {
+func NewService(ctx context.Context, logger *slog.Logger, config models.ConfigDB, rslv *dns.Resolver) *Service {
 	return &Service{
-		ctx:      ctx,
-		logger:   logger.WithFields(log.Fields{"src": "lookup"}),
-		config:   config,
-		geoCache: cache.New[string, *models.GeoQuery]("service_geo", config.CacheSize, config.CacheExpire),
-		asnCache: cache.New[string, *models.ASNQuery]("service_asn", config.CacheSize, config.CacheExpire),
-		Metadata: xsync.NewMapOf[*maxminddb.Metadata](),
+		ctx:    ctx,
+		logger: logger.With("src", "lookup"),
+		config: config,
+		geoCache: cache.New(
+			ctx,
+			cache.WithJanitorInterval[string, *models.GeoQuery](1*time.Minute),
+			cache.WithLFU[string, *models.GeoQuery](lfu.WithCapacity(config.CacheSize)),
+			cache.WithDefaultEntryOptions[string, *models.GeoQuery](cache.WithExpiration(config.CacheExpire)),
+		),
+		asnCache: cache.New(
+			ctx,
+			cache.WithJanitorInterval[string, *models.ASNQuery](1*time.Minute),
+			cache.WithLFU[string, *models.ASNQuery](lfu.WithCapacity(config.CacheSize)),
+			cache.WithDefaultEntryOptions[string, *models.ASNQuery](cache.WithExpiration(config.CacheExpire)),
+		),
+		Metadata: &conc.Map[string, *maxminddb.Metadata]{},
 		rslv:     rslv,
 	}
 }
