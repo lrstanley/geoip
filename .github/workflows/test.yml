@@ -21,13 +21,9 @@ jobs:
   node-test:
     uses: lrstanley/.github/.github/workflows/lang-node-test.yml@master
     secrets: inherit
-    with:
-      node-version: "20.17.0"
   node-lint:
     uses: lrstanley/.github/.github/workflows/lang-node-lint.yml@master
     secrets: inherit
-    with:
-      node-version: "20.17.0"
   go-build:
     needs: [go-test, go-lint, node-lint, node-test]
     uses: lrstanley/.github/.github/workflows/lang-go-release.yml@master

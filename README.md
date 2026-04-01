@@ -94,7 +94,7 @@ Date: Thu, 06 Aug 2020 00:55:21 GMT
 Dependencies (to build from source only):
 
 - [Go](https://golang.org/doc/install) (latest)
-- [NodeJS](https://nodejs.org/en/download/) (v17)
+- [Bun](https://bun.sh/docs/installation) (latest)
 
 Setup:
 
