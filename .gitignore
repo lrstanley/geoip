@@ -3,7 +3,12 @@
 *.tmp
 *.txt
 public/dist/*
+web/dist/*
 public/tests/results
+web/tests/results
+web/.tanstack
+web/src/api
+**/*.gen.ts
 !**/.gitkeep
 bin
 *.test

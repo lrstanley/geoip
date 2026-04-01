@@ -9,10 +9,8 @@ dist
 *.toml
 *.db
 geoip
-vendor
-rice*.go
 .git
 bin
-public/node_modules
-public/.cache
+web/node_modules
+web/.cache
 **/*.md

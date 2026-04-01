@@ -16,7 +16,7 @@ build-all: prepare go-build
 	@echo
 
 clean:
-	/bin/rm -rfv "public/dist/*" ${PROJECT}
+	/bin/rm -rfv "web/dist/*" "web/src/api" ${PROJECT}
 
 docker-build:
 	docker build \
@@ -24,46 +24,27 @@ docker-build:
 		--tag ${PROJECT} \
 		--force-rm .
 
-# frontend
-node-fetch:
-	command -v pnpm >/dev/null >&2 || npm install \
-		--no-audit \
-		--no-fund \
-		--quiet \
-		--global pnpm
-	cd public; pnpm install
-
 node-up:
-	cd public && \
-		pnpm up -i
+	cd web && bun update -i
+
+node-fetch:
+	cd web && bun install
 
 node-prepare: node-fetch
-	cd public; pnpm exec openapi \
-		--input ../internal/handlers/apihandler/openapi_v2.yaml \
-		--output src/lib/api/openapi/ \
-		--client fetch \
-		--useOptions \
-		--indent 2 \
-		--name HTTPClient
-
-node-lint: node-build # needed to generate eslint auto-import ignores.
-	cd public; pnpm exec eslint \
-		--ignore-path ../.gitignore \
-		--ext .js,.ts,.vue .
-
-node-test: node-prepare
-	if [ -n "${CI}" ];then "output=${PWD}/public/tests/results/" >> "${GITHUB_OUTPUT}";fi
-	cd public; if [ -n "${CI}" ];then pnpm exec playwright install;fi
-	cd public; pnpm exec playwright test
 
 node-debug: node-prepare
-	cd public; pnpm exec vite
+	cd web && bun run dev
 
 node-build: node-prepare
-	cd public; pnpm exec vite build
+	cd web && bun run build
 
 node-preview: node-build
-	cd public; pnpm exec vite preview
+	cd web && bun run preview
+
+node-test: node-prepare
+	if [ -n "${CI}" ];then echo "output=${PWD}/web/tests/results/" >> "${GITHUB_OUTPUT}";fi
+	cd web; if [ -n "${CI}" ];then bunx playwright install;fi
+	cd web; bun run test:e2e
 
 # backend
 go-fetch:

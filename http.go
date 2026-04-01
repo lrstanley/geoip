@@ -19,8 +19,8 @@ import (
 	"github.com/lrstanley/geoip/internal/models"
 )
 
-//go:generate sh -c "mkdir -vp public/dist;touch public/dist/index.html"
-//go:embed all:public/dist
+//go:generate sh -c "mkdir -vp web/dist;touch web/dist/index.html"
+//go:embed all:web/dist
 var staticFS embed.FS
 
 func httpServer(_ context.Context, logger *slog.Logger) *http.Server {
@@ -95,7 +95,7 @@ func httpServer(_ context.Context, logger *slog.Logger) *http.Server {
 		FS:         staticFS,
 		CatchAll:   true,
 		AllowLocal: cli.Debug,
-		Path:       "public/dist",
+		Path:       "web/dist",
 		SPA:        true,
 	})
 	r.NotFound(chix.UseHeaders(map[string]string{

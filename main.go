@@ -13,7 +13,7 @@ import (
 	"github.com/lrstanley/geoip/internal/dns"
 	"github.com/lrstanley/geoip/internal/lookup"
 	"github.com/lrstanley/geoip/internal/models"
-	"github.com/lrstanley/x/scheduler"
+	"github.com/lrstanley/x/sync/scheduler"
 )
 
 // Should be automatically added by goreleaser.

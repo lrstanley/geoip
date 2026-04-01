@@ -1,17 +1,17 @@
-# build-node image
-FROM node:20 as build-node
+# build-web image
+FROM oven/bun:1 AS build-web
 
 COPY . /build/
-WORKDIR /build
+WORKDIR /build/web
 ENV NODE_ENV=production
-RUN make node-build
+RUN bun install && bun run build
 
 # build-go image
-FROM golang:alpine as build-go
+FROM golang:alpine AS build-go
 
-RUN apk add --no-cache g++ make
+RUN apk add --no-cache make
 COPY . /build/
-COPY --from=build-node /build/public/dist/ /build/public/dist/
+COPY --from=build-web /build/web/dist/ /build/web/dist/
 WORKDIR /build
 RUN make go-build
 

@@ -1,32 +1,50 @@
 {
-    "unocss.root": "./public/",
-    "editor.formatOnSave": true,
-    "[css]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.formatOnSave": true,
+  "[css][html][javascript][javascriptreact][javascript][typescript][typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome",
+  },
+  "[json][jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[ignore]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": false,
+      "strings": false,
+      "other": false
     },
-    "[html]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[vue]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[markdown]": {
-        "editor.wordWrap": "on",
-        "editor.quickSuggestions": {
-            "comments": false,
-            "strings": false,
-            "other": false
-        },
-        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
-    },
-    "editor.codeActionsOnSave": {
-        "source.fixAll": "explicit"
-    },
-    "typescript.tsdk": "public/node_modules/typescript/lib",
-    "[ignore]": {
-        "editor.defaultFormatter": "foxundermoon.shell-format"
-    },
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "biome.configurationPath": "web/biome.json",
+  "files.exclude": {
+    "**/*.d.ts": true,
+    "**/*.log": true,
+    "**/*.sum": true,
+    "**/.*cache": true,
+    "**/.*ignore": true,
+    "**/.*attributes": true,
+    "**/.cache": true,
+    "**/.docker*": true,
+    "**/.editorconfig": true,
+    "**/.eslint*": true,
+    "**/.golangci.yaml": true,
+    "**/.task": true,
+    "**/LICENSE": true,
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/tmp": true,
+    "**/.env": true,
+    "**/*.gen.ts": true,
+    "**/.tanstack": true,
+    "**/tsconfig*.json": true,
+    "**/*.lock": true,
+  }
 }
