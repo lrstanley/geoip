@@ -10,9 +10,9 @@ export default defineConfig({
   plugins: [
     heyApiPlugin({
       config: {
-        input: path.resolve(__dirname, "../internal/handlers/apihandler/openapi_v2.yaml"),
+        input: path.resolve(import.meta.dirname, "../internal/handlers/apihandler/openapi_v2.yaml"),
         output: {
-          path: path.resolve(__dirname, "src/api"),
+          path: path.resolve(import.meta.dirname, "src/api"),
           entryFile: false,
         },
         plugins: ["@hey-api/client-ofetch"],
@@ -33,7 +33,7 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
-  publicDir: path.resolve(__dirname, "./src/assets"),
+  publicDir: path.resolve(import.meta.dirname, "./src/assets"),
   base: "/",
   build: {
     sourcemap: "hidden",
