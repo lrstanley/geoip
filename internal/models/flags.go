@@ -13,12 +13,13 @@ type Flags struct {
 }
 
 type ConfigHTTP struct {
-	BindAddr       string   `env:"BIND_ADDR" name:"bind-addr" default:":8080" required:"" help:"ip:port pair to bind to"`
-	TrustedProxies []string `env:"TRUSTED_PROXIES" name:"trusted-proxies" help:"CIDR ranges that we trust the X-Forwarded-For header from (addl opts: local, *, cloudflare, and/or custom header to use)"`
-	MaxConcurrent  int      `env:"MAX_CONCURRENT" name:"max-concurrent" help:"limit total max concurrent requests across all connections (0 for no limit)"`
-	Limit          int      `env:"LIMIT" name:"limit" help:"number of requests/ip/hour" default:"2000"`
-	HSTS           bool     `env:"HSTS" name:"hsts" help:"enable HTTP Strict Transport Security"`
-	CORS           []string `env:"CORS" name:"cors" default:"*" help:"CORS allowed origins"`
+	BindAddr            string   `env:"BIND_ADDR" name:"bind-addr" default:":8080" required:"" help:"ip:port pair to bind to"`
+	TrustedProxies      []string `env:"TRUSTED_PROXIES" name:"trusted-proxies" help:"CIDR ranges that we trust the X-Forwarded-For header from (addl opts: local, *, cloudflare, and/or custom header to use)"`
+	MaxConcurrent       int      `env:"MAX_CONCURRENT" name:"max-concurrent" help:"limit total max concurrent requests across all connections (0 for no limit)"`
+	MaxRequestBodyBytes int64    `env:"MAX_REQUEST_BODY_BYTES" name:"max-request-body-bytes" default:"262144" help:"maximum request body size in bytes (default 256 KiB: ~500 FQDNs at 253 chars each in a JSON bulk array is ~128 KiB; rounded up for LookupOptions overhead)"`
+	Limit               int      `env:"LIMIT" name:"limit" help:"number of requests/ip/hour" default:"2000"`
+	HSTS                bool     `env:"HSTS" name:"hsts" help:"enable HTTP Strict Transport Security"`
+	CORS                []string `env:"CORS" name:"cors" default:"*" help:"CORS allowed origins"`
 }
 
 type ConfigDB struct {

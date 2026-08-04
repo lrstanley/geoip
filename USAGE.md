@@ -5,7 +5,9 @@
 -->
 # ⚙️ CLI Usage Documentation: geoip
 
-> geoip lookup service and api
+```
+geoip lookup service and api
+```
 
 ---
 
@@ -57,14 +59,15 @@ The following flags are available globally. See command sections for additional 
 <a id="global-flags-http-server-options"></a>
 ### HTTP Server Options
 
-| Flag(s)                                                                                                                    | Env vars               | Type                     | Help                                                                                                                          |
-|----------------------------------------------------------------------------------------------------------------------------|------------------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| <a id="flag-http-bind-addr"></a>[🔗](#flag-http-bind-addr) `--http.bind-addr=":8080"`<br>**required: true**              | `HTTP_BIND_ADDR`       | **string**               | ip:port pair to bind to                                                                                                       |
-| <a id="flag-http-trusted-proxies"></a>[🔗](#flag-http-trusted-proxies) `--http.trusted-proxies=HTTP.TRUSTED-PROXIES,...` | `HTTP_TRUSTED_PROXIES` | **slice** (_\[\]string_) | CIDR ranges that we trust the X\-Forwarded\-For header from \(addl opts: local, \*, cloudflare, and/or custom header to use\) |
-| <a id="flag-http-max-concurrent"></a>[🔗](#flag-http-max-concurrent) `--http.max-concurrent=INT`                         | `HTTP_MAX_CONCURRENT`  | **int**                  | limit total max concurrent requests across all connections \(0 for no limit\)                                                 |
-| <a id="flag-http-limit"></a>[🔗](#flag-http-limit) `--http.limit=2000`                                                   | `HTTP_LIMIT`           | **int**                  | number of requests/ip/hour                                                                                                    |
-| <a id="flag-http-hsts"></a>[🔗](#flag-http-hsts) `--http.hsts`                                                           | `HTTP_HSTS`            | **bool**                 | enable HTTP Strict Transport Security                                                                                         |
-| <a id="flag-http-cors"></a>[🔗](#flag-http-cors) `--http.cors=*,...`                                                     | `HTTP_CORS`            | **slice** (_\[\]string_) | CORS allowed origins                                                                                                          |
+| Flag(s)                                                                                                                       | Env vars                      | Type                     | Help                                                                                                                                                         |
+|-------------------------------------------------------------------------------------------------------------------------------|-------------------------------|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a id="flag-http-bind-addr"></a>[🔗](#flag-http-bind-addr) `--http.bind-addr=":8080"`<br>**required: true**                 | `HTTP_BIND_ADDR`              | **string**               | ip:port pair to bind to                                                                                                                                      |
+| <a id="flag-http-trusted-proxies"></a>[🔗](#flag-http-trusted-proxies) `--http.trusted-proxies=HTTP.TRUSTED-PROXIES,...`    | `HTTP_TRUSTED_PROXIES`        | **slice** (_\[\]string_) | CIDR ranges that we trust the X\-Forwarded\-For header from \(addl opts: local, \*, cloudflare, and/or custom header to use\)                                |
+| <a id="flag-http-max-concurrent"></a>[🔗](#flag-http-max-concurrent) `--http.max-concurrent=INT`                            | `HTTP_MAX_CONCURRENT`         | **int**                  | limit total max concurrent requests across all connections \(0 for no limit\)                                                                                |
+| <a id="flag-http-max-request-body-bytes"></a>[🔗](#flag-http-max-request-body-bytes) `--http.max-request-body-bytes=262144` | `HTTP_MAX_REQUEST_BODY_BYTES` | **int64**                | maximum request body size in bytes \(default 256 KiB: ~500 FQDNs at 253 chars each in a JSON bulk array is ~128 KiB; rounded up for LookupOptions overhead\) |
+| <a id="flag-http-limit"></a>[🔗](#flag-http-limit) `--http.limit=2000`                                                      | `HTTP_LIMIT`                  | **int**                  | number of requests/ip/hour                                                                                                                                   |
+| <a id="flag-http-hsts"></a>[🔗](#flag-http-hsts) `--http.hsts`                                                              | `HTTP_HSTS`                   | **bool**                 | enable HTTP Strict Transport Security                                                                                                                        |
+| <a id="flag-http-cors"></a>[🔗](#flag-http-cors) `--http.cors=*,...`                                                        | `HTTP_CORS`                   | **slice** (_\[\]string_) | CORS allowed origins                                                                                                                                         |
 
 <a id="global-flags-db-options"></a>
 ### DB Options

@@ -27,6 +27,7 @@ func httpServer(_ context.Context, logger *slog.Logger) *http.Server {
 	cfg := chix.NewConfig().
 		SetLogger(logger).
 		SetAPIBasePath("/api").
+		SetMaxRequestBodyBytes(cli.Flags.HTTP.MaxRequestBodyBytes).
 		AddErrorResolvers(models.ErrorResolver)
 
 	r := chi.NewRouter()
