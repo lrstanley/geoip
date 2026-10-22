@@ -1,21 +1,23 @@
-# build-web image
-FROM oven/bun:1 AS build-web
-
-COPY . /build/
+FROM --platform=$BUILDPLATFORM oven/bun:1-alpine AS build-web
+# required by tree-sitter
+RUN apk add --no-cache python3 make g++
 WORKDIR /build/web
-ENV NODE_ENV=production
-RUN bun install && bun run build
+COPY ./web/bun.lock ./web/package.json /build/web/
+# see https://github.com/thedotmack/claude-mem/issues/2280
+RUN CXXFLAGS="-std=c++20" CXX_STANDARD=20 bun install --frozen-lockfile
+COPY ./internal/handlers/apihandler/openapi_v2.yaml /build/internal/handlers/apihandler/openapi_v2.yaml
+COPY ./web /build/web
+RUN bun run build
 
-# build-go image
 FROM golang:alpine AS build-go
-
-RUN apk add --no-cache make
+WORKDIR /build
+COPY go.* /build/
+RUN go mod download
 COPY . /build/
 COPY --from=build-web /build/web/dist/ /build/web/dist/
-WORKDIR /build
+RUN apk add --no-cache make
 RUN make go-build
 
-# runtime image
 FROM alpine:3.24
 RUN apk add --no-cache ca-certificates
 COPY --from=build-go /build/geoip /usr/local/bin/geoip
