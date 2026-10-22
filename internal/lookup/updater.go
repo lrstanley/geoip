@@ -123,16 +123,22 @@ func (u *Updater) updateMetadata(path string) error {
 	return nil
 }
 
-// check checks the current database status, and last modify date.
+// check checks the current database status, and last modify date. If no
+// license key is configured, updates are never requested, though metadata is
+// still loaded from any existing database.
 func (u *Updater) check() (needsUpdate bool, err error) {
+	canUpdate := u.config.LicenseKey != ""
 	curSeconds := time.Now().UnixNano() / int64(time.Second)
 	stat, err := os.Stat(u.path)
 	if err != nil {
 		if os.IsNotExist(err) {
+			if !canUpdate {
+				return false, fmt.Errorf("database file %q does not exist, and no license key was provided to download it", u.path)
+			}
 			return true, nil
 		}
 
-		return true, fmt.Errorf("unable to stat database file: %w", err)
+		return canUpdate, fmt.Errorf("unable to stat database file: %w", err)
 	}
 
 	err = u.updateMetadata(u.path)
@@ -140,7 +146,7 @@ func (u *Updater) check() (needsUpdate bool, err error) {
 		return false, fmt.Errorf("unable to update metadata: %w", err)
 	}
 
-	if curSeconds-(stat.ModTime().UnixNano()/int64(time.Second)) < 604800 {
+	if !canUpdate || curSeconds-(stat.ModTime().UnixNano()/int64(time.Second)) < 604800 {
 		return false, nil
 	}
 

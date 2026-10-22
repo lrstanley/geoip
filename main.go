@@ -43,6 +43,19 @@ func main() {
 	logger := cli.GetLogger()
 	ctx := context.Background()
 
+	if cli.Flags.DB.LicenseKey == "" {
+		for _, path := range []string{cli.Flags.DB.GeoIPPath, cli.Flags.DB.ASNPath} {
+			if _, err := os.Stat(path); err != nil {
+				logger.ErrorContext(
+					ctx, "no license key provided, and database is not available",
+					"path", path,
+					"error", err,
+				)
+				os.Exit(1)
+			}
+		}
+	}
+
 	resolver := dns.NewResolver(ctx, cli.Flags.DNS)
 	lookupSvc = lookup.NewService(ctx, logger, cli.Flags.DB, resolver)
 

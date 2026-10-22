@@ -29,7 +29,7 @@ type ConfigDB struct {
 	ASNPath string `env:"ASN_PATH" name:"asn-path" help:"path to read/store ASN Maxmind DB" default:"asn.db"`
 	ASNURL  string `env:"ASN_UPDATE_URL" name:"asn-update-url" help:"ASN database file download location (must be gzipped)" default:"https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=%s&suffix=tar.gz"`
 
-	LicenseKey      string        `env:"LICENSE_KEY" name:"license-key" help:"maxmind license key (must register for a maxmind account)" required:""`
+	LicenseKey      string        `env:"LICENSE_KEY" name:"license-key" help:"maxmind license key (must register for a maxmind account), if unset, databases are not downloaded/updated and must be provided at the configured paths"`
 	UpdateInterval  time.Duration `env:"UPDATE_INTERVAL" name:"update-interval" help:"interval of time between database update checks" default:"12h"`
 	CacheSize       int           `env:"CACHE_SIZE" name:"size" help:"total number of lookups to keep in ARC cache (50% most recent, 50% most requested)" default:"1000"`
 	CacheExpire     time.Duration `env:"CACHE_EXPIRE" name:"expire" help:"expiration time of cache" default:"1h"`
