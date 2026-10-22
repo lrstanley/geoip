@@ -35,3 +35,6 @@ jobs:
     needs: [go-test, go-lint, node-lint, node-test]
     uses: lrstanley/.github/.github/workflows/docker-release.yml@master
     secrets: inherit
+    with:
+      platforms: "linux/amd64,linux/arm64"
+      timeout: 40
