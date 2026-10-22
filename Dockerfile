@@ -16,7 +16,7 @@ WORKDIR /build
 RUN make go-build
 
 # runtime image
-FROM alpine:3.23
+FROM alpine:3.24
 RUN apk add --no-cache ca-certificates
 COPY --from=build-go /build/geoip /usr/local/bin/geoip
 
