@@ -115,10 +115,10 @@ geoip --http.bind-addr "localhost:8080" --http.limit 15000 --dns.resolver 8.8.8.
 <!-- do not edit anything in this "template" block, its auto-generated -->
 ## :raising_hand_man: Support & Assistance
 
-* :heart: Please review the [Code of Conduct](.github/CODE_OF_CONDUCT.md) for
+* :heart: Please review the [Code of Conduct](https://github.com/lrstanley/geoip?tab=coc-ov-file) for
      guidelines on ensuring everyone has the best experience interacting with
      the community.
-* :raising_hand_man: Take a look at the [support](.github/SUPPORT.md) document on
+* :raising_hand_man: Take a look at the [support](https://github.com/lrstanley/.github/blob/HEAD/.github/SUPPORT.md) document on
      guidelines for tips on how to ask the right questions.
 * :lady_beetle: For all features/bugs/issues/questions/etc, [head over here](https://github.com/lrstanley/geoip/issues/new/choose).
 <!-- template:end:support -->
@@ -127,10 +127,10 @@ geoip --http.bind-addr "localhost:8080" --http.limit 15000 --dns.resolver 8.8.8.
 <!-- do not edit anything in this "template" block, its auto-generated -->
 ## :handshake: Contributing
 
-* :heart: Please review the [Code of Conduct](.github/CODE_OF_CONDUCT.md) for guidelines
+* :heart: Please review the [Code of Conduct](https://github.com/lrstanley/geoip?tab=coc-ov-file) for guidelines
      on ensuring everyone has the best experience interacting with the
     community.
-* :clipboard: Please review the [contributing](.github/CONTRIBUTING.md) doc for submitting
+* :clipboard: Please review the [contributing](https://github.com/lrstanley/geoip?tab=contributing-ov-file) doc for submitting
      issues/a guide on submitting pull requests and helping out.
 * :old_key: For anything security related, please review this repositories [security policy](https://github.com/lrstanley/geoip/security/policy).
 <!-- template:end:contributing -->
