@@ -12,6 +12,8 @@ const THEME = {
   primary: "#10B981",
 };
 
+const FONT = "Consolas, monaco, monospace";
+
 export const Route = createFileRoute("/lookup/docs")({
   component: DocsPage,
 });
@@ -24,7 +26,7 @@ function DocsPage() {
   }, []);
 
   const doc = useMemo(() => {
-    const props: Record<string, string> = {
+    const props: Record<string, unknown> = {
       "render-style": "focused",
       "spec-url": "/api/v2/openapi.yaml",
       "show-header": "false",
@@ -36,18 +38,23 @@ function DocsPage() {
       "allow-spec-url-load": "false",
       "allow-spec-file-load": "false",
       "allow-spec-file-download": "false",
-      "allow-api-list-style-selection": "false",
-      "load-fonts": "false",
-      "regular-font": "Consolas, monaco, monospace",
-      "mono-font": "Consolas, monaco, monospace",
-      "font-size": "large",
+      "color-scheme": "dark",
+      scale: "lg",
       "server-url": `${origin}/api/v2`,
       "default-api-server": `${origin}/api/v2`,
-      "nav-bg-color": THEME.navBg,
-      "nav-hover-bg-color": THEME.navHover,
-      "bg-color": THEME.bg,
-      "text-color": THEME.text,
       "primary-color": THEME.primary,
+      // RapiDoc v10+ themes through CSS custom properties on the host element,
+      // rather than individual color/font attributes.
+      style: {
+        "--font-sans": FONT,
+        "--font-mono": FONT,
+        "--background": THEME.bg,
+        "--foreground": THEME.text,
+        "--sidebar": THEME.navBg,
+        "--sidebar-accent": THEME.navHover,
+        // Don't clip the slotted navigation, which is taller than a plain logo.
+        "--sidebar-logo-max-height": "none",
+      },
       className: "h-full w-full min-h-0 flex-1",
     };
     return createElement(
