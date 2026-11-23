@@ -10,6 +10,10 @@ jobs:
     secrets: inherit
     with:
       scan: false
+      # Railway runs :latest; redeploy it whenever a release pushes that tag.
+      railway-project: geoip
+      railway-services: geoip
+      railway-tag: latest
   go-release:
     uses: lrstanley/.github/.github/workflows/lang-go-release.yml@master
     secrets: inherit
